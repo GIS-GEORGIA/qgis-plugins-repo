@@ -6,7 +6,7 @@
     <description><![CDATA[Loads OpenStreetMap and sets CRS]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
     <author>Giorgi Kapanadze</author>
-    <download_url>https://github.com/GIS-GEORGIA/qgis-plugins-repo/blob/main/Basemap%20Loader.zip</download_url>
+    <download_url>https://raw.githubusercontent.com/GIS-GEORGIA/qgis-plugins-repo/main/Basemap%20Loader.zip</download_url>
   </plugin>
   <plugin>
     <name>save_attributes</name>
@@ -14,6 +14,6 @@
     <description><![CDATA[save attributes]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
     <author>Giorgi Kapanadze</author>
-    <download_url>https://github.com/GIS-GEORGIA/qgis-plugins-repo/blob/main/save_attributes.zip</download_url>
+    <download_url>https://raw.githubusercontent.com/GIS-GEORGIA/qgis-plugins-repo/main/save_attributes.zip</download_url>
   </plugin>
 </plugins>
