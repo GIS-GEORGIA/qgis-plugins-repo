@@ -5,15 +5,15 @@
     <version>1.0</version>
     <description><![CDATA[Loads OpenStreetMap and sets CRS]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
-    <author>Your Name</author>
-    <download_url>https://yourusername.github.io/qgis-plugins-repo/BasemapLoader.zip</download_url>
+    <author>Giorgi Kapanadze</author>
+    <download_url>https://github.com/GIS-GEORGIA/qgis-plugins-repo/blob/main/Basemap%20Loader.zip</download_url>
   </plugin>
   <plugin>
-    <name>ZoomToLayer</name>
+    <name>save_attributes</name>
     <version>1.0</version>
-    <description><![CDATA[Zooms to the bottom layer in the map]]></description>
+    <description><![CDATA[save attributes]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
-    <author>Your Name</author>
-    <download_url>https://yourusername.github.io/qgis-plugins-repo/ZoomToLayer.zip</download_url>
+    <author>Giorgi Kapanadze</author>
+    <download_url>https://github.com/GIS-GEORGIA/qgis-plugins-repo/blob/main/save_attributes.zip</download_url>
   </plugin>
 </plugins>
