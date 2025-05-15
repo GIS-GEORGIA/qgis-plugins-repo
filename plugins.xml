@@ -7,7 +7,7 @@
     <qgis_minimum_version>3.10</qgis_minimum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>BasemapLoader.zip</file_name>
-    <download_url>https://gis-georgia.github.io/qgis-plugins-repo/plugins/BasemapLoader.zip</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip</download_url>
     <author_name>Giorgi Kapanadze</author_name>
     <email>your.email@example.com</email>
   </pyqgis_plugin>
@@ -18,7 +18,7 @@
     <qgis_minimum_version>3.10</qgis_minimum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>save_attributes.zip</file_name>
-    <download_url>https://gis-georgia.github.io/qgis-plugins-repo/plugins/save_attributes.zip</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip</download_url>
     <author_name>Giorgi Kapanadze</author_name>
     <email>your.email@example.com</email>
   </pyqgis_plugin>
