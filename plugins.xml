@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+  <plugin>
+    <name>BasemapLoader</name>
+    <version>1.0</version>
+    <description><![CDATA[Loads OpenStreetMap and sets CRS]]></description>
+    <qgis_minimum_version>3.10</qgis_minimum_version>
+    <author>Your Name</author>
+    <download_url>https://yourusername.github.io/qgis-plugins-repo/BasemapLoader.zip</download_url>
+  </plugin>
+  <plugin>
+    <name>ZoomToLayer</name>
+    <version>1.0</version>
+    <description><![CDATA[Zooms to the bottom layer in the map]]></description>
+    <qgis_minimum_version>3.10</qgis_minimum_version>
+    <author>Your Name</author>
+    <download_url>https://yourusername.github.io/qgis-plugins-repo/ZoomToLayer.zip</download_url>
+  </plugin>
+</plugins>
