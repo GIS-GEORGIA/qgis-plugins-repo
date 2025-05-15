@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <plugin>
-    <name>BasemapLoader</name>
+  <pyqgis_plugin name="BasemapLoader" version="1.0">
+    <description>Loads OpenStreetMap and sets CRS</description>
+    <about>Plugin to load OpenStreetMap basemaps and configure coordinate reference systems.</about>
     <version>1.0</version>
-    <description><![CDATA[Loads OpenStreetMap and sets CRS]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
-    <author>Giorgi Kapanadze</author>
-    <download_url>https://raw.githubusercontent.com/GIS-GEORGIA/qgis-plugins-repo/main/Basemap%20Loader.zip</download_url>
-  </plugin>
-  <plugin>
-    <name>save_attributes</name>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>BasemapLoader.zip</file_name>
+    <download_url>https://gis-georgia.github.io/qgis-plugins-repo/plugins/BasemapLoader.zip</download_url>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>your.email@example.com</email>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="save_attributes" version="1.0">
+    <description>Saves attributes</description>
+    <about>Plugin to save attributes from QGIS layers.</about>
     <version>1.0</version>
-    <description><![CDATA[save attributes]]></description>
     <qgis_minimum_version>3.10</qgis_minimum_version>
-    <author>Giorgi Kapanadze</author>
-    <download_url>https://raw.githubusercontent.com/GIS-GEORGIA/qgis-plugins-repo/main/save_attributes.zip</download_url>
-  </plugin>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>save_attributes.zip</file_name>
+    <download_url>https://gis-georgia.github.io/qgis-plugins-repo/plugins/save_attributes.zip</download_url>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>your.email@example.com</email>
+  </pyqgis_plugin>
 </plugins>
