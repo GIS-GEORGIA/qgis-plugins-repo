@@ -1,3 +1,9 @@
 QGIS Official Plugin Repository
 
 https://plugins.qgis.org/plugins/plugins.xml
+
+
+https://plugins.qgis.ge/plugins.xml
+
+
+https://gis-georgia.github.io/qgis-plugins-repo/plugins.xml

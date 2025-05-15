@@ -9,7 +9,7 @@
     <file_name>BasemapLoader.zip</file_name>
     <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip</download_url>
     <author_name>Giorgi Kapanadze</author_name>
-    <email>your.email@example.com</email>
+    <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
   <pyqgis_plugin name="save_attributes" version="1.0">
     <description>Saves attributes</description>
@@ -20,6 +20,6 @@
     <file_name>save_attributes.zip</file_name>
     <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip</download_url>
     <author_name>Giorgi Kapanadze</author_name>
-    <email>your.email@example.com</email>
+    <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
 </plugins>
