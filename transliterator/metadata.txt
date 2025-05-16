@@ -1,0 +1,14 @@
+[general]
+name=Transliterator
+qgisMinimumVersion=3.10
+description=A plugin to transliterate Georgian script to Latin.
+about=Script recognizes Georgian alphabet and transliterates it to latin in new field, the given field is ready for Georgian fonts. 
+category=Vector
+version=1.0
+author=Giorgi Kapanadze
+email=g.kapanadze1908@gmail.com
+homepage= https://ezdanapak.github.io/transliterator/
+tracker = https://github.com/ezdanapak/transliterator/issues
+repository=https://github.com/ezdanapak/transliterator
+experimental=True
+deprecated=False
