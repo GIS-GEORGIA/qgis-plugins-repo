@@ -12,7 +12,7 @@
     <tags>basemap, osm, crs</tags>
     <experimental>False</experimental>
     <deprecated>False</deprecated>
-    <icon>https://plugins.qgis.ge/icons/BasemapLoader.png</icon>
+    <!--<icon>https://plugins.qgis.ge/icons/BasemapLoader.png</icon>-->
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
@@ -28,7 +28,7 @@
     <tags>attributes, save, layers</tags>
     <experimental>False</experimental>
     <deprecated>False</deprecated>
-    <icon>https://plugins.qgis.ge/icons/SaveAttributes.png</icon>
+    <!--<icon>https://plugins.qgis.ge/icons/SaveAttributes.png</icon>-->
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
@@ -44,7 +44,7 @@
     <tags>transliteration, georgian, latin</tags>
     <experimental>False</experimental>
     <deprecated>False</deprecated>
-    <icon>https://plugins.qgis.ge/icons/Transliterator.png</icon>
+    <!--<icon>https://plugins.qgis.ge/icons/Transliterator.png</icon>-->
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
