@@ -1,33 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="BasemapLoader" version="1.0">
-    <description>Loads OpenStreetMap and sets CRS</description>
-    <about>Plugin to load OpenStreetMap basemaps and configure coordinate reference systems.</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.34</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>BasemapLoader.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="save_attributes" version="1.0">
-    <description>Saves attributes</description>
-    <about>Plugin to save attributes from QGIS layers.</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.34</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>save_attributes.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
   <plugin>
-  <name>transliterator</name>
-  <version>1.0</version>
-  <description><![CDATA[A plugin to transliterate Georgian script to Latin.]]></description>
-  <qgis_minimum_version>3.34</qgis_minimum_version>
-  <author>Giorgi Kapanadze</author>
-  <download_url>https://plugins.qgis.ge/plugins/transliterator.zip</download_url>
-</plugin>
+    <name>BasemapLoader</name>
+    <version>1.0</version>
+    <description><![CDATA[Loads OpenStreetMap and sets CRS]]></description>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <author>Giorgi Kapanadze</author>
+    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip</download_url>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+  </plugin>
+  <plugin>
+    <name>save_attributes</name>
+    <version>1.0</version>
+    <description><![CDATA[Saves attributes from QGIS layers]]></description>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <author>Giorgi Kapanadze</author>
+    <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip</download_url>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+  </plugin>
+  <plugin>
+    <name>transliterator</name>
+    <version>1.0</version>
+    <description><![CDATA[A plugin to transliterate Georgian script to Latin]]></description>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <author>Giorgi Kapanadze</author>
+    <download_url>https://plugins.qgis.ge/plugins/transliterator.zip</download_url>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+  </plugin>
 </plugins>
