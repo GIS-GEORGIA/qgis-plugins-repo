@@ -22,4 +22,15 @@
     <author_name>Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
+  <pyqgis_plugin name="transliterator" version="1.0">
+    <description>Saves attributes</description>
+    <about>Plugin to transliterate from georgian to latin</about>
+    <version>1.0</version>
+    <qgis_minimum_version>3.10</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>transliterator.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/transliterator.zip</download_url>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+  </pyqgis_plugin>
 </plugins>
