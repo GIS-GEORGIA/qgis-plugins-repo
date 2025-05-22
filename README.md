@@ -7,8 +7,8 @@
 
 ---
 
-## 🔗 Plugins Overview
-## 🔗 პლაგინების მიმოხილვა
+## 🔗 პლაგინების მიმოხილვა - Plugins Overview
+
 
 | Plugin Name          | Description (Eng) | აღწერა (ქარ)               | Status     |
 |----------------------|--------------------|---------------------------|------------|
@@ -20,7 +20,7 @@
 
 ---
 
-> ❗ **Note**: Each plugin has its own folder and `metadata.txt` according to [QGIS Plugin Repository standards](https://plugins.qgis.org/).
+> ❗ **Note**: Each plugin has its own folder and `metadata.txt` according to [QGIS Plugin Repository standards](https://plugins.qgis.org/). <br>
 > ❗ **შენიშვნა**: თითოეულ პლაგინს აქვს საკუთარი საქაღალდე და `metadata.txt` ფაილი, რაც შეესაბამება [QGIS პლაგინების სტანდარტებს](https://plugins.qgis.org/).
 
 
