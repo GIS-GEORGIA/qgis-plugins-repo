@@ -1,0 +1,27 @@
+[general]
+name=მფლობელების ანალიზატორი
+qgisMinimumVersion=3.0
+description=შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია
+version=1.0
+author=Kapo
+email=your.email@example.com
+
+about=QGIS პლაგინი რომელიც საშუალებას გაძლევთ:
+    - ამოიღოთ უნიკალური მფლობელები შრიდან
+    - დათვალოთ თითოეული მფლობელის გამეორების რაოდენობა
+    - მოძებნოთ და მონიშნოთ ობიექტები საკვანძო სიტყვებით
+    - შედეგები ექსპორტირდება TXT ფაილში ქართული ანბანით დალაგებული
+
+tracker=https://github.com/yourusername/owners_analyzer/issues
+repository=https://github.com/yourusername/owners_analyzer
+
+changelog=
+    1.0 - პირველი ვერსია
+
+tags=analysis,owners,statistics,georgia,filter
+
+homepage=https://github.com/yourusername/owners_analyzer
+category=Analysis
+icon=icon.png
+experimental=False
+deprecated=False

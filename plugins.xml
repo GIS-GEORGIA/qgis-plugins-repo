@@ -34,3 +34,16 @@
     <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
 </plugins>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="owners_analyzer" version="1.0">
+    <description>Saves attributes</description>
+    <about>Plugin to analyze attribute table</about>
+    <version>1.0</version>
+    <qgis_minimum_version>3.10</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>owners_analyzer.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip</download_url>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+  </pyqgis_plugin>
+</plugins>
