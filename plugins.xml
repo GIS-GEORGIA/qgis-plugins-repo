@@ -44,4 +44,15 @@
     <author_name>Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
+  <pyqgis_plugin name="layer_cleaner" version="1.0">
+    <description>Clean layers and add base layers</description>
+    <about>Remove all layers except base layers and add Google Satellite Hybrid and OpenStreetMap</about>
+    <version>1.0</version>
+    <qgis_minimum_version>3.10</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>layer_cleaner.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/layer_cleaner.zip</download_url>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+  </pyqgis_plugin>
 </plugins>

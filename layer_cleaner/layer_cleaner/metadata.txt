@@ -1,0 +1,26 @@
+[general]
+name=Layer Cleaner
+qgisMinimumVersion=3.10
+description=Clean layers and add base layers (Google Satellite, OpenStreetMap)
+version=1.0
+author=Giorgi Kapanadze
+email=aigroegsig@gmail.com
+
+about=QGIS plugin that allows you to:
+    - Remove all layers except base layers
+    - Add Google Satellite Hybrid and OpenStreetMap base layers
+    - Quick cleanup for new projects
+
+tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
+repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
+
+changelog=
+    1.0 - Initial release
+
+tags=layers,cleanup,basemap,google,osm,satellite
+
+homepage=https://github.com/GIS-GEORGIA/qgis-plugins-repo
+category=Raster
+icon=icons/icon.png
+experimental=False
+deprecated=False
