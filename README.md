@@ -12,6 +12,7 @@
 
 | Plugin Name | Description (Eng) | აღწერა (ქარ) | Status |
 |-------------|-------------------|--------------|--------|
+| `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
 | `Basemap Loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
 | `save_attributes` | Saves vector layer attributes as CSV file | ვექტორული ფენის ატრიბუტების CSV-ში შენახვა | 🧪 ბეტა |
 | `transliterator` | Transliterates Georgian script to Latin | ქართული ანბანის ლათინურად ტრანსლიტერაცია | 🧪 ბეტა |
@@ -77,6 +78,16 @@ You can install these plugins in two ways:
 ---
 
 ## 🆕 ახალი პლაგინები / New Plugins
+
+### `PostGIS Manager` — PostGIS მენეჯერი
+სივრცული მონაცემთა ბაზის GIS ხელსაწყოები, რომლებიც QGIS-საც და pgAdmin-საც აკლია:
+- რუკის ხედი + გეომეტრიის რედაქტორი (გეომეტრიის პირდაპირ ცხრილში ჩაწერა)
+- CRS ბრაუზერი და აუდიტი (SRID შეუსაბამობის დეტექცია)
+- სივრცული შეერთების GUI (7 predicate + KNN), SQL-ის გარეშე
+- სივრცული მონაცემთა ხარისხის dashboard (0–100 ქულა, ავტო-გასწორება)
+- pgRouting ქსელის ოსტატი (ტოპოლოგია + isochrone)
+- WFS კონექტორი, GPX/KML იმპორტი, თემატური სტილის გენერატორი, სნეპშოტ diff
+- სრული SQL/იმპორტ/ექსპორტ/backup ხელსაწყოები · ორენოვანი (EN/KA) · pg.qgis.ge
 
 ### `owners_analyzer` — მფლობელების ანალიზატორი
 - უნიკალური მნიშვნელობების ამოღება და დათვლა

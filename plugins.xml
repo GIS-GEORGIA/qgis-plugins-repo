@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
+  <pyqgis_plugin name="PostGIS Manager" version="1.1.0">
+    <description>Unique spatial-database GIS toolkit for PostGIS — geometry editor, CRS audit, spatial join GUI, data-quality scoring, pgRouting network wizard, WFS, GPX import.</description>
+    <about>Hybrid QGIS 4 plugin and standalone app filling the gap QGIS leaves in spatial database management. Map viewer with geometry editor, CRS browser/audit, spatial join GUI, data-quality dashboard, pgRouting network wizard, WFS connector, GPX import, thematic classification and snapshot diff — plus full SQL/import/export/backup tooling. Bilingual EN/KA, light/dark themes.</about>
+    <version>1.1.0</version>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <homepage>https://pg.qgis.ge</homepage>
+    <file_name>PostGISManager.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/PostGISManager.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/postgis-manager/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/postgis-manager</repository>
+    <tags>postgis,postgresql,database,spatial,geometry,crs,spatial join,data quality,pgrouting,wfs,gpx,raster,georgian</tags>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
   <pyqgis_plugin name="BasemapLoader" version="1.0">
     <description>Loads OpenStreetMap and sets CRS</description>
     <about>Plugin to load OpenStreetMap basemaps and configure coordinate reference systems.</about>
