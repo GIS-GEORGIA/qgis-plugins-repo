@@ -5,6 +5,7 @@
     <about>Hybrid QGIS 4 plugin and standalone app filling the gap QGIS leaves in spatial database management. Map viewer with geometry editor, CRS browser/audit, spatial join GUI, data-quality dashboard, pgRouting network wizard, WFS connector, GPX import, thematic classification and snapshot diff — plus full SQL/import/export/backup tooling. Bilingual EN/KA, light/dark themes.</about>
     <version>1.1.0</version>
     <qgis_minimum_version>3.34</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://pg.qgis.ge</homepage>
     <file_name>PostGISManager.zip</file_name>
     <download_url>https://plugins.qgis.ge/plugins/PostGISManager.zip</download_url>
