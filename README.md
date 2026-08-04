@@ -18,6 +18,7 @@
 | `transliterator` | Transliterates Georgian script to Latin | ქართული ანბანის ლათინურად ტრანსლიტერაცია | 🧪 ბეტა |
 | `owners_analyzer` | Analyzes attributes, counts unique values, filters by keywords | ატრიბუტების ანალიზი, უნიკალური მნიშვნელობების დათვლა, ფილტრაცია | 🆕 ახალი |
 | `layer_cleaner` | Cleans layers and adds base layers (Google Satellite, OSM) | შრეების გასუფთავება და საბაზო ფენების დამატება | 🆕 ახალი |
+| `Calculate Geometry` | Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions | გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე | 🧪 ექსპერიმენტული |
 
 ---
 
@@ -99,6 +100,13 @@ You can install these plugins in two ways:
 - ყველა შრის წაშლა საბაზო ფენების გარდა
 - Google Satellite Hybrid დამატება
 - OpenStreetMap დამატება
+
+### `Calculate Geometry` — გეომეტრიის კალკულატორი 🧪
+- ერთ ან რამდენიმე ველში გეომეტრიის თვისებების ჩაწერა (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები)
+- ველების checkbox-ით არჩევა, ძებნა და სორტირება; property თითო ველზე; unit-ის არჩევა
+- საკოორდინატო სისტემის არჩევა (project/layer/recent + გლობუსი + EPSG კოდის ჩაწერა)
+- expression-ის ცოდნა საჭირო არ არის · ⚠️ ექსპერიმენტული, ჯერ სრულად არ არის დატესტილი
+- QGIS core-ში ჩაშენების წინადადება: [qgis/QGIS#66902](https://github.com/qgis/QGIS/issues/66902)
 
 ---
 

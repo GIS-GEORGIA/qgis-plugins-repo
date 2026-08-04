@@ -72,4 +72,20 @@
     <author_name>Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
   </pyqgis_plugin>
+  <pyqgis_plugin name="Calculate Geometry" version="0.1.0">
+    <description>Guided dialog to populate fields with geometry properties (coordinates, area, perimeter, length) — no expressions required.</description>
+    <about>Pick target field(s), a geometry property per field, a unit, and a CRS, then write the values in place. Built on existing QGIS core classes. Early experimental release — not yet extensively tested. Upstream QGIS feature request: https://github.com/qgis/QGIS/issues/66902</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>calculate_geometry.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/calculate_geometry.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>geometry,field,attribute,area,perimeter,length,coordinates,calculate,measurement,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
 </plugins>
