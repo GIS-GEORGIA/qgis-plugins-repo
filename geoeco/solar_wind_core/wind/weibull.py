@@ -92,3 +92,16 @@ def power_density(p: WeibullParams, air_density: float = AIR_DENSITY) -> float:
     ესაა რესურსის მთავარი მაჩვენებელი (ტურბინისგან დამოუკიდებელი).
     """
     return 0.5 * air_density * p.c ** 3 * math.gamma(1 + 3 / p.k)
+
+
+def power_density_from_mean(mean_speed, k: float = 2.0,
+                            air_density: float = AIR_DENSITY):
+    """
+    Power density [W/m²] პირდაპირ საშ. სიჩქარიდან, ფიქს. k-ით.
+    ვექტორიზებულია — მუშაობს scalar-ზეც და numpy მასივზეც (რასტrი).
+    c = μ/Γ(1+1/k) → ½·ρ·c³·Γ(1+3/k).
+    """
+    g1 = math.gamma(1 + 1 / k)
+    g3 = math.gamma(1 + 3 / k)
+    c = mean_speed / g1
+    return 0.5 * air_density * c ** 3 * g3

@@ -41,6 +41,27 @@ def idw(x: float, y: float, stations, power: float = 2.0):
     return num / den if den else float("nan")
 
 
+def idw_numpy(xs, ys, values, XX, YY, power: float = 2.0, eps: float = 1e-12):
+    """
+    ვექტორიზებული IDW numpy-ით — სწრაფი, რასტrული Processing-ისთვის.
+
+    xs, ys, values : 1D array-ები (სადგურები, უკვე hub-height-კორექტ. სიჩქარეები)
+    XX, YY         : 2D მასივები (გამომავალი ბადის კოორდინატები, meshgrid)
+    returns        : 2D მასივი (ინტერპოლირებული მნიშვნელობა თითო უჯრედზე)
+
+    ერთ სადგურთან ზუსტ დამთხვევაზე eps იცავს ნულზე გაყოფისგან.
+    """
+    import numpy as np
+    num = np.zeros_like(XX, dtype="float64")
+    den = np.zeros_like(XX, dtype="float64")
+    for sx, sy, val in zip(xs, ys, values):
+        d2 = (XX - sx) ** 2 + (YY - sy) ** 2
+        w = 1.0 / (d2 ** (power / 2.0) + eps)
+        num += w * val
+        den += w
+    return num / den
+
+
 def idw_grid(stations, bounds, nx: int, ny: int, power: float = 2.0):
     """
     IDW რასტრზე. bounds=(xmin,ymin,xmax,ymax). აბრუნებს 2D სიას (ny×nx).

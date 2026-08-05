@@ -88,10 +88,10 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="GeoEco" version="0.2.0">
-    <description>Renewable-energy "last mile" on top of SAGA/GRASS. Solar: radiation raster → PV energy (kWh), revenue (GEL), payback &amp; optimal tilt. Wind: point sites → Weibull, annual energy (AEP), capacity factor &amp; revenue. Bilingual ka/en.</description>
-    <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the layer they lack: energy (kWh), money (GEL), LCOE/NPV/payback, optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) output. Processing tools: "Solar: energy &amp; revenue" and "Wind: resource &amp; yield". First module: Energy (solar + wind). Core logic is QGIS-independent and unit-tested (21 tests). GPLv3.</about>
-    <version>0.2.0</version>
+  <pyqgis_plugin name="GeoEco" version="0.3.0">
+    <description>Renewable-energy "last mile" on top of SAGA/GRASS. Solar: radiation raster → PV energy (kWh), revenue (GEL), payback &amp; optimal tilt. Wind: point sites → Weibull, AEP, capacity factor &amp; revenue, plus IDW resource-map rasters (speed / power density / AEP). Bilingual ka/en.</description>
+    <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the layer they lack: energy (kWh), money (GEL), LCOE/NPV/payback, optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) output. Processing tools: "Solar: energy &amp; revenue", "Wind: resource &amp; yield" (points), and "Wind: resource map (IDW)" (rasters). Core logic is QGIS-independent and unit-tested (25 tests). GPLv3.</about>
+    <version>0.3.0</version>
     <qgis_minimum_version>3.22</qgis_minimum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>geoeco.zip</file_name>

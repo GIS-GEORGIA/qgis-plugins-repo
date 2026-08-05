@@ -81,6 +81,24 @@ def aep_kwh(weibull_params, curve, v_max: float = 30.0, step: float = 0.25) -> f
     return total * HOURS_PER_YEAR
 
 
+def aep_lookup(curve, k: float = 2.0, v_mean_max: float = 25.0, step: float = 0.25):
+    """
+    AEP lookup ცხრილი: საშ.სიჩქარე → AEP [kWh], ფიქს. k-ით.
+
+    რასტrზე თითო უჯრედის ინტეგრება ნელია — ამის ნაცვლად ერთხელ ვაშენებთ
+    მონოტონურ lookup-ს და np.interp-ით ვიღებთ თითო უჯრედის AEP-ს.
+    აბრუნებს (means, aeps) ორ სიას.
+    """
+    from . import weibull as wb
+    means, aeps = [], []
+    n = int(v_mean_max / step)
+    for i in range(n + 1):
+        m = i * step
+        aeps.append(aep_kwh(wb.from_mean_k(m, k), curve) if m > 0 else 0.0)
+        means.append(m)
+    return means, aeps
+
+
 def capacity_factor(aep_kwh_value: float, rated_power_kw: float) -> float:
     """დატვირთვის კოეფიციენტი = AEP / (Prated · 8760). ტიპური onshore ~0.25-0.45."""
     denom = rated_power_kw * HOURS_PER_YEAR
