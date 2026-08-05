@@ -20,6 +20,7 @@
 | `layer_cleaner` | Cleans layers and adds base layers (Google Satellite, OSM) | შრეების გასუფთავება და საბაზო ფენების დამატება | 🆕 ახალი |
 | `Calculate Geometry` | Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions | გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე | 🧪 ექსპერიმენტული |
 | `GeoEco` | Renewable-energy "last mile" on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback & optimal tilt; wind resource, Weibull & annual energy (AEP) | განახლებადი ენერგიის "ბოლო მილი" SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია | 🧪 ექსპერიმენტული |
+| `Georgian Cadastre` | Fetch cadastral parcels by code from maps.gov.ge (NAPR): batch & map-click reverse lookup, attributes, export SHP/DXF/CSV in UTM 37N/38N | საკადასტრო კოდით ნაკვეთის ჩამოტვირთვა maps.gov.ge-დან: batch და რუკიდან უკუძებნა, ატრიბუტები, ექსპორტი SHP/DXF/CSV-ში UTM 37N/38N-ში | 🧪 ექსპერიმენტული |
 
 ---
 
@@ -108,6 +109,13 @@ You can install these plugins in two ways:
 - საკოორდინატო სისტემის არჩევა (project/layer/recent + გლობუსი + EPSG კოდის ჩაწერა)
 - expression-ის ცოდნა საჭირო არ არის · ⚠️ ექსპერიმენტული, ჯერ სრულად არ არის დატესტილი
 - QGIS core-ში ჩაშენების წინადადება: [qgis/QGIS#66902](https://github.com/qgis/QGIS/issues/66902)
+
+### `Georgian Cadastre` — ქართული კადასტრი 🧪
+- საკადასტრო კოდით (მაგ. `38.10.42.107`) ნაკვეთის ჩამოტვირთვა პირდაპირ `maps.gov.ge`-დან (NAPR) — login-ისა და ქულების გარეშე
+- სია (batch): ბევრი კოდი ან CSV → ერთ ფენად; უკუძებნა: რუკაზე დაკლიკებით კოდი + გეომეტრია
+- ავტომატური UTM ზონა 37N/38N + WGS84 / Web Mercator; ექსპორტი SHP / DXF / CSV
+- ატრიბუტები: ფართობი (QGIS-ით გამოთვლილი + ოფიციალური), ტიპი, სტატუსი — **პერსონალური მონაცემების გარეშე**
+- ორენოვანი (ka/en) · ფონური QgsTask (UI არ იყინება) · QGIS proxy-ს იცავს
 
 ---
 

@@ -104,4 +104,20 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
+  <pyqgis_plugin name="Georgian Cadastre" version="0.2.0">
+    <description>Fetch Georgian cadastral parcels by cadastral code straight from maps.gov.ge (NAPR) into QGIS — batch &amp; map-click reverse lookup, attributes, and SHP/DXF/CSV export. No login or credits.</description>
+    <about>Enter a cadastral code (e.g. 38.10.42.107), search the public maps.gov.ge / NAPR service, and load the parcel polygon into QGIS. Bilingual ka/en UI; single and batch (many codes) lookup; reverse lookup by clicking the map; auto-detected UTM zone 37N/38N plus WGS84 and Web Mercator; non-personal attributes (official + QGIS-computed area, parcel type, status). Network runs on background tasks and honours QGIS proxy settings. Personal data (owner name, documents) is deliberately excluded.</about>
+    <version>0.2.0</version>
+    <qgis_minimum_version>3.34</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>georgian_cadastre.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/georgian_cadastre.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>cadastre,georgia,napr,maps.gov.ge,parcel,land,utm,shapefile,dxf,batch,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
 </plugins>
