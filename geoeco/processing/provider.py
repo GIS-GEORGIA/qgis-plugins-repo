@@ -4,12 +4,14 @@ from __future__ import annotations
 from qgis.core import QgsProcessingProvider
 
 from .alg_solar_economics import SolarEconomicsAlgorithm
+from .alg_wind_resource import WindResourceAlgorithm
 
 
 class GeoEcoProvider(QgsProcessingProvider):
     def loadAlgorithms(self):
         self.addAlgorithm(SolarEconomicsAlgorithm())
-        # v0.4+: WindResourceAlgorithm, TiltOptimizerAlgorithm, ...
+        self.addAlgorithm(WindResourceAlgorithm())
+        # v0.5+: TiltOptimizerAlgorithm, WindNinja field, IDW raster, ...
 
     def id(self):
         return "geoeco"

@@ -40,6 +40,18 @@ def fit_moments(mean_speed: float, std_speed: float) -> WeibullParams:
     return WeibullParams(k=k, c=c)
 
 
+def from_mean_k(mean_speed: float, k: float = 2.0) -> WeibullParams:
+    """
+    Weibull პარამეტrები საშ. სიჩქარისა და ფიქსირებული k-დან.
+    გამოსადეგი, როცა std არ გვაქვს (მხოლოდ საშ. სიჩქარეა ცნობილი).
+    c = μ / Γ(1 + 1/k). k=2 (Rayleigh) ტიპური ვარაუდია.
+    """
+    if mean_speed <= 0:
+        raise ValueError("mean_speed > 0 უნდა იყოს")
+    c = mean_speed / math.gamma(1 + 1 / k)
+    return WeibullParams(k=k, c=c)
+
+
 def fit_mle(speeds, iters: int = 100, tol: float = 1e-6) -> WeibullParams:
     """
     Maximum Likelihood fit დროითი სერიიდან (ნედლი გაზომვები).
