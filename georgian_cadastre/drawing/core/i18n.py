@@ -39,8 +39,13 @@ STRINGS = {
     "repo_templates_hint": {
         "ka": "ნამდვილი nakveTi / topo_* / lease / unit შრეები GitHub რეპოდან, დაემატება რუკაზე.",
         "en": "Real nakveTi / topo_* / lease / unit layers from the GitHub repo, added to the map."},
-    "download_docs_repo": {"ka": "დოკუმენტების ჩამოწერა (დადგენილება, წესები)",
-                            "en": "Download docs (regulations, rules)"},
+    "download_fonts_repo": {"ka": "ფონტების ჩამოწერა რეპოდან (BPG Glaho, Noto)",
+                             "en": "Download fonts from repo (BPG Glaho, Noto)"},
+    "docs_group": {"ka": "დოკუმენტები", "en": "Documents"},
+    "download_docs_repo": {"ka": "დოკუმენტების ჩამოწერა რეპოდან",
+                            "en": "Download docs from repo"},
+    "docs_hint": {"ka": "N388 დადგენილება, შიდა აზომვის წესი, პრეზენტაცია.",
+                   "en": "N388 regulation, floor-plan survey rules, presentation."},
 
     # --- services tab ------------------------------------------------------
     "available_services": {"ka": "ხელმისაწვდომი სერვისები", "en": "Available services"},

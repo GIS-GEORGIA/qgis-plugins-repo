@@ -277,11 +277,24 @@ class CadastralDialog(QDialog):
         fl.addLayout(drow)
         self.install_fonts_cb = QCheckBox(_tr("install_fonts"))
         fl.addWidget(self.install_fonts_cb)
+        btn_repo_fonts = QPushButton("↧ " + _tr("download_fonts_repo"))
+        btn_repo_fonts.clicked.connect(self._on_download_fonts_repo)
+        fl.addWidget(btn_repo_fonts)
         btn_fonts = QPushButton(_tr("download_fonts"))
         btn_fonts.clicked.connect(self._on_download_fonts)
         fl.addWidget(btn_fonts)
         fl.addWidget(self._hint(_tr("fonts_hint")))
         lay.addWidget(gb_fonts)
+
+        gb_docs = QGroupBox(_tr("docs_group"))
+        dl = QVBoxLayout(gb_docs)
+        drow2, self.docs_dir = self._dir_row("docs_dir")
+        dl.addLayout(drow2)
+        btn_docs = QPushButton("↧ " + _tr("download_docs_repo"))
+        btn_docs.clicked.connect(self._on_download_docs_repo)
+        dl.addWidget(btn_docs)
+        dl.addWidget(self._hint(_tr("docs_hint")))
+        lay.addWidget(gb_docs)
 
         lay.addStretch(1)
         return w
@@ -334,6 +347,40 @@ class CadastralDialog(QDialog):
         if pages:
             msg += f", {len(pages)} opened in browser"
         self._msg(msg)
+
+    def _on_download_fonts_repo(self):
+        out = self.fonts_dir.text().strip()
+        if not out:
+            return self._msg(_tr("pick_dir_first"), Qgis.Warning)
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            saved = repo_mod.download_category("fonts", out)
+            ttfs = [p for p in saved if p.lower().endswith((".ttf", ".otf"))]
+            installed = 0
+            if self.install_fonts_cb.isChecked() and ttfs:
+                installed = fonts_mod.install_fonts_windows(ttfs)
+        except Exception as exc:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            return self._error(exc)
+        QApplication.restoreOverrideCursor()
+        msg = f"{_tr('done')}: {len(ttfs)} font(s)"
+        if installed:
+            msg += f", installed {installed}"
+        self._msg(msg)
+
+    def _on_download_docs_repo(self):
+        out = self.docs_dir.text().strip()
+        if not out:
+            return self._msg(_tr("pick_dir_first"), Qgis.Warning)
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            saved = repo_mod.download_category("docs", out)
+        except Exception as exc:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            return self._error(exc)
+        QApplication.restoreOverrideCursor()
+        self._msg(f"{_tr('done')}: {len(saved)} file(s) → {out}")
+        self._open_path(out)
 
     # ---------------------------------------------------------- Layout tab #
     def _tab_layout(self):

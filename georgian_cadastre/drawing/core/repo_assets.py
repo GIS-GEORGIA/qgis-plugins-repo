@@ -10,6 +10,7 @@ requests are rate-limited (60/hour) which is ample for occasional use.
 import json
 import os
 import urllib.request
+from urllib.parse import quote
 
 from . import config
 
@@ -17,13 +18,15 @@ _UA = {"User-Agent": "QGIS Georgian-Cadastre plugin"}
 
 
 def _api_url(path):
+    # Encode spaces / Georgian names in the path, but keep the slashes.
     return (f"https://api.github.com/repos/{config.REPO_OWNER}/"
-            f"{config.REPO_NAME}/contents/{path}?ref={config.REPO_REF}")
+            f"{config.REPO_NAME}/contents/{quote(path, safe='/')}"
+            f"?ref={config.REPO_REF}")
 
 
 def raw_url(path):
     return (f"https://raw.githubusercontent.com/{config.REPO_OWNER}/"
-            f"{config.REPO_NAME}/{config.REPO_REF}/{path}")
+            f"{config.REPO_NAME}/{config.REPO_REF}/{quote(path, safe='/')}")
 
 
 def _get_json(url):
@@ -56,10 +59,13 @@ def download_tree(path, dest_dir, progress=None):
         if etype == "dir":
             saved += download_tree(entry["path"],
                                    os.path.join(dest_dir, name), progress)
-        elif etype == "file" and entry.get("download_url"):
+        elif etype == "file" and entry.get("path"):
             dest = os.path.join(dest_dir, name)
             try:
-                _download_file(entry["download_url"], dest)
+                # Build our own raw URL from the repo path — GitHub's
+                # download_url leaves spaces/Unicode unencoded, which urllib
+                # rejects.
+                _download_file(raw_url(entry["path"]), dest)
                 saved.append(dest)
                 if progress:
                     progress(name)
