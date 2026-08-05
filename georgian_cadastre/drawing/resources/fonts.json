@@ -1,0 +1,28 @@
+{
+  "_comment": "Georgian fonts. 'direct' entries are downloaded straight to the chosen folder; 'page' entries open in a browser for manual download (used where the site has no stable direct-zip link). Add direct-zip URLs here as you confirm them.",
+  "fonts": [
+    {
+      "id": "noto_sans_georgian",
+      "name": "Noto Sans Georgian",
+      "license": "SIL OFL 1.1",
+      "kind": "direct",
+      "url": "https://github.com/google/fonts/raw/main/ofl/notosansgeorgian/NotoSansGeorgian%5Bwdth,wght%5D.ttf",
+      "filename": "NotoSansGeorgian.ttf"
+    },
+    {
+      "id": "noto_serif_georgian",
+      "name": "Noto Serif Georgian",
+      "license": "SIL OFL 1.1",
+      "kind": "direct",
+      "url": "https://github.com/google/fonts/raw/main/ofl/notoserifgeorgian/NotoSerifGeorgian%5Bwdth,wght%5D.ttf",
+      "filename": "NotoSerifGeorgian.ttf"
+    },
+    {
+      "id": "fonts_ge_pack",
+      "name": "fonts.ge — ხშირად გამოყენებადი (AcadNusx, AcadMtavr, LitNusx, Geo_Times, BPG Glaho)",
+      "license": "see fonts.ge",
+      "kind": "page",
+      "url": "https://fonts.ge/ka/pack/2/%E1%83%AE%E1%83%A8%E1%83%98%E1%83%A0%E1%83%90%E1%83%93-%E1%83%92%E1%83%90%E1%83%9B%E1%83%9D%E1%83%A7%E1%83%94%E1%83%9C%E1%83%94%E1%83%91%E1%83%90%E1%83%93%E1%83%98-%E1%83%A4%E1%83%9D%E1%83%9C%E1%83%A2%E1%83%94%E1%83%91%E1%83%98"
+    }
+  ]
+}

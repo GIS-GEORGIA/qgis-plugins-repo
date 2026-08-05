@@ -1,0 +1,75 @@
+{
+  "_comment": "Background map services. Add your own WMS/WMTS entries here — the plugin reads this file at runtime. XYZ entries need 'url' with {x}{y}{z}; WMS/WMTS entries need 'url','layers','format','crs'. Fill the empty 'url' fields for NAPR / geoportal once you have the endpoints.",
+  "services": [
+    {
+      "id": "osm",
+      "name_en": "OpenStreetMap",
+      "name_ka": "OpenStreetMap",
+      "type": "xyz",
+      "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "zmin": 0,
+      "zmax": 19
+    },
+    {
+      "id": "google_satellite",
+      "name_en": "Google Satellite",
+      "name_ka": "Google სატელიტი",
+      "type": "xyz",
+      "url": "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+      "zmin": 0,
+      "zmax": 20
+    },
+    {
+      "id": "google_hybrid",
+      "name_en": "Google Hybrid",
+      "name_ka": "Google ჰიბრიდი",
+      "type": "xyz",
+      "url": "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+      "zmin": 0,
+      "zmax": 20
+    },
+    {
+      "id": "bing_aerial",
+      "name_en": "Bing Aerial",
+      "name_ka": "Bing აეროფოტო",
+      "type": "xyz",
+      "url": "https://ecn.t3.tiles.virtualearth.net/tiles/a{q}.jpeg?g=1",
+      "zmin": 1,
+      "zmax": 19
+    },
+    {
+      "id": "napr_ortho_east",
+      "name_en": "NAPR orthophoto 2022 East (WMTS)",
+      "name_ka": "საჯარო რეესტრი — ორთოფოტო 2022 აღმოსავლეთი",
+      "type": "wmts",
+      "url": "https://mp.napr.gov.ge/ORTHO_2022_EAST/ows?service=WMTS&request=GetCapabilities",
+      "layers": "ORTHO_2022_EAST",
+      "styles": "default",
+      "format": "image/png",
+      "crs": "EPSG:3857",
+      "tileMatrixSet": "GLOBAL_MERCATOR"
+    },
+    {
+      "id": "napr_cadastre_wbr",
+      "name_en": "NAPR cadastre raster (WMS WBR)",
+      "name_ka": "საჯარო რეესტრი — საკადასტრო რასტრი (WBR)",
+      "type": "wms",
+      "url": "http://mp1.napr.gov.ge/WBR/service",
+      "layers": "WBR",
+      "styles": "",
+      "format": "image/png",
+      "crs": "EPSG:3857"
+    },
+    {
+      "id": "geoportal_nsdi",
+      "name_en": "Geoportal / NSDI (fill URL)",
+      "name_ka": "გეოპორტალი / NSDI (URL შესავსები)",
+      "type": "wmts",
+      "url": "",
+      "layers": "",
+      "styles": "",
+      "format": "image/png",
+      "crs": "EPSG:3857"
+    }
+  ]
+}
