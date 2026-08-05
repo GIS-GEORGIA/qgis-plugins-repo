@@ -88,4 +88,20 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
+  <pyqgis_plugin name="GeoEco" version="0.1.0">
+    <description>Renewable-energy "last mile" on top of SAGA/GRASS: turns a solar radiation raster into PV energy (kWh), revenue (GEL), payback &amp; optimal tilt; wind resource, Weibull &amp; annual energy (AEP). Bilingual ka/en.</description>
+    <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the layer they lack: energy (kWh), money (GEL), LCOE/NPV/payback, optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) output. First module: Energy (solar + wind). Core logic is QGIS-independent and unit-tested. GPLv3.</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.22</qgis_minimum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>geoeco.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/geoeco.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>solar,wind,renewable,energy,radiation,pv,photovoltaic,weibull,environmental,saga,grass,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
 </plugins>

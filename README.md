@@ -19,6 +19,7 @@
 | `owners_analyzer` | Analyzes attributes, counts unique values, filters by keywords | ატრიბუტების ანალიზი, უნიკალური მნიშვნელობების დათვლა, ფილტრაცია | 🆕 ახალი |
 | `layer_cleaner` | Cleans layers and adds base layers (Google Satellite, OSM) | შრეების გასუფთავება და საბაზო ფენების დამატება | 🆕 ახალი |
 | `Calculate Geometry` | Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions | გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე | 🧪 ექსპერიმენტული |
+| `GeoEco` | Renewable-energy "last mile" on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback & optimal tilt; wind resource, Weibull & annual energy (AEP) | განახლებადი ენერგიის "ბოლო მილი" SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია | 🧪 ექსპერიმენტული |
 
 ---
 
