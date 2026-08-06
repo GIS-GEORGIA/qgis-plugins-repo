@@ -28,6 +28,8 @@ from .core import layout as layout_mod
 from .core import excel as excel_mod
 from .core import export as export_mod
 from .core import repo_assets as repo_mod
+from .core import fetch as fetch_mod
+from .. import napr_client
 
 _tr = i18n.tr
 
@@ -69,6 +71,7 @@ class CadastralDialog(QDialog):
 
         self.tabs = QTabWidget()
         self.tabs.addTab(self._tab_project(), _tr("tab_project"))
+        self.tabs.addTab(self._tab_fetch(), _tr("tab_fetch"))
         self.tabs.addTab(self._tab_services(), _tr("tab_services"))
         self.tabs.addTab(self._tab_data(), _tr("tab_data"))
         self.tabs.addTab(self._tab_layout(), _tr("tab_layout"))
@@ -206,6 +209,118 @@ class CadastralDialog(QDialog):
         applied = styles_mod.apply_to_project(QgsProject.instance())
         self.iface.mapCanvas().refreshAllLayers()
         self._msg(f"{_tr('done')}: {', '.join(applied) or '—'}")
+
+    # ----------------------------------------------------------- Fetch tab #
+    def _tab_fetch(self):
+        w = QWidget()
+        lay = QVBoxLayout(w)
+        form = QFormLayout()
+        self.code_edit = QLineEdit()
+        self.code_edit.setPlaceholderText("38.10.42.107")
+        self.code_edit.returnPressed.connect(self._on_fetch_code)
+        form.addRow(_tr("cad_code"), self.code_edit)
+        lay.addLayout(form)
+
+        row = QHBoxLayout()
+        btn_fetch = QPushButton("↧ " + _tr("fetch_btn"))
+        btn_fetch.clicked.connect(self._on_fetch_code)
+        btn_rev = QPushButton("⊕ " + _tr("reverse_btn"))
+        btn_rev.clicked.connect(self._on_reverse)
+        row.addWidget(btn_fetch)
+        row.addWidget(btn_rev)
+        lay.addLayout(row)
+        lay.addWidget(self._hint(_tr("fetch_hint")))
+
+        btn_adv = QPushButton(_tr("advanced_fetch"))
+        btn_adv.clicked.connect(self._on_advanced_fetch)
+        lay.addWidget(btn_adv)
+        lay.addStretch(1)
+        self._map_tool = None
+        self._napr_dlg = None
+        return w
+
+    def _fetch_zone(self):
+        if hasattr(self, "zone_combo"):
+            return self.zone_combo.currentData()
+        return int(self._settings.value(f"{config.SETTINGS_GROUP}/zone",
+                                        config.DEFAULT_ZONE))
+
+    def _insert_features(self, features, code, address, zone):
+        area = 0.0
+        layer = None
+        for f in features:
+            epsg = str(f.get("epsg") or "EPSG:4326")
+            if not epsg.upper().startswith("EPSG:"):
+                epsg = "EPSG:" + epsg
+            area, layer = fetch_mod.add_parcel(
+                QgsProject.instance(), zone, f["wkt"], code, address, src_epsg=epsg)
+        if layer is not None and self.iface is not None:
+            self.iface.mapCanvas().setExtent(layer.extent())
+            self.iface.mapCanvas().refresh()
+        return area
+
+    def _on_fetch_code(self):
+        code = self.code_edit.text().strip()
+        if not code:
+            return self._msg(_tr("no_code"), Qgis.Warning)
+        zone = self._fetch_zone()
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            result = napr_client.lookup(code)
+            crs_mod.set_project_crs(zone)
+            area = self._insert_features(
+                result["features"], result["code"], result.get("address") or "", zone)
+        except napr_client.NaprError as exc:
+            QApplication.restoreOverrideCursor()
+            return self._msg(f"{code}: {' '.join(str(a) for a in exc.args)}", Qgis.Warning)
+        except Exception as exc:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            return self._error(exc)
+        QApplication.restoreOverrideCursor()
+        self._msg(_tr("fetched_ok", code=result["code"], area=round(area)))
+
+    def _on_reverse(self):
+        if self.iface is None:
+            return
+        from ..map_tool import ParcelClickTool
+        canvas = self.iface.mapCanvas()
+        self._map_tool = ParcelClickTool(canvas)
+        self._map_tool.pointClicked.connect(self._on_map_point)
+        canvas.setMapTool(self._map_tool)
+        self._msg(_tr("reverse_on"))
+
+    def _on_map_point(self, lon, lat):
+        canvas = self.iface.mapCanvas()
+        if self._map_tool is not None:
+            canvas.unsetMapTool(self._map_tool)
+        zone = self._fetch_zone()
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            matches = napr_client.reverse(lon, lat)
+            if not matches:
+                QApplication.restoreOverrideCursor()
+                return self._msg(_tr("error"), Qgis.Warning)
+            m = matches[0]
+            feats = napr_client.fetch_features(m["lbl"])
+            crs_mod.set_project_crs(zone)
+            area = self._insert_features(feats, m.get("code", ""), m.get("address", ""), zone)
+        except napr_client.NaprError as exc:
+            QApplication.restoreOverrideCursor()
+            return self._msg(" ".join(str(a) for a in exc.args), Qgis.Warning)
+        except Exception as exc:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            return self._error(exc)
+        QApplication.restoreOverrideCursor()
+        self._msg(_tr("fetched_ok", code=m.get("code", ""), area=round(area)))
+
+    def _on_advanced_fetch(self):
+        """Open the full NAPR dialog (batch, reverse, SHP/DXF/CSV export)."""
+        if self._napr_dlg is None:
+            from ..cadastre_dialog import CadastreDialog
+            self._napr_dlg = CadastreDialog(self.iface, self)
+        self._napr_dlg.show()
+        self._napr_dlg.raise_()
+        self._napr_dlg.activateWindow()
 
     # -------------------------------------------------------- Services tab #
     def _tab_services(self):

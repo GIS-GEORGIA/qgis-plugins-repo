@@ -15,6 +15,7 @@ _LANG = None  # cached active language ('ka' | 'en')
 STRINGS = {
     # --- window / tabs -----------------------------------------------------
     "plugin_title": {"ka": "საკადასტრო ნახაზი", "en": "Cadastral Drawing"},
+    "tab_fetch": {"ka": "ჩამოწერა კოდით", "en": "Fetch by code"},
     "tab_project": {"ka": "პროექტი", "en": "Project"},
     "tab_services": {"ka": "სერვისები", "en": "Services"},
     "tab_data": {"ka": "მონაცემები", "en": "Data"},
@@ -46,6 +47,19 @@ STRINGS = {
                             "en": "Download docs from repo"},
     "docs_hint": {"ka": "N388 დადგენილება, შიდა აზომვის წესი, პრეზენტაცია.",
                    "en": "N388 regulation, floor-plan survey rules, presentation."},
+
+    # --- fetch parcel by cadastral code (maps.gov.ge / NAPR) ---------------
+    "cad_code": {"ka": "საკადასტრო კოდი", "en": "Cadastral code"},
+    "fetch_btn": {"ka": "ჩამოწერა", "en": "Fetch"},
+    "reverse_btn": {"ka": "რუკიდან", "en": "From map"},
+    "reverse_on": {"ka": "დააკლიკეთ ნაკვეთს რუკაზე…", "en": "Click a parcel on the map…"},
+    "fetch_hint": {
+        "ka": "maps.gov.ge-დან (NAPR), login-ის გარეშე. გეომეტრია ჩაჯდება nakveti შრეში (თუ არ არსებობს — შეიქმნება), არჩეულ UTM ზონაში. პერსონალური მონაცემების გარეშე.",
+        "en": "From maps.gov.ge (NAPR), no login. Geometry lands in the nakveti layer (created if missing) in the chosen UTM zone. No personal data."},
+    "advanced_fetch": {"ka": "batch / ექსპორტი (სრული ფანჯარა)…",
+                        "en": "batch / export (full window)…"},
+    "no_code": {"ka": "ჩაწერეთ საკადასტრო კოდი.", "en": "Enter a cadastral code."},
+    "fetched_ok": {"ka": "ჩამოიწერა: {code} · {area} მ²", "en": "Fetched: {code} · {area} m²"},
 
     # --- services tab ------------------------------------------------------
     "available_services": {"ka": "ხელმისაწვდომი სერვისები", "en": "Available services"},
