@@ -1,0 +1,35 @@
+name: Deploy Pages
+
+# Serve the QGIS custom plugin repository (plugins.xml + plugins/*.zip + assets)
+# as a plain static site. Uses the GitHub Actions deployment instead of the
+# legacy Jekyll build, which choked on the long Unicode filenames under
+# georgian_cadastre/files/.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
