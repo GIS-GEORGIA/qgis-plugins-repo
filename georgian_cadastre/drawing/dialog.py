@@ -14,8 +14,12 @@ from qgis.PyQt.QtWidgets import (
     QTabWidget, QWidget, QLabel, QPushButton, QLineEdit, QComboBox,
     QFileDialog, QCheckBox, QSpinBox, QDateEdit, QListWidget, QListWidgetItem,
     QTableWidget, QTableWidgetItem, QMessageBox, QApplication, QGroupBox,
+    QRadioButton, QProgressBar,
 )
-from qgis.core import QgsProject, QgsSettings, Qgis
+from qgis.core import (
+    QgsProject, QgsSettings, Qgis, QgsApplication, QgsGeometry,
+    QgsCoordinateReferenceSystem, QgsCoordinateTransform,
+)
 
 from .core import config, i18n
 from .core import crs as crs_mod
@@ -29,6 +33,7 @@ from .core import excel as excel_mod
 from .core import export as export_mod
 from .core import repo_assets as repo_mod
 from .core import fetch as fetch_mod
+from .core import area_fetch as area_mod
 from .. import napr_client
 
 _tr = i18n.tr
@@ -234,9 +239,60 @@ class CadastralDialog(QDialog):
         btn_adv = QPushButton(_tr("advanced_fetch"))
         btn_adv.clicked.connect(self._on_advanced_fetch)
         lay.addWidget(btn_adv)
+
+        # --- area (bulk) download ------------------------------------------
+        gb = QGroupBox(_tr("area_group"))
+        gl = QVBoxLayout(gb)
+        mrow = QHBoxLayout()
+        self.area_mode_radius = QRadioButton(_tr("area_mode_radius"))
+        self.area_mode_extent = QRadioButton(_tr("area_mode_extent"))
+        self.area_mode_radius.setChecked(True)
+        mrow.addWidget(self.area_mode_radius)
+        mrow.addWidget(self.area_mode_extent)
+        mrow.addStretch(1)
+        gl.addLayout(mrow)
+
+        prow = QHBoxLayout()
+        prow.addWidget(QLabel(_tr("radius_m")))
+        self.radius_spin = QSpinBox()
+        self.radius_spin.setRange(10, 5000)
+        self.radius_spin.setSingleStep(10)
+        self.radius_spin.setValue(100)
+        prow.addWidget(self.radius_spin)
+        prow.addWidget(QLabel(_tr("step_m")))
+        self.step_spin = QSpinBox()
+        self.step_spin.setRange(10, 1000)
+        self.step_spin.setSingleStep(5)
+        self.step_spin.setValue(40)
+        prow.addWidget(self.step_spin)
+        prow.addStretch(1)
+        gl.addLayout(prow)
+
+        self.area_progress = QProgressBar()
+        self.area_progress.setRange(0, 100)
+        self.area_progress.setValue(0)
+        gl.addWidget(self.area_progress)
+
+        brow = QHBoxLayout()
+        self.area_start_btn = QPushButton("↧ " + _tr("area_start"))
+        self.area_start_btn.clicked.connect(self._on_area_start)
+        self.area_pause_btn = QPushButton(_tr("pause"))
+        self.area_pause_btn.clicked.connect(self._on_area_pause)
+        self.area_cancel_btn = QPushButton(_tr("cancel"))
+        self.area_cancel_btn.clicked.connect(self._on_area_cancel)
+        self.area_pause_btn.setEnabled(False)
+        self.area_cancel_btn.setEnabled(False)
+        brow.addWidget(self.area_start_btn)
+        brow.addWidget(self.area_pause_btn)
+        brow.addWidget(self.area_cancel_btn)
+        gl.addLayout(brow)
+        gl.addWidget(self._hint(_tr("area_hint")))
+        lay.addWidget(gb)
+
         lay.addStretch(1)
         self._map_tool = None
         self._napr_dlg = None
+        self._area_task = None
         return w
 
     def _fetch_zone(self):
@@ -321,6 +377,115 @@ class CadastralDialog(QDialog):
         self._napr_dlg.show()
         self._napr_dlg.raise_()
         self._napr_dlg.activateWindow()
+
+    # --- area (bulk) fetch ------------------------------------------------
+    def _compute_points(self, zone):
+        """Return (points_4326, per_radius_m, error_key_or_None)."""
+        from qgis.core import QgsPointXY
+        utm = crs_mod.zone_crs(zone)
+        wgs = QgsCoordinateReferenceSystem("EPSG:4326")
+        proj = QgsProject.instance()
+        to_wgs = QgsCoordinateTransform(utm, wgs, proj)
+        step = self.step_spin.value()
+
+        if self.area_mode_radius.isChecked():
+            code = self.code_edit.text().strip()
+            if not code:
+                return [], step, "no_code"
+            result = napr_client.lookup(code)          # quick single call
+            g = QgsGeometry.fromWkt(result["features"][0]["wkt"])
+            c = g.centroid().asPoint()                 # WGS84
+            to_utm = QgsCoordinateTransform(wgs, utm, proj)
+            cu = to_utm.transform(c)
+            grid = area_mod.circle_grid(cu.x(), cu.y(), self.radius_spin.value(), step)
+        else:
+            if self.iface is None:
+                return [], step, "need_map"
+            canvas = self.iface.mapCanvas()
+            src = canvas.mapSettings().destinationCrs()
+            rect = canvas.extent()
+            if src != utm:
+                rect = QgsCoordinateTransform(src, utm, proj).transformBoundingBox(rect)
+            grid = area_mod.extent_grid(rect.xMinimum(), rect.yMinimum(),
+                                        rect.xMaximum(), rect.yMaximum(), step)
+
+        grid, _dropped = area_mod.cap_points(grid)
+        points = []
+        for x, y in grid:
+            p = to_wgs.transform(QgsPointXY(x, y))
+            points.append((p.x(), p.y()))
+        return points, step, None
+
+    def _set_area_running(self, running):
+        self.area_start_btn.setEnabled(not running)
+        self.area_pause_btn.setEnabled(running)
+        self.area_cancel_btn.setEnabled(running)
+        if not running:
+            self.area_pause_btn.setText(_tr("pause"))
+
+    def _on_area_start(self):
+        if self._area_task is not None:
+            return
+        zone = self._fetch_zone()
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            points, per_radius, err = self._compute_points(zone)
+        except napr_client.NaprError as exc:
+            QApplication.restoreOverrideCursor()
+            return self._msg(" ".join(str(a) for a in exc.args), Qgis.Warning)
+        except Exception as exc:  # noqa: BLE001
+            QApplication.restoreOverrideCursor()
+            return self._error(exc)
+        QApplication.restoreOverrideCursor()
+        if err:
+            return self._msg(_tr(err), Qgis.Warning)
+        if not points:
+            return self._msg(_tr("error"), Qgis.Warning)
+
+        crs_mod.set_project_crs(zone)
+        task = area_mod.AreaFetchTask(points, per_radius=per_radius, limit=15)
+        self._area_zone = zone
+        task.progressChanged.connect(
+            lambda p: self.area_progress.setValue(int(task.progress())))
+        task.taskCompleted.connect(lambda: self._area_finished(task, False))
+        task.taskTerminated.connect(lambda: self._area_finished(task, True))
+        self._area_task = task
+        self.area_progress.setValue(0)
+        self._set_area_running(True)
+        QgsApplication.taskManager().addTask(task)
+        self._msg(f"{_tr('area_running')} ({len(points)} pts)")
+
+    def _on_area_pause(self):
+        task = self._area_task
+        if task is None:
+            return
+        if task.is_paused():
+            task.resume()
+            self.area_pause_btn.setText(_tr("pause"))
+        else:
+            task.pause()
+            self.area_pause_btn.setText(_tr("resume"))
+
+    def _on_area_cancel(self):
+        if self._area_task is not None:
+            self._area_task.cancel()
+
+    def _area_finished(self, task, cancelled):
+        self._set_area_running(False)
+        self._area_task = None
+        if task.error is not None:
+            return self._error(task.error)
+        added, layer = area_mod.add_parcels(
+            QgsProject.instance(), getattr(self, "_area_zone", self._fetch_zone()),
+            task.result)
+        if self.iface is not None and layer is not None and added:
+            self.iface.mapCanvas().setExtent(layer.extent())
+            self.iface.mapCanvas().refresh()
+        if cancelled:
+            self._msg(_tr("area_cancelled", n=added), Qgis.Warning)
+        else:
+            self.area_progress.setValue(100)
+            self._msg(_tr("area_done", n=added), Qgis.Success)
 
     # -------------------------------------------------------- Services tab #
     def _tab_services(self):

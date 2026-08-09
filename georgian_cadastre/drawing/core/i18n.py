@@ -61,6 +61,25 @@ STRINGS = {
     "no_code": {"ka": "ჩაწერეთ საკადასტრო კოდი.", "en": "Enter a cadastral code."},
     "fetched_ok": {"ka": "ჩამოიწერა: {code} · {area} მ²", "en": "Fetched: {code} · {area} m²"},
 
+    # --- area (bulk) fetch -------------------------------------------------
+    "area_group": {"ka": "არეალის ჩამოწერა (ბევრი ნაკვეთი)",
+                    "en": "Area download (many parcels)"},
+    "area_mode_radius": {"ka": "კოდი + რადიუსი", "en": "Code + radius"},
+    "area_mode_extent": {"ka": "რუკის ექსტენტი", "en": "Map extent"},
+    "radius_m": {"ka": "რადიუსი (მ)", "en": "Radius (m)"},
+    "step_m": {"ka": "ბიჯი (მ)", "en": "Step (m)"},
+    "area_start": {"ka": "არეალის ჩამოწერა", "en": "Fetch area"},
+    "cancel": {"ka": "გაუქმება", "en": "Cancel"},
+    "pause": {"ka": "შეჩერება", "en": "Pause"},
+    "resume": {"ka": "გაგრძელება", "en": "Resume"},
+    "area_hint": {
+        "ka": "ნაკვეთები გროვდება ცალკე შრეში napr_parcels. ბიჯი უფრო მცირე = უფრო სრული, მაგრამ ნელი. შეგიძლია შეაჩერო/გააგრძელო/გააუქმო.",
+        "en": "Parcels collect in a separate napr_parcels layer. Smaller step = more complete but slower. You can pause/resume/cancel."},
+    "area_running": {"ka": "მიმდინარეობს…", "en": "Running…"},
+    "area_done": {"ka": "ჩამოიწერა {n} ნაკვეთი", "en": "Fetched {n} parcels"},
+    "area_cancelled": {"ka": "გაუქმდა ({n} ნაკვეთი)", "en": "Cancelled ({n} parcels)"},
+    "need_map": {"ka": "საჭიროა გახსნილი რუკა.", "en": "An open map canvas is required."},
+
     # --- services tab ------------------------------------------------------
     "available_services": {"ka": "ხელმისაწვდომი სერვისები", "en": "Available services"},
     "add_service": {"ka": "დამატება რუკაზე", "en": "Add to map"},
