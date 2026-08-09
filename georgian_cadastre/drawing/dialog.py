@@ -14,7 +14,7 @@ from qgis.PyQt.QtWidgets import (
     QTabWidget, QWidget, QLabel, QPushButton, QLineEdit, QComboBox,
     QFileDialog, QCheckBox, QSpinBox, QDateEdit, QListWidget, QListWidgetItem,
     QTableWidget, QTableWidgetItem, QMessageBox, QApplication, QGroupBox,
-    QRadioButton, QProgressBar,
+    QRadioButton, QProgressBar, QPlainTextEdit, QScrollArea,
 )
 from qgis.core import (
     QgsProject, QgsSettings, Qgis, QgsApplication, QgsGeometry,
@@ -35,6 +35,8 @@ from .core import repo_assets as repo_mod
 from .core import fetch as fetch_mod
 from .core import area_fetch as area_mod
 from .. import napr_client
+from .. import tasks as napr_tasks
+from .. import cadastre_core as napr_core
 
 _tr = i18n.tr
 
@@ -217,15 +219,20 @@ class CadastralDialog(QDialog):
 
     # ----------------------------------------------------------- Fetch tab #
     def _tab_fetch(self):
-        w = QWidget()
-        lay = QVBoxLayout(w)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        inner = QWidget()
+        lay = QVBoxLayout(inner)
+
+        # --- single code / from map ----------------------------------------
+        gb_s = QGroupBox(_tr("single_group"))
+        sl = QVBoxLayout(gb_s)
         form = QFormLayout()
         self.code_edit = QLineEdit()
         self.code_edit.setPlaceholderText("38.10.42.107")
         self.code_edit.returnPressed.connect(self._on_fetch_code)
         form.addRow(_tr("cad_code"), self.code_edit)
-        lay.addLayout(form)
-
+        sl.addLayout(form)
         row = QHBoxLayout()
         btn_fetch = QPushButton("↧ " + _tr("fetch_btn"))
         btn_fetch.clicked.connect(self._on_fetch_code)
@@ -233,12 +240,34 @@ class CadastralDialog(QDialog):
         btn_rev.clicked.connect(self._on_reverse)
         row.addWidget(btn_fetch)
         row.addWidget(btn_rev)
-        lay.addLayout(row)
-        lay.addWidget(self._hint(_tr("fetch_hint")))
+        sl.addLayout(row)
+        sl.addWidget(self._hint(_tr("fetch_hint")))
+        lay.addWidget(gb_s)
 
-        btn_adv = QPushButton(_tr("advanced_fetch"))
-        btn_adv.clicked.connect(self._on_advanced_fetch)
-        lay.addWidget(btn_adv)
+        # --- batch (list of codes) -----------------------------------------
+        gb_b = QGroupBox(_tr("batch_group"))
+        bl = QVBoxLayout(gb_b)
+        bl.addWidget(QLabel(_tr("batch_codes")))
+        self.batch_edit = QPlainTextEdit()
+        self.batch_edit.setPlaceholderText("38.10.42.107\n01.10.01.001")
+        self.batch_edit.setMaximumHeight(90)
+        bl.addWidget(self.batch_edit)
+        self.batch_progress = QProgressBar()
+        self.batch_progress.setRange(0, 100)
+        bl.addWidget(self.batch_progress)
+        brow2 = QHBoxLayout()
+        btn_file = QPushButton(_tr("from_file"))
+        btn_file.clicked.connect(self._on_batch_from_file)
+        self.batch_run_btn = QPushButton("↧ " + _tr("run"))
+        self.batch_run_btn.clicked.connect(self._on_batch_run)
+        self.batch_cancel_btn = QPushButton(_tr("cancel"))
+        self.batch_cancel_btn.clicked.connect(self._on_batch_cancel)
+        self.batch_cancel_btn.setEnabled(False)
+        brow2.addWidget(btn_file)
+        brow2.addWidget(self.batch_run_btn)
+        brow2.addWidget(self.batch_cancel_btn)
+        bl.addLayout(brow2)
+        lay.addWidget(gb_b)
 
         # --- area (bulk) download ------------------------------------------
         gb = QGroupBox(_tr("area_group"))
@@ -289,11 +318,35 @@ class CadastralDialog(QDialog):
         gl.addWidget(self._hint(_tr("area_hint")))
         lay.addWidget(gb)
 
+        # --- export (SHP / DXF / CSV) --------------------------------------
+        gb_e = QGroupBox(_tr("export_group"))
+        el = QVBoxLayout(gb_e)
+        erow = QHBoxLayout()
+        erow.addWidget(QLabel(_tr("export_layer_lbl")))
+        self.export_combo = QComboBox()
+        btn_ref = QPushButton("↻")
+        btn_ref.setMaximumWidth(36)
+        btn_ref.clicked.connect(self._refresh_export_layers)
+        erow.addWidget(self.export_combo, 1)
+        erow.addWidget(btn_ref)
+        el.addLayout(erow)
+        xrow = QHBoxLayout()
+        for fmt in ("SHP", "DXF", "CSV"):
+            b = QPushButton(fmt)
+            b.clicked.connect(lambda _=False, f=fmt: self._on_export(f))
+            xrow.addWidget(b)
+        el.addLayout(xrow)
+        self.extra_info_cb = QCheckBox(_tr("extra_info"))
+        el.addWidget(self.extra_info_cb)
+        lay.addWidget(gb_e)
+        self._refresh_export_layers()
+
         lay.addStretch(1)
         self._map_tool = None
-        self._napr_dlg = None
         self._area_task = None
-        return w
+        self._batch_task = None
+        scroll.setWidget(inner)
+        return scroll
 
     def _fetch_zone(self):
         if hasattr(self, "zone_combo"):
@@ -369,14 +422,107 @@ class CadastralDialog(QDialog):
         QApplication.restoreOverrideCursor()
         self._msg(_tr("fetched_ok", code=m.get("code", ""), area=round(area)))
 
-    def _on_advanced_fetch(self):
-        """Open the full NAPR dialog (batch, reverse, SHP/DXF/CSV export)."""
-        if self._napr_dlg is None:
-            from ..cadastre_dialog import CadastreDialog
-            self._napr_dlg = CadastreDialog(self.iface, self)
-        self._napr_dlg.show()
-        self._napr_dlg.raise_()
-        self._napr_dlg.activateWindow()
+    # --- batch (list of codes) --------------------------------------------
+    def _on_batch_from_file(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, _tr("open_codes"), "", "Text/CSV (*.txt *.csv);;All (*.*)")
+        if not path:
+            return
+        try:
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                text = fh.read()
+        except OSError as exc:
+            return self._error(exc)
+        # split on newlines/commas/semicolons/whitespace
+        import re
+        codes = [c for c in re.split(r"[\s,;]+", text) if c.strip()]
+        self.batch_edit.setPlainText("\n".join(codes))
+
+    def _on_batch_run(self):
+        text = self.batch_edit.toPlainText()
+        codes = [c.strip() for c in text.splitlines() if c.strip()]
+        if not codes:
+            return self._msg(_tr("batch_empty"), Qgis.Warning)
+        if self._batch_task is not None:
+            return
+        zone = self._fetch_zone()
+        self._batch_zone = zone
+        self._batch_total = len(codes)
+        with_info = self.extra_info_cb.isChecked()
+        crs_mod.set_project_crs(zone)
+        task = napr_tasks.BatchTask(codes, with_info=with_info)
+        task.progressChanged.connect(
+            lambda p: self.batch_progress.setValue(int(task.progress())))
+        task.taskCompleted.connect(lambda: self._batch_finished(task, False))
+        task.taskTerminated.connect(lambda: self._batch_finished(task, True))
+        self._batch_task = task
+        self.batch_progress.setValue(0)
+        self.batch_run_btn.setEnabled(False)
+        self.batch_cancel_btn.setEnabled(True)
+        QgsApplication.taskManager().addTask(task)
+        self._msg(f"{_tr('area_running')} ({len(codes)})")
+
+    def _on_batch_cancel(self):
+        if self._batch_task is not None:
+            self._batch_task.cancel()
+
+    def _batch_finished(self, task, cancelled):
+        self.batch_run_btn.setEnabled(True)
+        self.batch_cancel_btn.setEnabled(False)
+        self._batch_task = None
+        ok_results = [r for r in (task.result or []) if r.get("ok")]
+        parcels = []
+        for r in ok_results:
+            data = r.get("data") or {}
+            for f in data.get("features", []):
+                parcels.append({"code": data.get("code", ""),
+                                "address": data.get("address", ""),
+                                "wkt": f["wkt"], "epsg": f["epsg"]})
+        added, layer = area_mod.add_parcels(
+            QgsProject.instance(), getattr(self, "_batch_zone", self._fetch_zone()),
+            parcels)
+        if self.iface is not None and layer is not None and added:
+            self.iface.mapCanvas().setExtent(layer.extent())
+            self.iface.mapCanvas().refresh()
+        self._refresh_export_layers()
+        if not cancelled:
+            self.batch_progress.setValue(100)
+        self._msg(_tr("batch_done", ok=len(ok_results),
+                      total=getattr(self, "_batch_total", len(ok_results)), n=added),
+                  Qgis.Warning if cancelled else Qgis.Success)
+
+    # --- export -----------------------------------------------------------
+    def _refresh_export_layers(self):
+        if not hasattr(self, "export_combo"):
+            return
+        self.export_combo.clear()
+        from qgis.core import QgsVectorLayer
+        for layer in QgsProject.instance().mapLayers().values():
+            if isinstance(layer, QgsVectorLayer) and layer.isValid():
+                self.export_combo.addItem(layer.name(), layer.id())
+
+    def _on_export(self, fmt):
+        if not hasattr(self, "export_combo") or self.export_combo.count() == 0:
+            return self._msg(_tr("no_export_layer"), Qgis.Warning)
+        layer_id = self.export_combo.currentData()
+        layer = QgsProject.instance().mapLayer(layer_id)
+        if layer is None:
+            return self._msg(_tr("no_export_layer"), Qgis.Warning)
+        ext = {"SHP": "shp", "DXF": "dxf", "CSV": "csv"}[fmt]
+        path, _ = QFileDialog.getSaveFileName(
+            self, fmt, f"{layer.name()}.{ext}", f"{fmt} (*.{ext})")
+        if not path:
+            return
+        if not path.lower().endswith("." + ext):
+            path += "." + ext
+        try:
+            err = (napr_core.export_csv_vertices(layer, path) if fmt == "CSV"
+                   else napr_core.export_layer(layer, fmt, path))
+        except Exception as exc:  # noqa: BLE001
+            return self._error(exc)
+        if err:
+            return self._msg(f"{_tr('error')}: {err}", Qgis.Critical)
+        self._msg(_tr("saved", path=path), Qgis.Success)
 
     # --- area (bulk) fetch ------------------------------------------------
     def _compute_points(self, zone):

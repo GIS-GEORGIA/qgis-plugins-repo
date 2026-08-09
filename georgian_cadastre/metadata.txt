@@ -3,7 +3,7 @@ name=Georgian Cadastre
 qgisMinimumVersion=3.34
 description=Georgian cadastre toolkit for QGIS: fetch parcels by code from maps.gov.ge (NAPR), and prepare full cadastral survey drawings — UTM 37N/38N templates, WMS/WMTS services, name-based styles, Georgian fonts, an A4 layout with dynamic fields, an Excel attachment and a one-click packaged export.
 about=Two tools in one bilingual (ka/en) plugin. (1) Georgian Cadastre — enter a cadastral code (e.g. 38.10.42.107), search the public maps.gov.ge / NAPR service and load the parcel: single & batch lookup, map-click reverse lookup, auto UTM zone 37N/38N, non-personal attributes, export to SHP/DXF/CSV. All network work runs on background tasks, proxy-aware, no login. (2) Cadastral Drawing — create the official "საკადასტრო აგეგმვითი/აზომვითი ნახაზი": download SHP templates (cadastre + floor-plan) in the right CRS, add NAPR WMS/WMTS orthophoto & cadastre services, apply symbology + labels automatically by layer name, download Georgian fonts, build an A4 print layout with dynamic date/area/CRS fields, fill the Excel attachment and package the PDF + Excel + photos into one folder named after the interested party. / ქართული კადასტრი + საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული ხელსაწყო.
-version=0.3.2
+version=0.3.3
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
@@ -14,7 +14,8 @@ deprecated=False
 tags=cadastre,georgia,napr,maps.gov.ge,parcel,land,utm,shapefile,dxf,batch,georgian,survey,layout,wms,wmts,template,drawing
 category=Web
 icon=icon.svg
-changelog=0.3.2 - Area (bulk) download in the fetch tab: grab every parcel within a radius of a cadastral code, or across the current map extent, into a separate napr_parcels layer. Runs as a background task with a live progress bar and pause / resume / cancel — the UI never freezes.
+changelog=0.3.3 - Fully merged the NAPR window into the Fetch-by-code tab: single, batch (list / from file, with progress + cancel) and SHP/DXF/CSV export now live inside the central window — no separate dialog opens anymore.
+    0.3.2 - Area (bulk) download in the fetch tab: grab every parcel within a radius of a cadastral code, or across the current map extent, into a separate napr_parcels layer. Runs as a background task with a live progress bar and pause / resume / cancel — the UI never freezes.
     0.3.1 - Unified into a single window: NAPR fetch-by-code (and map-click reverse) is now a tab inside the central dialog, dropping parcels straight into the nakveti layer; a 'batch / export' button still opens the full NAPR dialog. One toolbar button instead of two.
     0.3.0 - Added the Cadastral Drawing toolkit (CRS 37/38 templates, WMS/WMTS services, name-based styles, Georgian fonts, A4 layout with dynamic fields, Excel attachment, packaged export) alongside the NAPR fetcher.
     0.2.0 - NAPR code→parcel fetch: single & batch, reverse lookup, SHP/DXF/CSV export.

@@ -80,6 +80,24 @@ STRINGS = {
     "area_cancelled": {"ka": "გაუქმდა ({n} ნაკვეთი)", "en": "Cancelled ({n} parcels)"},
     "need_map": {"ka": "საჭიროა გახსნილი რუკა.", "en": "An open map canvas is required."},
 
+    # --- merged single/batch/export (from the old NAPR window) -------------
+    "single_group": {"ka": "ერთი კოდი / რუკიდან", "en": "Single code / from map"},
+    "batch_group": {"ka": "სია (batch)", "en": "Batch (list)"},
+    "batch_codes": {"ka": "საკადასტრო კოდები (თითო ხაზზე):",
+                     "en": "Cadastral codes (one per line):"},
+    "from_file": {"ka": "ფაილიდან…", "en": "From file…"},
+    "run": {"ka": "გაშვება", "en": "Run"},
+    "batch_empty": {"ka": "ჩაწერეთ ერთი მაინც კოდი.", "en": "Enter at least one code."},
+    "batch_done": {"ka": "ჩამოიწერა {ok}/{total} კოდი, {n} ნაკვეთი",
+                    "en": "Fetched {ok}/{total} codes, {n} parcels"},
+    "export_group": {"ka": "ექსპორტი (SHP / DXF / CSV)", "en": "Export (SHP / DXF / CSV)"},
+    "export_layer_lbl": {"ka": "შრე:", "en": "Layer:"},
+    "extra_info": {"ka": "დამატებითი ინფო (ფართობი, ტიპი, სტატუსი)",
+                    "en": "Extra info (area, type, status)"},
+    "no_export_layer": {"ka": "აირჩიე შრე ექსპორტისთვის.", "en": "Pick a layer to export."},
+    "saved": {"ka": "შენახულია: {path}", "en": "Saved: {path}"},
+    "open_codes": {"ka": "კოდების ფაილი (txt/csv)", "en": "Codes file (txt/csv)"},
+
     # --- services tab ------------------------------------------------------
     "available_services": {"ka": "ხელმისაწვდომი სერვისები", "en": "Available services"},
     "add_service": {"ka": "დამატება რუკაზე", "en": "Add to map"},
