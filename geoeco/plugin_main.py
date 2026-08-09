@@ -17,7 +17,9 @@ _PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_PLUGIN_DIR)
 for _p in (_PLUGIN_DIR, _ROOT):
     if os.path.isdir(os.path.join(_p, "solar_wind_core")) and _p not in sys.path:
-        sys.path.insert(0, _p)
+        # append, not insert(0): geoeco/processing/ must not shadow
+        # QGIS's built-in Processing plugin (import processing).
+        sys.path.append(_p)
 
 from .processing.provider import GeoEcoProvider  # noqa: E402
 

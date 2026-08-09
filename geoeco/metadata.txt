@@ -3,9 +3,11 @@ name=GeoEco
 qgisMinimumVersion=3.22
 description=Bilingual (ka/en) environmental toolkit — the "last mile" on top of SAGA/GRASS: solar PV energy & economics, wind resource & yield.
 description[ka]=ორენოვანი გარემოსდაცვითი toolkit — "ბოლო მილი" SAGA/GRASS-ზე: მზის PV ენერგია და ეკონომიკა, ქარის რესურსი და გამომუშავება.
-version=0.3.0
+version=0.3.1
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
+changelog=0.3.1 - Fix: no longer shadows QGIS's built-in Processing plugin. The bundled dir is now appended to sys.path (was inserted at 0), so the geoeco/processing/ subpackage stops breaking `import processing` at QGIS startup.
+    0.3.0 - Solar (energy & revenue), Wind resource & yield (points), Wind resource map (IDW rasters).
 about=GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the "last mile" they lack: energy (kWh), money (GEL), optimal PV tilt, wind resource & AEP, and bilingual (ka/en) reporting. First module: Energy (solar + wind). GPLv3.
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
