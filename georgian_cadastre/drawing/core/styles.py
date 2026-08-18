@@ -182,6 +182,7 @@ def _style_unit_polygon(layer):
 
 _BUILDERS = {
     "nakveti": _style_nakveti,          # nakveti / nakveTi
+    "cadastre_parcels": _style_nakveti,  # bulk fetch results (same red look)
     "servituti": _style_servituti,
     "shenoba": _style_shenoba,
     "topo_line": _style_topo_line,

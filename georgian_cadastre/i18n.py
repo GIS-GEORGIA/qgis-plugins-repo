@@ -52,7 +52,7 @@ _S = {
     "batch_empty":    {"ka": u"ჩაწერეთ ერთი მაინც კოდი.",      "en": u"Enter at least one code."},
 
     # status / misc
-    "source":         {"ka": u"წყარო: maps.gov.ge",            "en": u"Source: maps.gov.ge"},
+    "source":         {"ka": u"წყარო: საჯარო საკადასტრო სერვისი", "en": u"Source: public cadastre service"},
     "added":          {"ka": u"დაემატა რუკაზე: {}",            "en": u"Added to map: {}"},
     "saved":          {"ka": u"შენახულია: {}",                  "en": u"Saved: {}"},
     "no_address":     {"ka": u"(მისამართი უცნობია)",           "en": u"(no address)"},

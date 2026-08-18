@@ -3,7 +3,7 @@
 the current map extent — as a cancellable/pausable background task.
 
 Strategy: sample a grid of points across the target area, reverse-lookup each
-point on maps.gov.ge/NAPR (proxy-aware, off the GUI thread), union the results
+point on the public cadastre service (proxy-aware, off the GUI thread), union the results
 by parcel, then fetch each unique parcel's geometry. Progress is reported the
 whole way so the UI never appears frozen.
 """
@@ -79,7 +79,7 @@ def cap_points(points):
 # --------------------------------------------------------------------------- #
 # Result layer
 # --------------------------------------------------------------------------- #
-def ensure_parcels_layer(project, zone, name="napr_parcels"):
+def ensure_parcels_layer(project, zone, name="cadastre_parcels"):
     """A dedicated bulk-results layer (kept separate from the drawing nakveti)."""
     from .styles import normalise
     for layer in project.mapLayers().values():
@@ -95,7 +95,7 @@ def ensure_parcels_layer(project, zone, name="napr_parcels"):
     return layer
 
 
-def add_parcels(project, zone, parcels, name="napr_parcels"):
+def add_parcels(project, zone, parcels, name="cadastre_parcels"):
     """Add fetched parcels (list of {code,address,wkt,epsg}) to the layer.
 
     Skips duplicates already present (by LEGAL_DOC). Returns (added, layer).

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Proxy-aware network fetcher for the maps.gov.ge client.
+"""Proxy-aware network fetcher for the cadastre service client.
 
 QgsBlockingNetworkRequest honours QGIS proxy/auth settings and is safe to call
 from a background QgsTask worker thread (it blocks on its own event loop). We

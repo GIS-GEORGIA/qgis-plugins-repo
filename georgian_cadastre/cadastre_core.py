@@ -21,7 +21,7 @@ from qgis.PyQt.QtCore import QVariant
 
 WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
 
-# UTM zones used across Georgia. maps.gov.ge offers exactly these two.
+# UTM zones used across Georgia. The cadastre service uses exactly these two.
 ZONE_37N = 32637  # 36°E – 42°E  (western Georgia)
 ZONE_38N = 32638  # 42°E – 48°E  (eastern Georgia)
 
@@ -79,7 +79,7 @@ def _fields():
     f.append(QgsField("address", QVariant.String))
     f.append(QgsField("area_m2", QVariant.Double))     # computed in QGIS
     f.append(QgsField("perim_m", QVariant.Double))     # computed in QGIS
-    f.append(QgsField("area_off", QVariant.Double))    # official (maps.gov.ge)
+    f.append(QgsField("area_off", QVariant.Double))    # official (from the service)
     f.append(QgsField("type", QVariant.String))
     f.append(QgsField("status", QVariant.String))
     f.append(QgsField("source", QVariant.String))
@@ -116,7 +116,7 @@ def build_layer(features, code, address, target_epsg, info=None):
             info.get("area_official"),
             info.get("parcel_type", ""),
             info.get("status", ""),
-            "maps.gov.ge",
+            "public cadastre service",
         ])
         dp.addFeature(f)
 

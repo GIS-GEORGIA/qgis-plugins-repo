@@ -32,7 +32,7 @@ def polygon_area_m2(geometry, layer_crs, zone=None):
     """True planimetric area (m²) of a geometry.
 
     Measured with QgsDistanceArea on the ellipsoid so the value is correct
-    regardless of the layer's CRS — matches how NAPR reports official areas.
+    regardless of the layer's CRS — matches how the service reports official areas.
     """
     da = QgsDistanceArea()
     da.setSourceCrs(layer_crs, QgsProject.instance().transformContext())

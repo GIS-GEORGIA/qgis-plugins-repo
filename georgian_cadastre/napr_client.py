@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""maps.gov.ge (NAPR) client — the only part unique to this plugin.
+"""Public cadastre service client — the only part unique to this plugin.
 
-The whole engine already exists: maps.gov.ge exposes a public, no-login,
+The whole engine already exists: the public cadastre service exposes a no-login,
 no-credit search + geometry API (webgis.ge is merely a paid middleman over it).
 Reprojection and export are left to QGIS core — we only fetch the polygon.
 
-Public endpoints, reverse-engineered from the maps.gov.ge map portal:
+Public endpoints of the cadastre map portal:
 
   * POST /map/portal/search               keyword=<code>  -> label id (lbl)
   * GET  /lr/bo/mg/getinfo.alpha          lbl=<lbl>&res=shp -> WKT geometry
@@ -46,7 +46,7 @@ _CACHE = {}
 
 
 class NaprError(Exception):
-    """Failure talking to maps.gov.ge. Carries a stable i18n ``key`` + detail."""
+    """Failure talking to the cadastre service. Carries a stable i18n ``key`` + detail."""
 
     _EN = {
         "err_empty_code": "Cadastral code is empty.",
@@ -199,7 +199,7 @@ def fetch_wkt(lbl, fetch=None):
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
 
-# Georgian labels on the maps.gov.ge info card. We deliberately read only
+# Georgian labels on the service info card. We deliberately read only
 # non-personal property attributes and skip owner names / document numbers.
 _INFO_PATTERNS = {
     "area_official": re.compile(r"ფართობი\s+([\d\s.,]+)\s*კვ"),

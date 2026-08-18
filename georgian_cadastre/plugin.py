@@ -3,10 +3,10 @@
 
   * Georgian Cadastre…  -> central hub dialog (drawing.CadastralDialog).
 
-The hub carries every tool as a tab: fetch parcel by code (maps.gov.ge / NAPR)
-including a map-click reverse and a 'batch / export' button that opens the full
-NAPR dialog; CRS 37/38 templates; WMS/WMTS services; name-based styles; fonts;
-A4 layout; Excel attachment and packaged export.
+The hub carries every tool as a tab: fetch a parcel by code (or map click),
+in batch, or in bulk over a radius / extent; SHP/DXF/CSV export; CRS 37/38
+templates; WMS/WMTS services; name-based styles; fonts; A4 layout; Excel
+attachment and packaged export.
 """
 import os
 

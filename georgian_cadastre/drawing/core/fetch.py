@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Drop a NAPR parcel (fetched by cadastral code or map click) into the
+"""Drop a cadastre parcel (fetched by cadastral code or map click) into the
 drawing's ``nakveti`` layer.
 
-Reuses the plugin's existing NAPR client (code → WKT in EPSG:4326); this module
+Reuses the plugin's existing cadastre client (code → WKT in EPSG:4326); this module
 only handles the QGIS side: reproject to the chosen UTM zone, create the
 nakveti layer if it is missing, and append the parcel with its code, address
 and computed area.

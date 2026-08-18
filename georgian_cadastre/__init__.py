@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Georgian Cadastre — fetch NAPR parcels by cadastral code into QGIS.
+"""Georgian Cadastre — fetch cadastre parcels by cadastral code into QGIS.
 
-Data source: maps.gov.ge (public search + geometry API).
+Data source: the public cadastre service (search + geometry API).
 """
 
 

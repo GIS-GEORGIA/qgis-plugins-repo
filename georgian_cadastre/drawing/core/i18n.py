@@ -48,14 +48,14 @@ STRINGS = {
     "docs_hint": {"ka": "N388 დადგენილება, შიდა აზომვის წესი, პრეზენტაცია.",
                    "en": "N388 regulation, floor-plan survey rules, presentation."},
 
-    # --- fetch parcel by cadastral code (maps.gov.ge / NAPR) ---------------
+    # --- fetch parcel by cadastral code (public cadastre service) ----------
     "cad_code": {"ka": "საკადასტრო კოდი", "en": "Cadastral code"},
     "fetch_btn": {"ka": "ჩამოწერა", "en": "Fetch"},
     "reverse_btn": {"ka": "რუკიდან", "en": "From map"},
     "reverse_on": {"ka": "დააკლიკეთ ნაკვეთს რუკაზე…", "en": "Click a parcel on the map…"},
     "fetch_hint": {
-        "ka": "maps.gov.ge-დან (NAPR), login-ის გარეშე. გეომეტრია ჩაჯდება nakveti შრეში (თუ არ არსებობს — შეიქმნება), არჩეულ UTM ზონაში. პერსონალური მონაცემების გარეშე.",
-        "en": "From maps.gov.ge (NAPR), no login. Geometry lands in the nakveti layer (created if missing) in the chosen UTM zone. No personal data."},
+        "ka": "საჯარო საკადასტრო სერვისიდან, login-ის გარეშე. გეომეტრია ჩაჯდება nakveti შრეში (თუ არ არსებობს — შეიქმნება), არჩეულ UTM ზონაში. პერსონალური მონაცემების გარეშე.",
+        "en": "From the public cadastre service, no login. Geometry lands in the nakveti layer (created if missing) in the chosen UTM zone. No personal data."},
     "advanced_fetch": {"ka": "batch / ექსპორტი (სრული ფანჯარა)…",
                         "en": "batch / export (full window)…"},
     "no_code": {"ka": "ჩაწერეთ საკადასტრო კოდი.", "en": "Enter a cadastral code."},
@@ -73,14 +73,14 @@ STRINGS = {
     "pause": {"ka": "შეჩერება", "en": "Pause"},
     "resume": {"ka": "გაგრძელება", "en": "Resume"},
     "area_hint": {
-        "ka": "ნაკვეთები გროვდება ცალკე შრეში napr_parcels. ბიჯი უფრო მცირე = უფრო სრული, მაგრამ ნელი. შეგიძლია შეაჩერო/გააგრძელო/გააუქმო.",
-        "en": "Parcels collect in a separate napr_parcels layer. Smaller step = more complete but slower. You can pause/resume/cancel."},
+        "ka": "ნაკვეთები გროვდება ცალკე შრეში cadastre_parcels. ბიჯი უფრო მცირე = უფრო სრული, მაგრამ ნელი. შეგიძლია შეაჩერო/გააგრძელო/გააუქმო.",
+        "en": "Parcels collect in a separate cadastre_parcels layer. Smaller step = more complete but slower. You can pause/resume/cancel."},
     "area_running": {"ka": "მიმდინარეობს…", "en": "Running…"},
     "area_done": {"ka": "ჩამოიწერა {n} ნაკვეთი", "en": "Fetched {n} parcels"},
     "area_cancelled": {"ka": "გაუქმდა ({n} ნაკვეთი)", "en": "Cancelled ({n} parcels)"},
     "need_map": {"ka": "საჭიროა გახსნილი რუკა.", "en": "An open map canvas is required."},
 
-    # --- merged single/batch/export (from the old NAPR window) -------------
+    # --- merged single/batch/export -----------------------------------------
     "single_group": {"ka": "ერთი კოდი / რუკიდან", "en": "Single code / from map"},
     "batch_group": {"ka": "სია (batch)", "en": "Batch (list)"},
     "batch_codes": {"ka": "საკადასტრო კოდები (თითო ხაზზე):",
