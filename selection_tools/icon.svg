@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- base layer polygon -->
+  <path d="M8 22 L32 10 L56 22 L32 34 Z" fill="#c9d6e5" stroke="#5a6b7b" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M8 34 L32 22 L56 34 L32 46 Z" fill="#dbe4ee" stroke="#5a6b7b" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- selected feature highlighted -->
+  <path d="M8 46 L32 34 L56 46 L32 58 Z" fill="#ffd34d" stroke="#e8a600" stroke-width="2" stroke-linejoin="round"/>
+  <!-- selection handles -->
+  <g fill="#1f7ae0" stroke="#ffffff" stroke-width="1.2">
+    <rect x="5" y="43" width="6" height="6" rx="1"/>
+    <rect x="53" y="43" width="6" height="6" rx="1"/>
+    <rect x="29" y="31" width="6" height="6" rx="1"/>
+    <rect x="29" y="55" width="6" height="6" rx="1"/>
+  </g>
+</svg>

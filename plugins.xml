@@ -120,4 +120,21 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
+  <pyqgis_plugin name="Selection Tools" version="0.1.0">
+    <description>ArcGIS Pro-style "Selection" submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.</description>
+    <about>Adds an ArcGIS Pro-like "Selection" submenu to the layer tree context menu: Zoom/Pan to selection, Clear, Switch, Select All, Select Visible Features, Generate Definition Query from Selection, Make Layer From Selected Features, and Attribute Table Showing Selection. "Make Layer From Selected Features" clones the layer (same data source URI — no .shp/.gpkg is written) and applies a definition query on the selected features; the query is stored in the project. Based on the idea of Murat Çalışkan's "Create Layer From Selected Features" (GPLv2+), reworked and improved by Giorgi Kapanadze: correct primary-key handling for PostGIS (gid/id) and FileGDB (OBJECTID) — not just "fid" — plus bilingual ka/en UI and the full ArcGIS-style submenu. GPLv3.</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.16</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>selection_tools.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/selection_tools.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>selection,select,feature,definition query,subset,layer,clone,duplicate,arcgis,postgis,geopackage,shapefile,filegdb,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
 </plugins>
