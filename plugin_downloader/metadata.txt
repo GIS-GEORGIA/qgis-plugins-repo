@@ -1,0 +1,17 @@
+[general]
+name=Plugin Downloader
+qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
+description=Download all QGIS plugins into one folder, with progress and pause/resume.
+about=Fetches the full plugin list from the official QGIS repository and downloads each plugin's latest stable ZIP into a folder you choose. Shows overall and per-file progress and supports pause / resume / stop. Bilingual EN/KA. The same code also runs as a standalone PyQt program.
+version=1.0.0
+author=GIS GEORGIA | Giorgi Kapanadze
+email=kapan.gio777@gmail.com
+homepage=https://gis-georgia.github.io/qgis-plugin-downloader/
+tracker=https://github.com/GIS-GEORGIA/qgis-plugin-downloader/issues
+repository=https://github.com/GIS-GEORGIA/qgis-plugin-downloader
+tags=download,plugins,repository,batch,mirror,georgian
+icon=icon.svg
+category=Plugins
+experimental=False
+deprecated=False
