@@ -137,4 +137,21 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
+  <pyqgis_plugin name="Transliterate Data" version="0.1.0">
+    <description>Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.</description>
+    <about>Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames shapefile filesets (all sidecars), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old-to-new plan first; then apply in place, or work on a copy so the original is untouched. Bilingual ka/en. GPLv3.</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.16</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>transliterate_data.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/transliterate_data.zip</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>transliteration,georgian,latin,rename,batch,shapefile,geopackage,sqlite,filegdb,fields,layers,data management</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
 </plugins>

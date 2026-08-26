@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="#1f7ae0"/>
+  <!-- Georgian ა -->
+  <text x="19" y="40" font-family="'DejaVu Sans','Noto Sans Georgian',sans-serif"
+        font-size="30" fill="#ffffff" text-anchor="middle">ა</text>
+  <!-- arrow -->
+  <path d="M28 32 L38 32 M35 28 L39 32 L35 36" stroke="#ffd34d" stroke-width="3"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Latin a -->
+  <text x="48" y="40" font-family="'DejaVu Sans',sans-serif"
+        font-size="30" fill="#ffffff" text-anchor="middle">a</text>
+</svg>

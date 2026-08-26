@@ -286,6 +286,10 @@
 
 <script>
 const PLUGINS=[
+ {id:"transliterate-data",name:"Transliterate Data",ka_name:"სახელების ტრანსლიტერაცია",version:"0.1.0",status:"experimental",zip:"transliterate_data.zip",emoji:"🔡",featured:true,
+  en:"Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become “_”. Preview first, then apply in place or on a copy.",
+  ka:"ქართული სახელების მასობრივი ტრანსლიტერაცია სუფთა ლათინურზე მთელ საქაღალდეში: shapefile-ები (+sidecar), ბაზის ფაილები (gpkg/sqlite/gdb) და მათ შიგნით შრეები/feature class-ები და ველები. სხვა სიმბოლოები → „_“. ჯერ გადახედვა, მერე ადგილზე ან ასლზე.",
+  tags:["transliteration","georgian","rename","batch","geopackage","filegdb"]},
  {id:"selection-tools",name:"Selection Tools",ka_name:"მონიშვნის ხელსაწყოები",version:"0.1.0",status:"experimental",zip:"selection_tools.zip",emoji:"🎯",featured:true,
   en:"ArcGIS Pro-style “Selection” submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
   ka:"ArcGIS Pro-ს „Selection“ ქვემენიუს ანალოგი შრის მარჯვენა-კლიკის მენიუში. მთავარი: შრის შექმნა მონიშნულებიდან — ახალი შრე იმავე პირველწყაროთი (ფაილი არ იქმნება), ინახება პროექტში. მუშაობს GeoPackage, PostGIS, Shapefile და FileGDB-ზე.",
