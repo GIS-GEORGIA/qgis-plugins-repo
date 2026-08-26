@@ -1,14 +1,17 @@
 name: Deploy Pages
 
-# Serve the QGIS custom plugin repository (plugins.xml + plugins/*.zip + assets)
-# as a plain static site. Uses the GitHub Actions deployment instead of the
-# legacy Jekyll build, which choked on the long Unicode filenames under
-# georgian_cadastre/files/.
+# Repo-wide packager + Pages deploy.
+# build_site.py აშენებს ყველა ფლაგინის ZIP-ს (packaging/manifest.json-ის მიხედვით)
+# და აწყობს _site/-ს; შემდეგ ის ქვეყნდება Pages-ზე. git-ში არაფერს უბიძგებს,
+# ამიტომ PAT/write უფლება არ სჭირდება.
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # ყოველდღე — რომ გარე რეპოებიდან (მაგ. plugin_downloader) ცვლილებები აიღოს.
+    - cron: "0 6 * * *"
 
 permissions:
   contents: read
@@ -27,9 +30,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build site (package all plugins)
+        run: python packaging/build_site.py --out _site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
