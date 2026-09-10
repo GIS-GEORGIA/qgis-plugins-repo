@@ -12,6 +12,7 @@
 
 | Plugin Name | Description (Eng) | აღწერა (ქარ) | Status |
 |-------------|-------------------|--------------|--------|
+| `plugin_downloader` | Downloads every plugin from the official QGIS repository into one folder, with progress and pause/resume | ყველა ფლაგინის ჩამოწერა ოფიციალური QGIS რეპოზიტორიიდან ერთ საქაღალდეში, პროგრესითა და pause/resume-ით | 🆕 ახალი |
 | `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
 | `basemap_loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
 | `save_attributes` | Saves vector layer attributes as CSV file | ვექტორული ფენის ატრიბუტების CSV-ში შენახვა | 🧪 ბეტა |
@@ -66,8 +67,9 @@ the header shows the same thing at a glance.
 
 | | |
 |---|---|
-| All plugins in this repository | QGIS 3.40 – 4.99 |
-| `PostGIS Manager` | see its own [repository](https://github.com/GIS-GEORGIA/postgis-manager) |
+| Most plugins in this repository | QGIS 3.40 – 4.99 |
+| `plugin_downloader` | QGIS 3.0 – 4.99 (it only needs plain Qt) |
+| `PostGIS Manager` | QGIS 3.40 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/postgis-manager) |
 
 What makes one build work on both: Qt is imported through `qgis.PyQt` (never `PyQt5`/`PyQt6` directly),
 Qt enums are written in the scoped form (`Qt.AlignmentFlag.AlignLeft`), dialogs use `exec()` rather than

@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
+  <pyqgis_plugin name="Plugin Downloader" version="1.0.1">
+    <description>Download all QGIS plugins into one folder, with progress and pause/resume.</description>
+    <about>Fetches the full plugin list from the official QGIS repository and downloads each plugin's latest stable ZIP into a folder you choose. Shows overall and per-file progress and supports pause / resume / stop. Bilingual EN/KA. The same code also runs as a standalone PyQt program.</about>
+    <version>1.0.1</version>
+    <qgis_minimum_version>3.0</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://gis-georgia.github.io/qgis-plugin-downloader/</homepage>
+    <file_name>plugin_downloader.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/plugin_downloader.zip?v=1.0.1</download_url>
+    <icon>https://plugins.qgis.ge/plugin_downloader/icon.svg</icon>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugin-downloader/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugin-downloader</repository>
+    <tags>download,plugins,repository,batch,mirror,georgian</tags>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
   <pyqgis_plugin name="Transliterate Data" version="0.2.0">
     <description>Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.</description>
     <about>Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames: shapefile filesets (all sidecars together), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old→new plan first; then apply in place, or work on a copy so the original is left untouched. Bilingual ka/en. Free/open-source, GPLv3.</about>

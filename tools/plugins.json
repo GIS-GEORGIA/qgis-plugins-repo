@@ -7,6 +7,27 @@
   },
   "plugins": [
     {
+      "id": "plugin-downloader",
+      "source": "plugin_downloader",
+      "folder": "plugin_downloader",
+      "zip": "plugin_downloader.zip",
+      "site": {
+        "emoji": "📥",
+        "ka_name": "ფლაგინების ჩამომტვირთავი",
+        "status": "new",
+        "featured": true,
+        "en": "Download every QGIS plugin into one folder from the official repository — with overall and per-file progress and pause / resume / stop. Runs as a QGIS plugin and as a standalone PyQt app. Bilingual EN/KA.",
+        "ka": "ჩამოწერე ყველა QGIS ფლაგინი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS ფლაგინადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA.",
+        "tags": [
+          "download",
+          "plugins",
+          "repository",
+          "batch",
+          "mirror"
+        ]
+      }
+    },
+    {
       "id": "transliterate-data",
       "source": "transliterate_data",
       "folder": "transliterate_data",

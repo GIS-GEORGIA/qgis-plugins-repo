@@ -35,6 +35,11 @@ ENUM_MAP = os.path.join(HERE, "qt_enum_map.json.gz")
 
 SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", "node_modules", "tools"}
 
+# A plugin that also runs outside QGIS cannot reach qgis.PyQt, so it needs a shim that
+# names the bindings directly. Such a file opts out of the import rule by carrying this
+# marker; everything else in it is still checked.
+SHIM_MARKER = "qt-compat-shim"
+
 # QVariant::Type is gone in Qt 6. QMetaType::Type is the replacement and the
 # QgsField overload that takes it exists from QGIS 3.38, below our 3.40 floor.
 QVARIANT_TO_QMETATYPE = {
@@ -170,6 +175,7 @@ def scan_file(path, enum_map, fix, root):
         original = fh.read()
     src = original
     findings = []
+    is_shim = SHIM_MARKER in original
 
     # 1. unscoped Qt enums (tokenizer-driven, so strings/comments are safe)
     edits = enum_edits(src, enum_map)
@@ -190,6 +196,8 @@ def scan_file(path, enum_map, fix, root):
 
         for code, pattern, repl, message in LINE_RULES:
             if not pattern.search(code_part):
+                continue
+            if code == "PYQT-IMPORT" and is_shim:
                 continue
             findings.append(Finding(rel, lineno, code, message, fix and repl is not None))
             if fix and repl is not None:
