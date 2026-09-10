@@ -252,7 +252,7 @@ def add_autoincrement_key(layer, base: str = "sel_uid"):
               status: 'ok' | 'editing' | 'cant_add' | 'add_failed' | 'cant_write'
     """
     from qgis.core import QgsField, QgsVectorDataProvider
-    from qgis.PyQt.QtCore import QVariant
+    from qgis.PyQt.QtCore import QMetaType
 
     if layer.isEditable():
         return None, "editing"
@@ -272,7 +272,7 @@ def add_autoincrement_key(layer, base: str = "sel_uid"):
         name = (base[:8] + str(k))[:10]
         k += 1
 
-    if not prov.addAttributes([QgsField(name, QVariant.LongLong)]):
+    if not prov.addAttributes([QgsField(name, QMetaType.Type.LongLong)]):
         return None, "add_failed"
     layer.updateFields()
     idx = layer.fields().indexOf(name)

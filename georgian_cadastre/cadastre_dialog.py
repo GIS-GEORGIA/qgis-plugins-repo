@@ -132,7 +132,7 @@ class CadastreDialog(QDialog):
 
         self.info_lbl = QLabel("")
         self.info_lbl.setWordWrap(True)
-        self.info_lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.info_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         lay.addWidget(self.info_lbl)
 
         self.abox = QGroupBox()

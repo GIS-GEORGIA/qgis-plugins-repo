@@ -3,7 +3,7 @@
 from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QAction
 from qgis.PyQt.QtCore import Qt, QSize
 from qgis.core import QgsProject, QgsVectorLayer, QgsField, edit
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 from qgis.utils import iface
 
 
@@ -113,7 +113,7 @@ class TransliteratorDialog(QDialog):
         # სვეტის დამატება თუ არ არსებობს
         existing_fields = [f.name().lower() for f in layer.fields()]
         if output_field.lower() not in existing_fields:
-            success = layer.dataProvider().addAttributes([QgsField(output_field, QVariant.String)])
+            success = layer.dataProvider().addAttributes([QgsField(output_field, QMetaType.Type.QString)])
             if success:
                 layer.updateFields()
             else:
@@ -148,4 +148,4 @@ class TransliteratorPlugin:
 
     def run(self):
         dialog = TransliteratorDialog(self.iface.mainWindow())
-        dialog.exec_()
+        dialog.exec()

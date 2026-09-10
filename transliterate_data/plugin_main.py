@@ -40,4 +40,4 @@ class TransliterateDataPlugin:
     def run(self):
         from .dialog import TransliterateDialog
         dlg = TransliterateDialog(self.iface, self.iface.mainWindow())
-        dlg.exec_() if hasattr(dlg, "exec_") else dlg.exec()
+        dlg.exec()

@@ -21,7 +21,7 @@ from qgis.core import (
     QgsFields,
     QgsFeature,
 )
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
+from qgis.PyQt.QtCore import QCoreApplication, QMetaType
 
 from solar_wind_core.wind import weibull, power_curve, interpolation
 
@@ -43,13 +43,13 @@ class WindResourceAlgorithm(QgsProcessingAlgorithm):
 
     # output ველები (name, type)
     _OUT_FIELDS = [
-        ("v_hub", QVariant.Double),        # სიჩქარე hub height-ზე [m/s]
-        ("weibull_k", QVariant.Double),
-        ("weibull_c", QVariant.Double),
-        ("pdens_wm2", QVariant.Double),    # power density [W/m²]
-        ("aep_mwh", QVariant.Double),      # წლიური ენერგია [MWh]
-        ("cf_pct", QVariant.Double),       # capacity factor [%]
-        ("revenue_gel", QVariant.Double),  # წლიური შემოსავალი [₾]
+        ("v_hub", QMetaType.Type.Double),        # სიჩქარე hub height-ზე [m/s]
+        ("weibull_k", QMetaType.Type.Double),
+        ("weibull_c", QMetaType.Type.Double),
+        ("pdens_wm2", QMetaType.Type.Double),    # power density [W/m²]
+        ("aep_mwh", QMetaType.Type.Double),      # წლიური ენერგია [MWh]
+        ("cf_pct", QMetaType.Type.Double),       # capacity factor [%]
+        ("revenue_gel", QMetaType.Type.Double),  # წლიური შემოსავალი [₾]
     ]
 
     def initAlgorithm(self, config=None):

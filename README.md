@@ -20,6 +20,8 @@
 | `layer_cleaner` | Cleans layers and adds base layers (Google Satellite, OSM) | შრეების გასუფთავება და საბაზო ფენების დამატება | 🆕 ახალი |
 | `Calculate Geometry` | Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions | გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე | 🧪 ექსპერიმენტული |
 | `GeoEco` | Renewable-energy "last mile" on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback & optimal tilt; wind resource, Weibull & annual energy (AEP) | განახლებადი ენერგიის "ბოლო მილი" SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია | 🧪 ექსპერიმენტული |
+| `Selection Tools` | ArcGIS Pro-style Selection submenu; Make Layer From Selected Features on the same data source, no file written | ArcGIS Pro-ს „Selection" ქვემენიუ; შრის შექმნა მონიშნულებიდან იმავე პირველწყაროთი, ფაილის შექმნის გარეშე | 🧪 ექსპერიმენტული |
+| `Transliterate Data` | Batch-transliterates Georgian file, layer and field names to clean Latin across a folder | ქართული ფაილების, შრეებისა და ველების სახელების მასობრივი ტრანსლიტერაცია ლათინურზე | 🧪 ექსპერიმენტული |
 | `Georgian Cadastre` | NAPR parcel fetch by code (batch & map-click reverse, SHP/DXF/CSV) **+ Cadastral Drawing**: UTM 37/38 templates, WMS/WMTS, name-based styles, fonts, A4 layout, Excel attachment & packaged export | საკადასტრო კოდით ნაკვეთის ჩამოტვირთვა maps.gov.ge-დან **+ საკადასტრო ნახაზი**: UTM 37/38 შაბლონები, WMS/WMTS, სტილები სახელით, ფონტები, A4 layout, ექსელ დანართი და შეფუთული ექსპორტი | 🧪 ექსპერიმენტული |
 
 ---
@@ -27,6 +29,30 @@
 > ❗ **Note**: Each plugin has its own folder and `metadata.txt` according to [QGIS Plugin Repository standards](https://plugins.qgis.org/). <br>
 > ❗ **შენიშვნა**: თითოეულ პლაგინს აქვს საკუთარი საქაღალდე და `metadata.txt` ფაილი, რაც შეესაბამება [QGIS პლაგინების სტანდარტებს](https://plugins.qgis.org/).
 
+
+---
+
+## 🧭 QGIS compatibility / თავსებადობა
+
+Every plugin here is built **once** and runs unchanged on **QGIS 3.40+ (Qt5)** and **QGIS 4.x (Qt6)**.
+There are no separate QGIS 3 and QGIS 4 downloads: `plugins.xml` declares each plugin's
+`qgis_minimum_version`/`qgis_maximum_version`, and the QGIS plugin manager only offers you what matches
+the QGIS you are running. On [plugins.qgis.ge](https://plugins.qgis.ge) the **QGIS 3 / QGIS 4** switch in
+the header shows the same thing at a glance.
+
+აქ ყველა პლაგინი **ერთხელ** იწყობა და უცვლელად მუშაობს **QGIS 3.40+ (Qt5)** და **QGIS 4.x (Qt6)** გარემოში.
+ცალკე QGIS 3 და QGIS 4 ვერსიები არ არსებობს: `plugins.xml`-ში მითითებულია თითოეული პლაგინის თავსებადობის
+დიაპაზონი და QGIS თავად ფილტრავს. საიტზე თავსებადობას **QGIS 3 / QGIS 4** გადამრთველი აჩვენებს.
+
+| | |
+|---|---|
+| All plugins in this repository | QGIS 3.40 – 4.99 |
+| `PostGIS Manager` | see its own [repository](https://github.com/GIS-GEORGIA/postgis-manager) |
+
+What makes one build work on both: Qt is imported through `qgis.PyQt` (never `PyQt5`/`PyQt6` directly),
+Qt enums are written in the scoped form (`Qt.AlignmentFlag.AlignLeft`), dialogs use `exec()` rather than
+`exec_()`, and field types use `QMetaType.Type` rather than the deprecated `QVariant` types.
+`tools/qt_compat_scan.py` enforces all four.
 
 ---
 
@@ -116,6 +142,29 @@ You can install these plugins in two ways:
 - ავტომატური UTM ზონა 37N/38N + WGS84 / Web Mercator; ექსპორტი SHP / DXF / CSV
 - ატრიბუტები: ფართობი (QGIS-ით გამოთვლილი + ოფიციალური), ტიპი, სტატუსი — **პერსონალური მონაცემების გარეშე**
 - ორენოვანი (ka/en) · ფონური QgsTask (UI არ იყინება) · QGIS proxy-ს იცავს
+
+---
+
+## 🛠️ Maintaining this repository
+
+The ZIPs, `plugins.xml` and the plugin cards on `index.html` are all generated — edit a plugin's
+`metadata.txt` (and `tools/plugins.json` for the site copy), then run:
+
+```bash
+python tools/qt_compat_scan.py .     # QGIS 4 / Qt6 lint — must be clean
+python tools/build.py                # rebuild plugins/*.zip, plugins.xml and index.html
+python tools/build.py --check        # CI mode: fail if anything is out of date
+```
+
+Then load every built ZIP in a real QGIS of each generation:
+
+```bash
+"C:\Program Files\QGIS 3.44.5\bin\python-qgis.bat" tools/smoke_test.py
+"C:\Program Files\QGIS 4.2.0\bin\python-qgis.bat"  tools/smoke_test.py
+```
+
+`tools/qt_enum_map.json.gz` is the unscoped→scoped Qt enum table used by the linter; regenerate it with
+`tools/gen_qt_enum_map.py` under a PyQt6 interpreter only when targeting a newer Qt.
 
 ---
 

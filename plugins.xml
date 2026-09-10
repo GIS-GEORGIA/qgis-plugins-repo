@@ -1,134 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="PostGIS Manager" version="1.1.0">
-    <description>Unique spatial-database GIS toolkit for PostGIS — geometry editor, CRS audit, spatial join GUI, data-quality scoring, pgRouting network wizard, WFS, GPX import.</description>
-    <about>Hybrid QGIS 4 plugin and standalone app filling the gap QGIS leaves in spatial database management. Map viewer with geometry editor, CRS browser/audit, spatial join GUI, data-quality dashboard, pgRouting network wizard, WFS connector, GPX import, thematic classification and snapshot diff — plus full SQL/import/export/backup tooling. Bilingual EN/KA, light/dark themes.</about>
-    <version>1.1.0</version>
-    <qgis_minimum_version>4.0</qgis_minimum_version>
+  <pyqgis_plugin name="Transliterate Data" version="0.2.0">
+    <description>Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.</description>
+    <about>Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames: shapefile filesets (all sidecars together), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old→new plan first; then apply in place, or work on a copy so the original is left untouched. Bilingual ka/en. Free/open-source, GPLv3.</about>
+    <version>0.2.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
-    <homepage>https://pg.qgis.ge</homepage>
-    <file_name>PostGISManager.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/PostGISManager.zip</download_url>
-    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
-    <email>kapan.gio777@gmail.com</email>
-    <tracker>https://github.com/GIS-GEORGIA/postgis-manager/issues</tracker>
-    <repository>https://github.com/GIS-GEORGIA/postgis-manager</repository>
-    <tags>postgis,postgresql,database,spatial,geometry,crs,spatial join,data quality,pgrouting,wfs,gpx,raster,georgian</tags>
-    <experimental>False</experimental>
-    <deprecated>False</deprecated>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="BasemapLoader" version="1.0">
-    <description>Loads OpenStreetMap and sets CRS</description>
-    <about>Plugin to load OpenStreetMap basemaps and configure coordinate reference systems.</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.10</qgis_minimum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>BasemapLoader.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="save_attributes" version="1.0">
-    <description>Saves attributes</description>
-    <about>Plugin to save attributes from QGIS layers.</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.10</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>save_attributes.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="transliterator" version="1.0">
-    <description>Saves attributes</description>
-    <about>Plugin to transliterate from georgian to latin</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.10</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>transliterator.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/transliterator.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="owners_analyzer" version="1.0">
-    <description>Analyzes layer owners and statistics</description>
-    <about>Plugin to analyze attribute table, count unique values and filter by keywords</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.10</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>owners_analyzer.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="layer_cleaner" version="1.0">
-    <description>Clean layers and add base layers</description>
-    <about>Remove all layers except base layers and add Google Satellite Hybrid and OpenStreetMap</about>
-    <version>1.0</version>
-    <qgis_minimum_version>3.10</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>layer_cleaner.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/layer_cleaner.zip</download_url>
-    <author_name>Giorgi Kapanadze</author_name>
-    <email>aigroegsig@gmail.com</email>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="Calculate Geometry" version="0.1.0">
-    <description>Guided dialog to populate fields with geometry properties (coordinates, area, perimeter, length) — no expressions required.</description>
-    <about>Pick target field(s), a geometry property per field, a unit, and a CRS, then write the values in place. Built on existing QGIS core classes. Early experimental release — not yet extensively tested. Upstream QGIS feature request: https://github.com/qgis/QGIS/issues/66902</about>
-    <version>0.1.0</version>
-    <qgis_minimum_version>3.34</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>calculate_geometry.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/calculate_geometry.zip</download_url>
+    <file_name>transliterate_data.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/transliterate_data.zip?v=0.2.0</download_url>
+    <icon>https://plugins.qgis.ge/transliterate_data/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
-    <tags>geometry,field,attribute,area,perimeter,length,coordinates,calculate,measurement,georgian</tags>
+    <tags>transliteration,georgian,latin,rename,batch,shapefile,geopackage,sqlite,filegdb,fields,layers,data management</tags>
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="GeoEco" version="0.3.1">
-    <description>Renewable-energy "last mile" on top of SAGA/GRASS. Solar: radiation raster → PV energy (kWh), revenue (GEL), payback &amp; optimal tilt. Wind: point sites → Weibull, AEP, capacity factor &amp; revenue, plus IDW resource-map rasters (speed / power density / AEP). Bilingual ka/en.</description>
-    <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the layer they lack: energy (kWh), money (GEL), LCOE/NPV/payback, optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) output. Processing tools: "Solar: energy &amp; revenue", "Wind: resource &amp; yield" (points), and "Wind: resource map (IDW)" (rasters). Core logic is QGIS-independent and unit-tested (25 tests). GPLv3.</about>
-    <version>0.3.1</version>
-    <qgis_minimum_version>3.22</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>geoeco.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/geoeco.zip</download_url>
-    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
-    <email>kapan.gio777@gmail.com</email>
-    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
-    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
-    <tags>solar,wind,renewable,energy,radiation,pv,photovoltaic,weibull,environmental,saga,grass,georgian</tags>
-    <experimental>True</experimental>
-    <deprecated>False</deprecated>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="Georgian Cadastre" version="0.3.4">
-    <description>Georgian cadastre toolkit in one window: fetch parcels by code, map click, or in bulk over a radius / map extent from the public cadastre service with a progress bar and pause/resume/cancel; and prepare full cadastral survey drawings — UTM 37N/38N templates, WMS/WMTS services, name-based styles, Georgian fonts, an A4 layout with dynamic fields, an Excel attachment and a one-click packaged export.</description>
-    <about>Two tools in one bilingual (ka/en) plugin. (1) Georgian Cadastre — enter a cadastral code (e.g. 38.10.42.107), search the public cadastre service and load the parcel: single, batch &amp; bulk lookup, map-click reverse lookup, auto UTM zone 37N/38N, non-personal attributes, export to SHP/DXF/CSV; proxy-aware background tasks, no login. (2) Cadastral Drawing — create the official "საკადასტრო აგეგმვითი/აზომვითი ნახაზი": download SHP templates (cadastre + floor-plan) in the right CRS from the repo, add WMS/WMTS orthophoto &amp; cadastre services, apply symbology + labels automatically by layer name, download Georgian fonts, build an A4 print layout with dynamic date/area/CRS fields, fill the Excel attachment and package the PDF + Excel + photos into one folder named after the interested party.</about>
-    <version>0.3.4</version>
-    <qgis_minimum_version>3.34</qgis_minimum_version>
-    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>georgian_cadastre.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/georgian_cadastre.zip?v=0.3.0</download_url>
-    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
-    <email>kapan.gio777@gmail.com</email>
-    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
-    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
-    <tags>cadastre,georgia,parcel,land,utm,shapefile,dxf,batch,georgian,survey,layout,wms,wmts,template,drawing</tags>
-    <experimental>True</experimental>
-    <deprecated>False</deprecated>
-  </pyqgis_plugin>
-  <pyqgis_plugin name="Selection Tools" version="0.1.0">
+  <pyqgis_plugin name="Selection Tools" version="0.2.0">
     <description>ArcGIS Pro-style "Selection" submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.</description>
-    <about>Adds an ArcGIS Pro-like "Selection" submenu to the layer tree context menu: Zoom/Pan to selection, Clear, Switch, Select All, Select Visible Features, Generate Definition Query from Selection, Make Layer From Selected Features, and Attribute Table Showing Selection. "Make Layer From Selected Features" clones the layer (same data source URI — no .shp/.gpkg is written) and applies a definition query on the selected features; the query is stored in the project. Based on the idea of Murat Çalışkan's "Create Layer From Selected Features" (GPLv2+), reworked and improved by Giorgi Kapanadze: correct primary-key handling for PostGIS (gid/id) and FileGDB (OBJECTID) — not just "fid" — plus bilingual ka/en UI and the full ArcGIS-style submenu. GPLv3.</about>
-    <version>0.1.0</version>
-    <qgis_minimum_version>3.16</qgis_minimum_version>
+    <about>Adds an ArcGIS Pro-like "Selection" submenu to the layer tree context menu: Zoom/Pan to selection, Clear, Switch, Select All, Select Visible Features, Generate Definition Query from Selection, Make Layer From Selected Features, and Attribute Table Showing Selection. "Make Layer From Selected Features" clones the layer (same data source URI — no .shp/.gpkg is written) and applies a definition query on the selected features; the query is stored in the project. Based on the idea of Murat Çalışkan's "Create Layer From Selected Features" (GPLv2+), reworked and improved by Giorgi Kapanadze: correct primary-key handling for PostGIS (gid/id) and FileGDB (OBJECTID) — not just "fid" — plus bilingual ka/en UI and the full ArcGIS-style submenu. See NOTICE.md for attribution. GPLv3.</about>
+    <version>0.2.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>selection_tools.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/selection_tools.zip</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/selection_tools.zip?v=0.2.0</download_url>
+    <icon>https://plugins.qgis.ge/selection_tools/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
@@ -137,21 +36,156 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="Transliterate Data" version="0.1.0">
-    <description>Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.</description>
-    <about>Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames shapefile filesets (all sidecars), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old-to-new plan first; then apply in place, or work on a copy so the original is untouched. Bilingual ka/en. GPLv3.</about>
-    <version>0.1.0</version>
-    <qgis_minimum_version>3.16</qgis_minimum_version>
+  <pyqgis_plugin name="Georgian Cadastre" version="0.4.0">
+    <description>Georgian cadastre toolkit for QGIS: fetch parcels by code from the public cadastre service, and prepare full cadastral survey drawings — UTM 37N/38N templates, WMS/WMTS services, name-based styles, Georgian fonts, an A4 layout with dynamic fields, an Excel attachment and a one-click packaged export.</description>
+    <about>Two tools in one bilingual (ka/en) plugin. (1) Cadastre fetch — enter a cadastral code (e.g. 38.10.42.107), search the public cadastre service and load the parcel: single, batch and bulk (radius / map extent) lookup, map-click reverse lookup, auto UTM zone 37N/38N, non-personal attributes, export to SHP/DXF/CSV. All network work runs on background tasks, proxy-aware, no login. (2) Cadastral Drawing — create the official "საკადასტრო აგეგმვითი/აზომვითი ნახაზი": download SHP templates (cadastre + floor-plan) in the right CRS, add WMS/WMTS orthophoto &amp; cadastre services, apply symbology + labels automatically by layer name, download Georgian fonts, build an A4 print layout with dynamic date/area/CRS fields, fill the Excel attachment and package the PDF + Excel + photos into one folder named after the interested party. / ქართული კადასტრი + საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული ხელსაწყო.</about>
+    <version>0.4.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>transliterate_data.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/transliterate_data.zip</download_url>
+    <file_name>georgian_cadastre.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/georgian_cadastre.zip?v=0.4.0</download_url>
+    <icon>https://plugins.qgis.ge/georgian_cadastre/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
-    <tags>transliteration,georgian,latin,rename,batch,shapefile,geopackage,sqlite,filegdb,fields,layers,data management</tags>
+    <tags>cadastre,georgia,parcel,land,utm,shapefile,dxf,batch,georgian,survey,layout,wms,wmts,template,drawing</tags>
     <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="PostGIS Manager" version="1.2.0">
+    <description>Unique spatial-database GIS toolkit for PostGIS — geometry editor on canvas, CRS audit, spatial join GUI, data-quality scoring, pgRouting network wizard, WFS, GPX import, thematic classification and snapshot diff. Not a pgAdmin clone.</description>
+    <about>PostGIS Manager is a hybrid QGIS plugin (3.40+ and 4.x) and standalone desktop app that fills the gap QGIS leaves in spatial database management — the "PostGIS as a GIS workspace" middle ground that neither QGIS nor pgAdmin covers well. Fully bilingual: English and Georgian (ქართული) with runtime switching. Light and Dark themes. Sidebar navigation (pgAdmin/DBeaver style).</about>
+    <version>1.2.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://pg.qgis.ge</homepage>
+    <file_name>PostGISManager.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/PostGISManager.zip?v=1.2.0</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/postgis-manager/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/postgis-manager</repository>
+    <tags>postgis,postgresql,database,spatial,geometry,geometry editor,crs,reproject,srid,spatial join,data quality,validation,pgrouting,routing,isochrone,network,wfs,ogc,gpx,kml,gps,classification,jenks,natural breaks,thematic,snapshot,diff,raster,import,export,geopackage,shapefile,geojson,3dcitydb,versioning,docker,backup,restore,sql,dashboard,schema,roles,bilingual,georgian</tags>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="GeoEco" version="0.4.0">
+    <description>Bilingual (ka/en) environmental toolkit — the "last mile" on top of SAGA/GRASS: solar PV energy &amp; economics, wind resource &amp; yield.</description>
+    <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the "last mile" they lack: energy (kWh), money (GEL), optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) reporting. First module: Energy (solar + wind). GPLv3.</about>
+    <version>0.4.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>geoeco.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/geoeco.zip?v=0.4.0</download_url>
+    <icon>https://plugins.qgis.ge/geoeco/icon.svg</icon>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>solar,wind,renewable,energy,radiation,pv,photovoltaic,weibull,environmental,saga,grass,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="Calculate Geometry" version="0.2.0">
+    <description>Guided dialog to populate one or more fields with geometry properties (coordinates, area, perimeter, length) — no expressions required.</description>
+    <about>Guided "Calculate Geometry" dialog: pick target field(s), a geometry property per field, a unit, and a CRS, then write the values in place. Built on existing QGIS core classes (QgsDistanceArea, QgsProjectionSelectionWidget, QgsUnitTypes). NOTE: early experimental release (v0.1.0) — not yet extensively tested. Upstream QGIS feature request: https://github.com/qgis/QGIS/issues/66902</about>
+    <version>0.2.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>calculate_geometry.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/calculate_geometry.zip?v=0.2.0</download_url>
+    <icon>https://plugins.qgis.ge/calculate_geometry/icon.svg</icon>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>geometry,field,attribute,area,perimeter,length,coordinates,calculate,measurement,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="მფლობელების ანალიზატორი" version="1.1">
+    <description>შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია</description>
+    <about>QGIS პლაგინი რომელიც საშუალებას გაძლევთ:</about>
+    <version>1.1</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/yourusername/owners_analyzer</homepage>
+    <file_name>owners_analyzer.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.1</download_url>
+    <icon>https://plugins.qgis.ge/owners_analyzer/icon.png</icon>
+    <author_name>Kapo</author_name>
+    <email>your.email@example.com</email>
+    <tracker>https://github.com/yourusername/owners_analyzer/issues</tracker>
+    <repository>https://github.com/yourusername/owners_analyzer</repository>
+    <tags>analysis,owners,statistics,georgia,filter</tags>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="Layer Cleaner" version="1.1">
+    <description>Clean layers and add base layers (Google Satellite, OpenStreetMap)</description>
+    <about>QGIS plugin that allows you to:</about>
+    <version>1.1</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>layer_cleaner.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/layer_cleaner.zip?v=1.1</download_url>
+    <icon>https://plugins.qgis.ge/layer_cleaner/layer_cleaner/icons/icon.png</icon>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>layers,cleanup,basemap,google,osm,satellite</tags>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="BasemapLoader" version="1.1">
+    <description>This plugin adds a basemap layer to QGIS.</description>
+    <version>1.1</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>BasemapLoader.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip?v=1.1</download_url>
+    <icon>https://plugins.qgis.ge/Basemap%20Loader/logo.png</icon>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>g.kapanadze1908@gmail.com</email>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="Save Attributes" version="1.1">
+    <description>This plugin saves the attributes of the selected vector layer as a CSV file</description>
+    <version>1.1</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>save_attributes.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/save_attributes.zip?v=1.1</download_url>
+    <icon>https://plugins.qgis.ge/save_attributes/logo.png</icon>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>g.kapanadze1908@gmail.com</email>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
+  <pyqgis_plugin name="Transliterator" version="1.1">
+    <description>A plugin to transliterate Georgian script to Latin.</description>
+    <version>1.1</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
+    <file_name>transliterator.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/transliterator.zip?v=1.1</download_url>
+    <icon>https://plugins.qgis.ge/transliterator/icon.png</icon>
+    <author_name>Giorgi Kapanadze</author_name>
+    <email>g.kapanadze1908@gmail.com</email>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
 </plugins>

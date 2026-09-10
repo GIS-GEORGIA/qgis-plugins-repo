@@ -20,7 +20,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Never publish a plugin that would break on QGIS 4, and never publish a
+  # plugins.xml / index.html that disagrees with the plugins' own metadata.txt.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Qt6 compatibility lint
+        run: python tools/qt_compat_scan.py .
+      - name: Plugin sources compile
+        run: |
+          python - <<'PY'
+          import compileall, json, sys
+          manifest = json.load(open("tools/plugins.json", encoding="utf-8"))
+          ok = True
+          for plugin in manifest["plugins"]:
+              if plugin.get("source"):
+                  ok &= compileall.compile_dir(plugin["source"], quiet=1, force=True)
+          sys.exit(0 if ok else 1)
+          PY
+      - name: Generated files are up to date
+        run: python tools/build.py --check
+
   deploy:
+    needs: verify
     runs-on: ubuntu-latest
     environment:
       name: github-pages

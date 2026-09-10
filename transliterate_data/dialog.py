@@ -155,7 +155,7 @@ class TransliterateDialog(QDialog):
         box.setTextFormat(Qt.TextFormat.RichText)
         box.setText(html)
         box.setStandardButtons(QMessageBox.StandardButton.Ok)
-        box.exec_() if hasattr(box, "exec_") else box.exec()
+        box.exec()
 
     # ---- helpers ----
     def _browse(self):

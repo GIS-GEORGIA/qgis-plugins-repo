@@ -17,7 +17,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsWkbTypes,
 )
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 
 WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
 
@@ -75,14 +75,14 @@ def true_area_perimeter(geom_wgs84):
 
 def _fields():
     f = QgsFields()
-    f.append(QgsField("cad_code", QVariant.String))
-    f.append(QgsField("address", QVariant.String))
-    f.append(QgsField("area_m2", QVariant.Double))     # computed in QGIS
-    f.append(QgsField("perim_m", QVariant.Double))     # computed in QGIS
-    f.append(QgsField("area_off", QVariant.Double))    # official (from the service)
-    f.append(QgsField("type", QVariant.String))
-    f.append(QgsField("status", QVariant.String))
-    f.append(QgsField("source", QVariant.String))
+    f.append(QgsField("cad_code", QMetaType.Type.QString))
+    f.append(QgsField("address", QMetaType.Type.QString))
+    f.append(QgsField("area_m2", QMetaType.Type.Double))     # computed in QGIS
+    f.append(QgsField("perim_m", QMetaType.Type.Double))     # computed in QGIS
+    f.append(QgsField("area_off", QMetaType.Type.Double))    # official (from the service)
+    f.append(QgsField("type", QMetaType.Type.QString))
+    f.append(QgsField("status", QMetaType.Type.QString))
+    f.append(QgsField("source", QMetaType.Type.QString))
     return f
 
 

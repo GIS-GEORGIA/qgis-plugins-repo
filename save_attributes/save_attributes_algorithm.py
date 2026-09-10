@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (Qgis,
                        QgsProcessing,
                        QgsProcessingAlgorithm,

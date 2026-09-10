@@ -8,7 +8,7 @@ POC — untested. Uses existing QGIS widgets:
 """
 import os
 
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -62,9 +62,9 @@ AREA_UNITS = [
     ("Acres", QgsUnitTypes.AreaAcres),
 ]
 QVARIANT_FOR_TYPE = {
-    "double": QVariant.Double,
-    "int": QVariant.Int,
-    "string": QVariant.String,
+    "double": QMetaType.Type.Double,
+    "int": QMetaType.Type.Int,
+    "string": QMetaType.Type.QString,
 }
 
 
@@ -200,7 +200,7 @@ class CalculateGeometryDialog(QDialog):
         footer.addWidget(self.undo_toggle)
         footer.addStretch(1)
         self.buttons = QDialogButtonBox(
-            QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         footer.addWidget(self.buttons)
         outer.addLayout(footer)
@@ -210,7 +210,7 @@ class CalculateGeometryDialog(QDialog):
         self.browse_btn.clicked.connect(self.browse_layer)
         self.layer_combo.layerChanged.connect(self.set_layer)
         self.field_picker.fieldsChosen.connect(self.on_fields_chosen)
-        self.buttons.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
+        self.buttons.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
         self.buttons.accepted.connect(self._ok)
         self.buttons.rejected.connect(self.reject)
 

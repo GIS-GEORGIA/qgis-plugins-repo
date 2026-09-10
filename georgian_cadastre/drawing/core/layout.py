@@ -50,7 +50,7 @@ def _find_north_svg():
 
 
 def _label(layout, text, x, y, w, h, size=8.0, bold=False, html=False,
-           align=Qt.AlignLeft):
+           align=Qt.AlignmentFlag.AlignLeft):
     item = QgsLayoutItemLabel(layout)
     item.setText(text)
     if html:
@@ -60,7 +60,7 @@ def _label(layout, text, x, y, w, h, size=8.0, bold=False, html=False,
     font.setBold(bold)
     item.setFont(font)
     item.setHAlign(align)
-    item.setVAlign(Qt.AlignVCenter)
+    item.setVAlign(Qt.AlignmentFlag.AlignVCenter)
     layout.addLayoutItem(item)
     item.attemptMove(QgsLayoutPoint(x, y, QgsUnitTypes.LayoutMillimeters))
     item.attemptResize(QgsLayoutSize(w, h, QgsUnitTypes.LayoutMillimeters))
@@ -96,7 +96,7 @@ def build_layout(scale=1000, replace=True):
     # --- Title -------------------------------------------------------------
     _label(layout, "საკადასტრო აგეგმვითი/აზომვითი ნახაზი",
            MARGIN, MARGIN, PAGE_W - 2 * MARGIN, 8,
-           size=13, bold=True, align=Qt.AlignHCenter)
+           size=13, bold=True, align=Qt.AlignmentFlag.AlignHCenter)
 
     # --- Map ---------------------------------------------------------------
     map_top = MARGIN + 10
@@ -129,7 +129,7 @@ def build_layout(scale=1000, replace=True):
         pic.attemptResize(QgsLayoutSize(12, 12, QgsUnitTypes.LayoutMillimeters))
     else:
         _label(layout, "N ↑", PAGE_W - MARGIN - 16, map_top + 3, 12, 8,
-               size=11, bold=True, align=Qt.AlignHCenter)
+               size=11, bold=True, align=Qt.AlignmentFlag.AlignHCenter)
 
     # --- Scale bar ---------------------------------------------------------
     bar = QgsLayoutItemScaleBar(layout)

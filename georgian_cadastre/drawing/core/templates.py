@@ -8,7 +8,7 @@ templates on demand — one set per zone, encoded UTF-8.
 
 import os
 
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 from qgis.core import (
     QgsField,
     QgsFields,
@@ -22,10 +22,10 @@ from . import config
 from . import crs as crs_mod
 
 _TYPE_MAP = {
-    "int": (QVariant.Int, "integer", 0),
-    "long": (QVariant.LongLong, "integer64", 0),
-    "double": (QVariant.Double, "double", 0),
-    "date": (QVariant.Date, "date", 0),
+    "int": (QMetaType.Type.Int, "integer", 0),
+    "long": (QMetaType.Type.LongLong, "integer64", 0),
+    "double": (QMetaType.Type.Double, "double", 0),
+    "date": (QMetaType.Type.QDate, "date", 0),
 }
 
 _WKB = {
@@ -40,7 +40,7 @@ def _fields_for(schema):
     for name, spec in schema["fields"]:
         if spec.startswith("string"):
             width = int(spec.split(":")[1]) if ":" in spec else 254
-            fields.append(QgsField(name, QVariant.String, "string", width))
+            fields.append(QgsField(name, QMetaType.Type.QString, "string", width))
         else:
             qvar, typename, _ = _TYPE_MAP[spec]
             fields.append(QgsField(name, qvar, typename))

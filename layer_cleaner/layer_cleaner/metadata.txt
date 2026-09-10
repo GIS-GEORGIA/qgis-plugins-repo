@@ -1,8 +1,10 @@
 [general]
 name=Layer Cleaner
-qgisMinimumVersion=3.10
+qgisMinimumVersion=3.40
+qgisMaximumVersion=4.99
+supportsQt6=True
 description=Clean layers and add base layers (Google Satellite, OpenStreetMap)
-version=1.0
+version=1.1
 author=Giorgi Kapanadze
 email=aigroegsig@gmail.com
 
@@ -14,7 +16,7 @@ about=QGIS plugin that allows you to:
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 
-changelog=
+changelog=1.1 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
     1.0 - Initial release
 
 tags=layers,cleanup,basemap,google,osm,satellite

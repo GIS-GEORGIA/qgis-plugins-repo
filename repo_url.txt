@@ -1,10 +1,12 @@
-QGIS Official Plugin Repository
+QGIS custom plugin repository — GIS GEORGIA
+Works as-is on QGIS 3.40+ and QGIS 4.x; QGIS filters the feed by its own version.
 
+    https://plugins.qgis.ge/plugins.xml
 
-https://plugins.qgis.org/plugins/plugins.xml
+Mirror (GitHub Pages, same content):
 
+    https://gis-georgia.github.io/qgis-plugins-repo/plugins.xml
 
-https://plugins.qgis.ge/plugins.xml
+QGIS Official Plugin Repository, for reference:
 
-
-https://gis-georgia.github.io/qgis-plugins-repo/plugins.xml
+    https://plugins.qgis.org/plugins/plugins.xml

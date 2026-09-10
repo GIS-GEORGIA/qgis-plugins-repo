@@ -88,11 +88,11 @@ class LayerCleanerPlugin:
             "Layer Cleaner",
             f"Remove {len(layers_to_remove)} layer(s)?\n\n"
             f"Base layers will be kept:\n- " + "\n- ".join(self.keep_names),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
         )
         
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             for layer_id in layers_to_remove:
                 project.removeMapLayer(layer_id)
             

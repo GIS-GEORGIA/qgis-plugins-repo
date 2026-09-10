@@ -157,8 +157,9 @@ class SelectionToolsPlugin:
         ans = QMessageBox.question(
             self.iface.mainWindow(), i18n.t("title", self.lang),
             i18n.t("offer_autokey", self.lang, name=lyr.name()),
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if ans != QMessageBox.Yes:
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No)
+        if ans != QMessageBox.StandardButton.Yes:
             return False
         sel = lyr.selectedFeatureIds()          # შევინახოთ მონიშვნა
         field, status = add_autoincrement_key(lyr)

@@ -27,7 +27,7 @@ from qgis.PyQt.QtWidgets import (
     QWidgetAction,
 )
 
-_NAME_ROLE = Qt.UserRole
+_NAME_ROLE = Qt.ItemDataRole.UserRole
 
 
 class FieldPicker(QWidget):
@@ -47,12 +47,12 @@ class FieldPicker(QWidget):
         # chevron (opens the checkable popup)
         self.chevron = QToolButton(self)
         self.chevron.setText("Select field(s)…  ▾")
-        self.chevron.setPopupMode(QToolButton.InstantPopup)
+        self.chevron.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
         # gear (sort / display menu)
         self.gear = QToolButton(self)
         self.gear.setText("⚙")
-        self.gear.setPopupMode(QToolButton.InstantPopup)
+        self.gear.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
         lay = QHBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
@@ -114,8 +114,8 @@ class FieldPicker(QWidget):
         for name, alias in rows:
             label = alias if self._display == self.ALIASES else name
             item = QListWidgetItem(label)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Unchecked)
             item.setData(_NAME_ROLE, name)
             self.list.addItem(item)
         self._apply_filter(self.search.text())
@@ -129,7 +129,7 @@ class FieldPicker(QWidget):
             item.setHidden(hidden)
 
     def _toggle_all_visible(self, checked):
-        state = Qt.Checked if checked else Qt.Unchecked
+        state = Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
         for i in range(self.list.count()):
             item = self.list.item(i)
             if not item.isHidden():
@@ -139,7 +139,7 @@ class FieldPicker(QWidget):
         names = [
             self.list.item(i).data(_NAME_ROLE)
             for i in range(self.list.count())
-            if self.list.item(i).checkState() == Qt.Checked
+            if self.list.item(i).checkState() == Qt.CheckState.Checked
         ]
         self._menu.close()
         if names:

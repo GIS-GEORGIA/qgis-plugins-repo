@@ -1,0 +1,241 @@
+{
+  "_comment": "Single source of truth for tools/build.py. Versions, names and QGIS compatibility are read from each plugin's metadata.txt; only the presentation copy for plugins.qgis.ge lives here.",
+  "repository": {
+    "name": "GIS GEORGIA",
+    "base_url": "https://plugins.qgis.ge",
+    "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo"
+  },
+  "plugins": [
+    {
+      "id": "transliterate-data",
+      "source": "transliterate_data",
+      "folder": "transliterate_data",
+      "zip": "transliterate_data.zip",
+      "site": {
+        "emoji": "🔡",
+        "ka_name": "სახელების ტრანსლიტერაცია",
+        "status": "experimental",
+        "featured": true,
+        "en": "Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become “_”. Preview first, then apply in place or on a copy.",
+        "ka": "ქართული სახელების მასობრივი ტრანსლიტერაცია სუფთა ლათინურზე მთელ საქაღალდეში: shapefile-ები (+sidecar), ბაზის ფაილები (gpkg/sqlite/gdb) და მათ შიგნით შრეები/feature class-ები და ველები. სხვა სიმბოლოები → „_“. ჯერ გადახედვა, მერე ადგილზე ან ასლზე.",
+        "tags": [
+          "transliteration",
+          "georgian",
+          "rename",
+          "batch",
+          "geopackage",
+          "filegdb"
+        ]
+      }
+    },
+    {
+      "id": "selection-tools",
+      "source": "selection_tools",
+      "folder": "selection_tools",
+      "zip": "selection_tools.zip",
+      "site": {
+        "emoji": "🎯",
+        "ka_name": "მონიშვნის ხელსაწყოები",
+        "status": "experimental",
+        "featured": true,
+        "en": "ArcGIS Pro-style “Selection” submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
+        "ka": "ArcGIS Pro-ს „Selection“ ქვემენიუს ანალოგი შრის მარჯვენა-კლიკის მენიუში. მთავარი: შრის შექმნა მონიშნულებიდან — ახალი შრე იმავე პირველწყაროთი (ფაილი არ იქმნება), ინახება პროექტში. მუშაობს GeoPackage, PostGIS, Shapefile და FileGDB-ზე.",
+        "tags": [
+          "selection",
+          "definition query",
+          "subset",
+          "arcgis",
+          "postgis",
+          "filegdb"
+        ]
+      }
+    },
+    {
+      "id": "georgian-cadastre",
+      "source": "georgian_cadastre",
+      "folder": "georgian_cadastre",
+      "zip": "georgian_cadastre.zip",
+      "exclude": [
+        "files/*",
+        "tests/*"
+      ],
+      "site": {
+        "emoji": "🗺️",
+        "ka_name": "ქართული კადასტრი",
+        "status": "experimental",
+        "featured": true,
+        "en": "Fetch cadastral parcels by code from maps.gov.ge (NAPR) — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
+        "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით maps.gov.ge-დან (NAPR) — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი.",
+        "tags": [
+          "cadastre",
+          "napr",
+          "maps.gov.ge",
+          "parcel",
+          "utm",
+          "survey",
+          "layout"
+        ]
+      }
+    },
+    {
+      "id": "postgis-manager",
+      "source": null,
+      "folder": "postgis_manager",
+      "zip": "PostGISManager.zip",
+      "vendored": true,
+      "upstream": "https://github.com/GIS-GEORGIA/postgis-manager",
+      "site": {
+        "emoji": "🐘",
+        "ka_name": "PostGIS მენეჯერი",
+        "status": "stable",
+        "featured": true,
+        "en": "Spatial-database toolkit for PostGIS: geometry editor, CRS audit, spatial-join GUI, data-quality scoring, pgRouting network wizard, WFS connector and GPX import.",
+        "ka": "სივრცული მონაცემთა ბაზის ხელსაწყოები PostGIS-ისთვის: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხის შეფასება, pgRouting ოსტატი, WFS და GPX იმპორტი.",
+        "tags": [
+          "postgis",
+          "postgresql",
+          "database",
+          "pgrouting",
+          "wfs"
+        ]
+      }
+    },
+    {
+      "id": "geoeco",
+      "source": "geoeco",
+      "folder": "geoeco",
+      "zip": "geoeco.zip",
+      "site": {
+        "emoji": "⚡",
+        "ka_name": "GeoEco",
+        "status": "experimental",
+        "featured": true,
+        "en": "Renewable-energy “last mile” on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback and optimal tilt; wind resource, Weibull and annual energy (AEP).",
+        "ka": "განახლებადი ენერგიის „ბოლო მილი“ SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია (AEP).",
+        "tags": [
+          "solar",
+          "wind",
+          "renewable",
+          "energy",
+          "saga",
+          "grass"
+        ]
+      }
+    },
+    {
+      "id": "calculate-geometry",
+      "source": "calculate_geometry",
+      "folder": "calculate_geometry",
+      "zip": "calculate_geometry.zip",
+      "site": {
+        "emoji": "📐",
+        "ka_name": "გეომეტრიის კალკულატორი",
+        "status": "experimental",
+        "featured": false,
+        "en": "Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions required.",
+        "ka": "გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე.",
+        "tags": [
+          "geometry",
+          "area",
+          "perimeter",
+          "coordinates"
+        ]
+      }
+    },
+    {
+      "id": "owners-analyzer",
+      "source": "owners_analyzer",
+      "folder": "owners_analyzer",
+      "zip": "owners_analyzer.zip",
+      "site": {
+        "emoji": "📊",
+        "ka_name": "მფლობელების ანალიზატორი",
+        "status": "new",
+        "featured": false,
+        "en": "Analyzes attribute tables — counts unique values, sorts in Georgian, filters by keyword and exports the results.",
+        "ka": "ატრიბუტების ანალიზი — უნიკალური მნიშვნელობების დათვლა, ქართული სორტირება, საკვანძო სიტყვით ფილტრი და ექსპორტი.",
+        "tags": [
+          "attributes",
+          "statistics",
+          "filter"
+        ]
+      }
+    },
+    {
+      "id": "layer-cleaner",
+      "source": "layer_cleaner/layer_cleaner",
+      "folder": "layer_cleaner",
+      "zip": "layer_cleaner.zip",
+      "site": {
+        "emoji": "🧹",
+        "ka_name": "შრეების გამწმენდი",
+        "status": "new",
+        "featured": false,
+        "en": "Removes all layers except base maps and adds Google Satellite Hybrid and OpenStreetMap in one click.",
+        "ka": "ყველა შრის წაშლა საბაზო ფენების გარდა და Google Satellite Hybrid-ისა და OpenStreetMap-ის დამატება ერთი დაჭერით.",
+        "tags": [
+          "layers",
+          "basemap",
+          "cleanup"
+        ]
+      }
+    },
+    {
+      "id": "basemap-loader",
+      "source": "Basemap Loader",
+      "folder": "Basemap Loader",
+      "zip": "BasemapLoader.zip",
+      "site": {
+        "emoji": "🌐",
+        "ka_name": "ბაზის რუკის ჩამტვირთავი",
+        "status": "stable",
+        "featured": false,
+        "en": "Adds an OpenStreetMap basemap layer to QGIS and sets the coordinate reference system.",
+        "ka": "OpenStreetMap ბაზის რუკის ფენის დამატება QGIS-ში და საკოორდინატო სისტემის დაყენება.",
+        "tags": [
+          "basemap",
+          "osm",
+          "crs"
+        ]
+      }
+    },
+    {
+      "id": "save-attributes",
+      "source": "save_attributes",
+      "folder": "save_attributes",
+      "zip": "save_attributes.zip",
+      "site": {
+        "emoji": "💾",
+        "ka_name": "ატრიბუტების შენახვა",
+        "status": "beta",
+        "featured": false,
+        "en": "Saves a vector layer's attribute table to a CSV file.",
+        "ka": "ვექტორული ფენის ატრიბუტების ცხრილის CSV ფაილში შენახვა.",
+        "tags": [
+          "attributes",
+          "csv",
+          "export"
+        ]
+      }
+    },
+    {
+      "id": "transliterator",
+      "source": "transliterator",
+      "folder": "transliterator",
+      "zip": "transliterator.zip",
+      "site": {
+        "emoji": "🔤",
+        "ka_name": "ტრანსლიტერატორი",
+        "status": "beta",
+        "featured": false,
+        "en": "Transliterates Georgian script into Latin characters.",
+        "ka": "ქართული ტექსტის ლათინურ ასოებად ტრანსლიტერაცია.",
+        "tags": [
+          "transliteration",
+          "georgian",
+          "latin"
+        ]
+      }
+    }
+  ]
+}

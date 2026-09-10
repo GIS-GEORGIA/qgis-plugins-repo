@@ -167,7 +167,7 @@ class CadastralDialog(QDialog):
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
         zone = self.zone_combo.currentData()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             crs_mod.set_project_crs(zone)
             saved = []
@@ -199,7 +199,7 @@ class CadastralDialog(QDialog):
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
         zone = self.zone_combo.currentData()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             crs_mod.set_project_crs(zone)
             paths = tpl.create_all(out, zone, overwrite=False)
@@ -373,7 +373,7 @@ class CadastralDialog(QDialog):
         if not code:
             return self._msg(_tr("no_code"), Qgis.Warning)
         zone = self._fetch_zone()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             result = napr_client.lookup(code)
             crs_mod.set_project_crs(zone)
@@ -403,7 +403,7 @@ class CadastralDialog(QDialog):
         if self._map_tool is not None:
             canvas.unsetMapTool(self._map_tool)
         zone = self._fetch_zone()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             matches = napr_client.reverse(lon, lat)
             if not matches:
@@ -573,7 +573,7 @@ class CadastralDialog(QDialog):
         if self._area_task is not None:
             return
         zone = self._fetch_zone()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             points, per_radius, err = self._compute_points(zone)
         except napr_client.NaprError as exc:
@@ -644,7 +644,7 @@ class CadastralDialog(QDialog):
             if not services_mod.is_ready(svc):
                 label += "  ⚠ (URL)"
             item = QListWidgetItem(label)
-            item.setData(Qt.UserRole, svc)
+            item.setData(Qt.ItemDataRole.UserRole, svc)
             self.svc_list.addItem(item)
         lay.addWidget(self.svc_list, 1)
 
@@ -662,7 +662,7 @@ class CadastralDialog(QDialog):
         item = self.svc_list.currentItem()
         if not item:
             return
-        svc = item.data(Qt.UserRole)
+        svc = item.data(Qt.ItemDataRole.UserRole)
         layer, err = services_mod.add_service(svc)
         if err:
             return self._msg(err, Qgis.Warning)
@@ -741,7 +741,7 @@ class CadastralDialog(QDialog):
         path = self.db_path.text().strip()
         if not path or not os.path.exists(path):
             return self._msg(_tr("error"), Qgis.Warning)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             summary = db_mod.import_grouped(path, self.group_field.text().strip() or None)
         except Exception as exc:  # noqa: BLE001
@@ -755,7 +755,7 @@ class CadastralDialog(QDialog):
         out = self.fonts_dir.text().strip()
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             saved, pages = fonts_mod.download_all(out)
             installed = 0
@@ -778,7 +778,7 @@ class CadastralDialog(QDialog):
         out = self.fonts_dir.text().strip()
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             saved = repo_mod.download_category("fonts", out)
             ttfs = [p for p in saved if p.lower().endswith((".ttf", ".otf"))]
@@ -798,7 +798,7 @@ class CadastralDialog(QDialog):
         out = self.docs_dir.text().strip()
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             saved = repo_mod.download_category("docs", out)
         except Exception as exc:  # noqa: BLE001
@@ -832,7 +832,7 @@ class CadastralDialog(QDialog):
         return w
 
     def _on_build_layout(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             layout_mod.build_layout(scale=self.scale_spin.value())
         except Exception as exc:  # noqa: BLE001
@@ -963,7 +963,7 @@ class CadastralDialog(QDialog):
             out = self.work_dir.text().strip()
         if not out:
             return self._msg(_tr("pick_dir_first"), Qgis.Warning)
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             folder, warnings = export_mod.package(
                 out, photos=self._photos, excel_data=self._collect_form_data(),

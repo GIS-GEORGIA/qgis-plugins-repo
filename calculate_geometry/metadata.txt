@@ -1,9 +1,11 @@
 [general]
 name=Calculate Geometry
-qgisMinimumVersion=3.34
+qgisMinimumVersion=3.40
+qgisMaximumVersion=4.99
+supportsQt6=True
 description=Guided dialog to populate one or more fields with geometry properties (coordinates, area, perimeter, length) — no expressions required.
 about=Guided "Calculate Geometry" dialog: pick target field(s), a geometry property per field, a unit, and a CRS, then write the values in place. Built on existing QGIS core classes (QgsDistanceArea, QgsProjectionSelectionWidget, QgsUnitTypes). NOTE: early experimental release (v0.1.0) — not yet extensively tested. Upstream QGIS feature request: https://github.com/qgis/QGIS/issues/66902
-version=0.1.0
+version=0.2.0
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
 homepage=https://github.com/GIS-GEORGIA/qgis-plugins-repo
@@ -14,3 +16,4 @@ deprecated=False
 tags=geometry,field,attribute,area,perimeter,length,coordinates,calculate,measurement,georgian
 category=Vector
 icon=icon.svg
+changelog=0.2.0 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.

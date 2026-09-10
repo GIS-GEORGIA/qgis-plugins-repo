@@ -1,15 +1,17 @@
 # This file contains metadata for your plugin.
 [general]
 name=Selection Tools
-qgisMinimumVersion=3.16
+qgisMinimumVersion=3.40
 qgisMaximumVersion=4.99
+supportsQt6=True
 description=ArcGIS Pro-style "Selection" submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.
 description[ka]=ArcGIS Pro-ს "Selection" ქვემენიუს ანალოგი შრის კონტექსტურ მენიუში. მთავარი ხელსაწყო: შრის შექმნა მონიშნულებიდან — ახალი შრე იმავე პირველწყაროთი (ფაილი არ იქმნება), ინახება პროექტში. მუშაობს GeoPackage, PostGIS, Shapefile და FileGDB-ზე.
-version=0.1.0
+version=0.2.0
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
 about=Adds an ArcGIS Pro-like "Selection" submenu to the layer tree context menu: Zoom/Pan to selection, Clear, Switch, Select All, Select Visible Features, Generate Definition Query from Selection, Make Layer From Selected Features, and Attribute Table Showing Selection. "Make Layer From Selected Features" clones the layer (same data source URI — no .shp/.gpkg is written) and applies a definition query on the selected features; the query is stored in the project. Based on the idea of Murat Çalışkan's "Create Layer From Selected Features" (GPLv2+), reworked and improved by Giorgi Kapanadze: correct primary-key handling for PostGIS (gid/id) and FileGDB (OBJECTID) — not just "fid" — plus bilingual ka/en UI and the full ArcGIS-style submenu. See NOTICE.md for attribution. GPLv3.
-changelog=0.1.0 - First release. ArcGIS-style Selection submenu; Make Layer From Selected Features on the same source (no file written), saved with the project. Self-verifying key selection: real PK (GeoPackage fid / PostGIS gid / FileGDB OBJECTID) -> unique attribute field -> OGR FID -> $id/"fid", each probe-verified so no empty layer is ever created silently. When a shapefile has no usable key, offers to add an auto-increment field (sel_uid). Bilingual ka/en.
+changelog=0.2.0 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
+    0.1.0 - First release. ArcGIS-style Selection submenu; Make Layer From Selected Features on the same source (no file written), saved with the project. Self-verifying key selection: real PK (GeoPackage fid / PostGIS gid / FileGDB OBJECTID) -> unique attribute field -> OGR FID -> $id/"fid", each probe-verified so no empty layer is ever created silently. When a shapefile has no usable key, offers to add an auto-increment field (sel_uid). Bilingual ka/en.
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 homepage=https://github.com/GIS-GEORGIA/qgis-plugins-repo

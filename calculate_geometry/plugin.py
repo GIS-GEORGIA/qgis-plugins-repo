@@ -39,4 +39,4 @@ class CalculateGeometryPlugin:
         active = self.iface.activeLayer()
         layer = active if isinstance(active, QgsVectorLayer) else None
         dlg = CalculateGeometryDialog(layer, self.iface, self.iface.mainWindow())
-        dlg.exec_()
+        dlg.exec()
