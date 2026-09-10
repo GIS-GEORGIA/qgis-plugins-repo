@@ -266,6 +266,10 @@
       </div>
     </div>
     <div class="note" style="margin-bottom:14px">
+      <span data-en><b>Using Basemap Loader from before v1.2?</b> Install it once more from here. It used to sit in a folder whose name QGIS could not match to this repository, so it never received updates. Version 1.2 fixes that; afterwards remove the old <b>Basemap Loader</b> entry, which stays on disk and will not update.</span>
+      <span data-ka><b>Basemap Loader v1.2-მდე გაქვს?</b> დააინსტალირე ერთხელ თავიდან. ადრე ის ისეთ საქაღალდეში იდგმებოდა, რომელსაც QGIS ამ რეპოზიტორიას ვერ უკავშირებდა, ამიტომ განახლებას ვერ იღებდა. 1.2 ამას ასწორებს; შემდეგ წაშალე ძველი <b>Basemap Loader</b>, რომელიც დისკზე რჩება და აღარ განახლდება.</span>
+    </div>
+    <div class="note" style="margin-bottom:14px">
       <span data-en><b>QGIS 3 or QGIS 4?</b> Use the same repository URL for both. Every plugin here is built once and runs on QGIS 3.40+ (Qt5) and QGIS 4.x (Qt6); QGIS reads <code>plugins.xml</code> and only offers you the versions that match the QGIS you are running. Use the <b>QGIS 3 / QGIS 4</b> switch at the top of the page to see what your version gets.</span>
       <span data-ka><b>QGIS 3 თუ QGIS 4?</b> ორივესთვის ერთი და იგივე ბმულია. აქ ყველა პლაგინი ერთხელ იწყობა და მუშაობს როგორც QGIS 3.40+-ზე (Qt5), ისე QGIS 4.x-ზე (Qt6); QGIS თავად კითხულობს <code>plugins.xml</code>-ს და მხოლოდ შენს ვერსიასთან თავსებადს გაჩვენებს. გვერდის თავში <b>QGIS 3 / QGIS 4</b> გადამრთველით ნახავ, რა ხვდება შენს ვერსიას.</span>
     </div>
@@ -379,7 +383,7 @@ const PLUGINS=[
   "ka_name": "PostGIS მენეჯერი",
   "version": "1.2.0",
   "status": "stable",
-  "zip": "PostGISManager.zip?v=1.2.0",
+  "zip": "postgis_manager.zip?v=1.2.0",
   "emoji": "🐘",
   "featured": true,
   "qgis_min": "3.40",
@@ -476,11 +480,11 @@ const PLUGINS=[
  },
  {
   "id": "basemap-loader",
-  "name": "BasemapLoader",
+  "name": "Basemap Loader",
   "ka_name": "ბაზის რუკის ჩამტვირთავი",
-  "version": "1.1",
+  "version": "1.2",
   "status": "stable",
-  "zip": "BasemapLoader.zip?v=1.1",
+  "zip": "basemap_loader.zip?v=1.2",
   "emoji": "🌐",
   "featured": false,
   "qgis_min": "3.40",

@@ -61,8 +61,8 @@
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://pg.qgis.ge</homepage>
-    <file_name>PostGISManager.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/PostGISManager.zip?v=1.2.0</download_url>
+    <file_name>postgis_manager.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/postgis_manager.zip?v=1.2.0</download_url>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/postgis-manager/issues</tracker>
@@ -143,17 +143,17 @@
     <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="BasemapLoader" version="1.1">
+  <pyqgis_plugin name="Basemap Loader" version="1.2">
     <description>This plugin adds a basemap layer to QGIS.</description>
-    <version>1.1</version>
+    <version>1.2</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
-    <file_name>BasemapLoader.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/BasemapLoader.zip?v=1.1</download_url>
-    <icon>https://plugins.qgis.ge/Basemap%20Loader/logo.png</icon>
+    <file_name>basemap_loader.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/basemap_loader.zip?v=1.2</download_url>
+    <icon>https://plugins.qgis.ge/basemap_loader/logo.png</icon>
     <author_name>Giorgi Kapanadze</author_name>
-    <email>g.kapanadze1908@gmail.com</email>
+    <email>kapan.gio777@gmail.com</email>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
     <experimental>False</experimental>
     <deprecated>False</deprecated>

@@ -13,7 +13,7 @@
 | Plugin Name | Description (Eng) | აღწერა (ქარ) | Status |
 |-------------|-------------------|--------------|--------|
 | `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
-| `Basemap Loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
+| `basemap_loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
 | `save_attributes` | Saves vector layer attributes as CSV file | ვექტორული ფენის ატრიბუტების CSV-ში შენახვა | 🧪 ბეტა |
 | `transliterator` | Transliterates Georgian script to Latin | ქართული ანბანის ლათინურად ტრანსლიტერაცია | 🧪 ბეტა |
 | `owners_analyzer` | Analyzes attributes, counts unique values, filters by keywords | ატრიბუტების ანალიზი, უნიკალური მნიშვნელობების დათვლა, ფილტრაცია | 🆕 ახალი |
@@ -29,6 +29,26 @@
 > ❗ **Note**: Each plugin has its own folder and `metadata.txt` according to [QGIS Plugin Repository standards](https://plugins.qgis.org/). <br>
 > ❗ **შენიშვნა**: თითოეულ პლაგინს აქვს საკუთარი საქაღალდე და `metadata.txt` ფაილი, რაც შეესაბამება [QGIS პლაგინების სტანდარტებს](https://plugins.qgis.org/).
 
+
+---
+
+## ⚠️ Basemap Loader — one-time reinstall / ერთჯერადი გადაინსტალირება
+
+Basemap Loader used to install into a folder with a space in it (`Basemap Loader`) while the
+repository advertised it as `BasemapLoader.zip`. The QGIS plugin manager keys installed plugins
+on the folder name and repository entries on the ZIP name, so the two never matched: the plugin
+showed as *not installed* even when it was, and updates were never offered.
+
+From **1.2** the folder is `basemap_loader` and the names line up. If you installed an earlier
+version, install this one and then remove the old **Basemap Loader** entry — the old copy stays
+on disk and will never update.
+
+Basemap Loader ადრე იდგმებოდა საქაღალდეში `Basemap Loader` (ჰარით), რეპოზიტორია კი მას
+`BasemapLoader.zip`-ად აცხადებდა. QGIS დაინსტალირებულ პლაგინს საქაღალდის სახელით ცნობს, ხოლო
+რეპოზიტორიის ჩანაწერს — ZIP-ის სახელით, ამიტომ ისინი არასდროს ემთხვეოდა და განახლება არ იძლეოდა.
+
+**1.2**-დან საქაღალდეა `basemap_loader` და სახელები ემთხვევა. თუ ძველი ვერსია გაქვს — დააინსტალირე
+ახალი და შემდეგ წაშალე ძველი **Basemap Loader**, რომელიც დისკზე რჩება და აღარ განახლდება.
 
 ---
 

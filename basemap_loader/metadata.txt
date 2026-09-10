@@ -1,0 +1,12 @@
+[general]
+name=Basemap Loader
+description=This plugin adds a basemap layer to QGIS.
+version=1.2
+qgisMinimumVersion=3.40
+qgisMaximumVersion=4.99
+supportsQt6=True
+author=Giorgi Kapanadze
+email=kapan.gio777@gmail.com
+icon=logo.png
+changelog=1.2 - The plugin folder is now basemap_loader (it used to contain a space), so QGIS can finally match the installed copy to this repository and offer updates. If you installed an earlier version, it is still on disk as "Basemap Loader" and will never update — uninstall that one after installing this.
+    1.1 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.

@@ -81,7 +81,7 @@
       "id": "postgis-manager",
       "source": null,
       "folder": "postgis_manager",
-      "zip": "PostGISManager.zip",
+      "zip": "postgis_manager.zip",
       "vendored": true,
       "upstream": "https://github.com/GIS-GEORGIA/postgis-manager",
       "site": {
@@ -182,9 +182,9 @@
     },
     {
       "id": "basemap-loader",
-      "source": "Basemap Loader",
-      "folder": "Basemap Loader",
-      "zip": "BasemapLoader.zip",
+      "source": "basemap_loader",
+      "folder": "basemap_loader",
+      "zip": "basemap_loader.zip",
       "site": {
         "emoji": "🌐",
         "ka_name": "ბაზის რუკის ჩამტვირთავი",

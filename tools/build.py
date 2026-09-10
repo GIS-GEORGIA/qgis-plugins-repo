@@ -107,6 +107,32 @@ def build_zip(plugin: dict) -> bytes:
 # --------------------------------------------------------------------------- outputs
 
 
+def zip_root(zip_path: str) -> str:
+    with zipfile.ZipFile(zip_path) as zf:
+        roots = {name.split("/")[0] for name in zf.namelist()}
+    if len(roots) != 1:
+        raise SystemExit(f"{zip_path}: expected exactly one root folder, found {sorted(roots)}")
+    return roots.pop()
+
+
+def check_plugin_id(plugin: dict, folder: str) -> None:
+    """The QGIS plugin manager keys repository entries on the <file_name> base and
+    installed plugins on their folder name (pyplugin_installer/installer_data.py:
+    ``name = fileName.partition(".")[0]`` vs ``pluginDir.entryList()``). If those two
+    disagree it never links the installed copy to the repository entry, so the plugin
+    shows as "not installed" and no update is ever offered. Nothing surfaces that at
+    runtime, so assert it here — before anything is written, so a rejected build
+    leaves no stray zip behind."""
+    repo_id = plugin["zip"].partition(".")[0]
+    if repo_id != folder:
+        raise SystemExit(
+            f"{plugin['id']}: plugin id mismatch — plugins.xml would advertise "
+            f"'{repo_id}' (from file_name {plugin['zip']}) but the zip installs into "
+            f"'{folder}'. QGIS would never offer updates. Rename the zip to "
+            f"'{folder}.zip' in tools/plugins.json, or rename the plugin folder."
+        )
+
+
 def download_url(base_url: str, zip_name: str, version: str) -> str:
     # ?v= busts the Cloudflare cache when a plugin is re-released under the same name
     return f"{base_url}/plugins/{quote_path(zip_name)}?v={version}"
@@ -226,10 +252,14 @@ def main() -> int:
         version = metadata["version"]
 
         if plugin.get("source"):
+            check_plugin_id(plugin, plugin["folder"])
             payload = build_zip(plugin)
             write_if_changed(os.path.join(PLUGINS_DIR, plugin["zip"]), payload, args.check, changed)
-        elif not os.path.exists(os.path.join(PLUGINS_DIR, plugin["zip"])):
-            raise SystemExit(f"{plugin['id']}: vendored zip plugins/{plugin['zip']} is missing")
+        else:
+            vendored = os.path.join(PLUGINS_DIR, plugin["zip"])
+            if not os.path.exists(vendored):
+                raise SystemExit(f"{plugin['id']}: vendored zip plugins/{plugin['zip']} is missing")
+            check_plugin_id(plugin, zip_root(vendored))
 
         icon_url = None
         icon = metadata.get("icon", "").strip()
