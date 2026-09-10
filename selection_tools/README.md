@@ -37,7 +37,7 @@ project, so it survives save/reload.
 subset string იგება შრის **ნამდვილ პირველად გასაღებზე** (`primaryKeyAttributes()`),
 არა უბრალოდ `fid`-ზე:
 
-| ფორმატი | PK | ორიგინალის `"fid"` | ეს პლაგინი |
+| ფორმატი | PK | ორიგინალის `"fid"` | ეს დანამატი |
 |---|---|---|---|
 | GeoPackage | `fid` | ✅ | ✅ |
 | PostGIS | `gid` / `id` | ❌ ტყდება | ✅ |
@@ -47,7 +47,7 @@ subset string იგება შრის **ნამდვილ პირვ�
 ## Attribution
 
 ბირთვის იდეა ეფუძნება **Murat Çalışkan**-ის *Create Layer From Selected
-Features* პლაგინს (GPLv2+). გადაკეთდა და გაუმჯობესდა **Giorgi Kapanadze**-ს
+Features* დანამატს (GPLv2+). გადაკეთდა და გაუმჯობესდა **Giorgi Kapanadze**-ს
 მიერ. დეტალები — [NOTICE.md](NOTICE.md). ლიცენზია: GPLv3.
 
 ## ტესტები / Tests

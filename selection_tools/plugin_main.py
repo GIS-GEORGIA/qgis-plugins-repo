@@ -8,7 +8,7 @@ Selection Tools — ArcGIS Pro-ს "Selection" submenu-ს ანალოგი
 
 Attribution:
   ბირთვის იდეა (clone + setSubsetString) ეფუძნება Murat Çalışkan-ის
-  "Create Layer From Selected Features" პლაგინს (GPLv2+).
+  "Create Layer From Selected Features" დანამატს (GPLv2+).
   იხ. NOTICE.md. აქ ის გადაკეთდა და გაუმჯობესდა Giorgi Kapanadze-ს მიერ:
   PostGIS/FileGDB-ის PK-ის სწორი დამუშავება, ორენოვანი UI, ArcGIS-სტილის
   submenu დამატებითი ხელსაწყოებით.

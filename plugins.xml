@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="Plugin Downloader" version="1.0.1">
+  <pyqgis_plugin name="Plugin Downloader" version="1.0.2">
     <description>Download all QGIS plugins into one folder, with progress and pause/resume.</description>
     <about>Fetches the full plugin list from the official QGIS repository and downloads each plugin's latest stable ZIP into a folder you choose. Shows overall and per-file progress and supports pause / resume / stop. Bilingual EN/KA. The same code also runs as a standalone PyQt program.</about>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <qgis_minimum_version>3.0</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://gis-georgia.github.io/qgis-plugin-downloader/</homepage>
     <file_name>plugin_downloader.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/plugin_downloader.zip?v=1.0.1</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/plugin_downloader.zip?v=1.0.2</download_url>
     <icon>https://plugins.qgis.ge/plugin_downloader/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
@@ -18,15 +18,15 @@
     <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="Transliterate Data" version="0.2.0">
+  <pyqgis_plugin name="Transliterate Data" version="0.2.1">
     <description>Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.</description>
     <about>Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames: shapefile filesets (all sidecars together), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old→new plan first; then apply in place, or work on a copy so the original is left untouched. Bilingual ka/en. Free/open-source, GPLv3.</about>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>transliterate_data.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/transliterate_data.zip?v=0.2.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/transliterate_data.zip?v=0.2.1</download_url>
     <icon>https://plugins.qgis.ge/transliterate_data/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
@@ -36,15 +36,15 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="Selection Tools" version="0.2.0">
+  <pyqgis_plugin name="Selection Tools" version="0.2.1">
     <description>ArcGIS Pro-style "Selection" submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.</description>
     <about>Adds an ArcGIS Pro-like "Selection" submenu to the layer tree context menu: Zoom/Pan to selection, Clear, Switch, Select All, Select Visible Features, Generate Definition Query from Selection, Make Layer From Selected Features, and Attribute Table Showing Selection. "Make Layer From Selected Features" clones the layer (same data source URI — no .shp/.gpkg is written) and applies a definition query on the selected features; the query is stored in the project. Based on the idea of Murat Çalışkan's "Create Layer From Selected Features" (GPLv2+), reworked and improved by Giorgi Kapanadze: correct primary-key handling for PostGIS (gid/id) and FileGDB (OBJECTID) — not just "fid" — plus bilingual ka/en UI and the full ArcGIS-style submenu. See NOTICE.md for attribution. GPLv3.</about>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>selection_tools.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/selection_tools.zip?v=0.2.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/selection_tools.zip?v=0.2.1</download_url>
     <icon>https://plugins.qgis.ge/selection_tools/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
@@ -72,15 +72,15 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="PostGIS Manager" version="1.2.0">
+  <pyqgis_plugin name="PostGIS Manager" version="1.2.1">
     <description>Unique spatial-database GIS toolkit for PostGIS — geometry editor on canvas, CRS audit, spatial join GUI, data-quality scoring, pgRouting network wizard, WFS, GPX import, thematic classification and snapshot diff. Not a pgAdmin clone.</description>
     <about>PostGIS Manager is a hybrid QGIS plugin (3.40+ and 4.x) and standalone desktop app that fills the gap QGIS leaves in spatial database management — the "PostGIS as a GIS workspace" middle ground that neither QGIS nor pgAdmin covers well. Fully bilingual: English and Georgian (ქართული) with runtime switching. Light and Dark themes. Sidebar navigation (pgAdmin/DBeaver style).</about>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://pg.qgis.ge</homepage>
     <file_name>postgis_manager.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/postgis_manager.zip?v=1.2.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/postgis_manager.zip?v=1.2.1</download_url>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/postgis-manager/issues</tracker>
@@ -89,15 +89,15 @@
     <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="GeoEco" version="0.4.0">
+  <pyqgis_plugin name="GeoEco" version="0.4.1">
     <description>Bilingual (ka/en) environmental toolkit — the "last mile" on top of SAGA/GRASS: solar PV energy &amp; economics, wind resource &amp; yield.</description>
     <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the "last mile" they lack: energy (kWh), money (GEL), optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) reporting. First module: Energy (solar + wind). GPLv3.</about>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>geoeco.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/geoeco.zip?v=0.4.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/geoeco.zip?v=0.4.1</download_url>
     <icon>https://plugins.qgis.ge/geoeco/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
@@ -125,15 +125,15 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="მფლობელების ანალიზატორი" version="1.1">
+  <pyqgis_plugin name="მფლობელების ანალიზატორი" version="1.2">
     <description>შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია</description>
-    <about>QGIS პლაგინი რომელიც საშუალებას გაძლევთ:</about>
-    <version>1.1</version>
+    <about>QGIS დანამატი რომელიც საშუალებას გაძლევთ:</about>
+    <version>1.2</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/yourusername/owners_analyzer</homepage>
     <file_name>owners_analyzer.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.1</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.2</download_url>
     <icon>https://plugins.qgis.ge/owners_analyzer/icon.png</icon>
     <author_name>Kapo</author_name>
     <email>your.email@example.com</email>

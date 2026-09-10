@@ -6,11 +6,12 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become "_". Preview first, then apply in place or on a copy.
 description[ka]=ქართული სახელების მასობრივი ტრანსლიტერაცია სუფთა ლათინურზე მთელ საქაღალდეში: shapefile-ები (+sidecar), ბაზის ფაილები (gpkg/sqlite/gdb) და მათ შიგნით შრეები/feature class-ები და ველები. სხვა სიმბოლოები → „_“. ჯერ გადახედვა, მერე ადგილზე ან ასლზე შესრულება.
-version=0.2.0
+version=0.2.1
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
 about=Point the plugin at a directory and it finds Georgian-named data and renames it to clean, filesystem- and SQL-safe Latin using the Georgian national romanization (lowercase, digraphs sh/ch/ts/gh/kh, no apostrophes); any other symbol becomes an underscore, with automatic collision handling (_2, _3). It renames: shapefile filesets (all sidecars together), database container files (.gpkg/.sqlite/.gdb), and — via GDAL/OGR — the layers/feature classes and field names inside GeoPackage, SQLite/Spatialite and Esri FileGDB. Always preview the old→new plan first; then apply in place, or work on a copy so the original is left untouched. Bilingual ka/en. Free/open-source, GPLv3.
-changelog=0.2.0 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
+changelog=0.2.1 - Wording only: "პლაგინი" is now "დანამატი" in the bundled README.
+    0.2.0 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
     0.1.0 - First release. Directory scan; shapefiles (+sidecars), gpkg/sqlite/gdb files, and their layers/feature classes and field names; Georgian national transliteration with symbol→"_" and collision handling; preview table; in-place or copy mode; bilingual ka/en.
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo

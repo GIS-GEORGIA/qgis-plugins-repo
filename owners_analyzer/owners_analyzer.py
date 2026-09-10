@@ -14,7 +14,7 @@ from .dialog import OwnersAnalyzerDialog
 
 
 class OwnersAnalyzerPlugin:
-    """მთავარი პლაგინის კლასი."""
+    """მთავარი დანამატის კლასი."""
 
     def __init__(self, iface):
         """კონსტრუქტორი.
@@ -64,7 +64,7 @@ class OwnersAnalyzerPlugin:
         return action
 
     def initGui(self):
-        """პლაგინის ინტერფეისის ინიციალიზაცია."""
+        """დანამატის ინტერფეისის ინიციალიზაცია."""
         icon_path = os.path.join(self.plugin_dir, 'icon.png')
         
         self.add_action(
@@ -76,14 +76,14 @@ class OwnersAnalyzerPlugin:
         )
 
     def unload(self):
-        """პლაგინის გამორთვა."""
+        """დანამატის გამორთვა."""
         for action in self.actions:
             self.iface.removePluginMenu('მფლობელების ანალიზატორი', action)
             self.iface.removeToolBarIcon(action)
         del self.toolbar
 
     def run(self):
-        """პლაგინის გაშვება."""
+        """დანამატის გაშვება."""
         # შემოწმება არის თუ არა შრეები
         layers = QgsProject.instance().mapLayers().values()
         vector_layers = [l for l in layers if l.type() == 0]  # 0 = VectorLayer

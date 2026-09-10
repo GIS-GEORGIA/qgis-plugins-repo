@@ -1,18 +1,18 @@
 # 🌍 GIS GEORGIA — QGIS Plugins Repository
 
-📌 ეს გახლავთ QGIS პლაგინების რეპოზიტორია, რომელიც შექმნილია **GIS GEORGIA** გუნდის მიერ. პროექტი აერთიანებს პლაგინებს, რომლებიც ეხმარება საქართველოს სივრცითი მონაცემების დამუშავებას, ანალიზსა და ვიზუალიზაციას QGIS გარემოში.
+📌 ეს გახლავთ QGIS დანამატების რეპოზიტორია, რომელიც შექმნილია **GIS GEORGIA** გუნდის მიერ. პროექტი აერთიანებს დანამატებს, რომლებიც ეხმარება საქართველოს სივრცითი მონაცემების დამუშავებას, ანალიზსა და ვიზუალიზაციას QGIS გარემოში.
 
 📌 This is a QGIS plugin repository developed by the GIS GEORGIA team. The project brings together plugins designed to support the processing, analysis, and visualization of spatial data related to Georgia within the QGIS environment.
 
 
 ---
 
-## 🔗 პლაგინების მიმოხილვა - Plugins Overview
+## 🔗 დანამატების მიმოხილვა - Plugins Overview
 
 
 | Plugin Name | Description (Eng) | აღწერა (ქარ) | Status |
 |-------------|-------------------|--------------|--------|
-| `plugin_downloader` | Downloads every plugin from the official QGIS repository into one folder, with progress and pause/resume | ყველა ფლაგინის ჩამოწერა ოფიციალური QGIS რეპოზიტორიიდან ერთ საქაღალდეში, პროგრესითა და pause/resume-ით | 🆕 ახალი |
+| `plugin_downloader` | Downloads every plugin from the official QGIS repository into one folder, with progress and pause/resume | ყველა დანამატის ჩამოწერა ოფიციალური QGIS რეპოზიტორიიდან ერთ საქაღალდეში, პროგრესითა და pause/resume-ით | 🆕 ახალი |
 | `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
 | `basemap_loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
 | `save_attributes` | Saves vector layer attributes as CSV file | ვექტორული ფენის ატრიბუტების CSV-ში შენახვა | 🧪 ბეტა |
@@ -28,7 +28,7 @@
 ---
 
 > ❗ **Note**: Each plugin has its own folder and `metadata.txt` according to [QGIS Plugin Repository standards](https://plugins.qgis.org/). <br>
-> ❗ **შენიშვნა**: თითოეულ პლაგინს აქვს საკუთარი საქაღალდე და `metadata.txt` ფაილი, რაც შეესაბამება [QGIS პლაგინების სტანდარტებს](https://plugins.qgis.org/).
+> ❗ **შენიშვნა**: თითოეულ დანამატს აქვს საკუთარი საქაღალდე და `metadata.txt` ფაილი, რაც შეესაბამება [QGIS დანამატების სტანდარტებს](https://plugins.qgis.org/).
 
 
 ---
@@ -45,7 +45,7 @@ version, install this one and then remove the old **Basemap Loader** entry — t
 on disk and will never update.
 
 Basemap Loader ადრე იდგმებოდა საქაღალდეში `Basemap Loader` (ჰარით), რეპოზიტორია კი მას
-`BasemapLoader.zip`-ად აცხადებდა. QGIS დაინსტალირებულ პლაგინს საქაღალდის სახელით ცნობს, ხოლო
+`BasemapLoader.zip`-ად აცხადებდა. QGIS დაინსტალირებულ დანამატს საქაღალდის სახელით ცნობს, ხოლო
 რეპოზიტორიის ჩანაწერს — ZIP-ის სახელით, ამიტომ ისინი არასდროს ემთხვეოდა და განახლება არ იძლეოდა.
 
 **1.2**-დან საქაღალდეა `basemap_loader` და სახელები ემთხვევა. თუ ძველი ვერსია გაქვს — დააინსტალირე
@@ -61,8 +61,8 @@ There are no separate QGIS 3 and QGIS 4 downloads: `plugins.xml` declares each p
 the QGIS you are running. On [plugins.qgis.ge](https://plugins.qgis.ge) the **QGIS 3 / QGIS 4** switch in
 the header shows the same thing at a glance.
 
-აქ ყველა პლაგინი **ერთხელ** იწყობა და უცვლელად მუშაობს **QGIS 3.40+ (Qt5)** და **QGIS 4.x (Qt6)** გარემოში.
-ცალკე QGIS 3 და QGIS 4 ვერსიები არ არსებობს: `plugins.xml`-ში მითითებულია თითოეული პლაგინის თავსებადობის
+აქ ყველა დანამატი **ერთხელ** იწყობა და უცვლელად მუშაობს **QGIS 3.40+ (Qt5)** და **QGIS 4.x (Qt6)** გარემოში.
+ცალკე QGIS 3 და QGIS 4 ვერსიები არ არსებობს: `plugins.xml`-ში მითითებულია თითოეული დანამატის თავსებადობის
 დიაპაზონი და QGIS თავად ფილტრავს. საიტზე თავსებადობას **QGIS 3 / QGIS 4** გადამრთველი აჩვენებს.
 
 | | |
@@ -105,15 +105,15 @@ You can install these plugins in two ways:
 
 ## 📥 ინსტალაციის ინსტრუქცია
 
-პლაგინების დაინსტალირება შესაძლებელია ორი განსხვავებული გზით:
+დანამატების დაინსტალირება შესაძლებელია ორი განსხვავებული გზით:
 
 ### 🔹 ვარიანტი 1: დაამატეთ როგორც მომხმარებლის რეპოზიტორია QGIS-ში
 
-1. გახსენით QGIS → გადადით `პლაგინები` → `პლაგინების მართვა და ინსტალაცია`
+1. გახსენით QGIS → გადადით `დანამატები` → `დანამატების მართვა და ინსტალაცია`
 2. გადადით ჩანართზე `მორგება` (Settings) → დააწკაპუნეთ `დამატება`
 3. სახელი: `GIS GEORGIA`
 4. ბმული (URL): `https://plugins.qgis.ge/plugins.xml`
-5. დააწკაპუნეთ `OK` → მონიშნეთ და დააინსტალირეთ სასურველი პლაგინი
+5. დააწკაპუნეთ `OK` → მონიშნეთ და დააინსტალირეთ სასურველი დანამატი
 
 ### 🔹 ვარიანტი 2: ხელით ინსტალაცია
 
@@ -121,14 +121,14 @@ You can install these plugins in two ways:
 ```bash
    git clone https://github.com/GIS-GEORGIA/qgis-plugins-repo.git
 ```
-2. დააკოპირეთ სასურველი პლაგინის საქაღალდე QGIS-ის პლაგინების დირექტორიაში:
+2. დააკოპირეთ სასურველი დანამატის საქაღალდე QGIS-ის დანამატების დირექტორიაში:
    - **Windows**: `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\`
    - **Linux**: `~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/`
    - **macOS**: `~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/`
 
 ---
 
-## 🆕 ახალი პლაგინები / New Plugins
+## 🆕 ახალი დანამატები / New Plugins
 
 ### `PostGIS Manager` — PostGIS მენეჯერი
 სივრცული მონაცემთა ბაზის GIS ხელსაწყოები, რომლებიც QGIS-საც და pgAdmin-საც აკლია:

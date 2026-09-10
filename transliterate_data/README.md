@@ -1,6 +1,6 @@
 # Transliterate Data — GIS სახელების ტრანსლიტერაცია (QGIS)
 
-მიუთითებ **დირექტორიას** — და პლაგინი პოულობს ქართული სახელების მქონე
+მიუთითებ **დირექტორიას** — და დანამატი პოულობს ქართული სახელების მქონე
 მონაცემებს და გადაარქმევს სუფთა, ლათინურ, filesystem/SQL-safe სახელებზე.
 
 Point it at a **folder** and it finds Georgian-named data and renames it to

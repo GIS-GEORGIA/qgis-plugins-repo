@@ -78,7 +78,7 @@ def solar_radiation_saga(req: SolarRequest, saga_cmd: str | None = None) -> str:
 
 def solar_radiation_qgis(req: SolarRequest):
     """
-    QGIS Processing-ის გავლით (r.sun ან SAGA). გამოიძახება მხოლოდ ფლაგინის შიგნით,
+    QGIS Processing-ის გავლით (r.sun ან SAGA). გამოიძახება მხოლოდ დანამატის შიგნით,
     სადაც `processing` და `qgis.core` ხელმისაწვდომია.
     """
     import processing  # QGIS-only

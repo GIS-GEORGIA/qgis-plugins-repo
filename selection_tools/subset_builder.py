@@ -7,7 +7,7 @@ subset_builder — სუფთა, QGIS-ისგან დამოუკი�
 ეს მოდული უნიტ-ტესტდება ცალკე (tests/test_subset_builder.py).
 
 ცალკე გამოტანის მიზეზი: subset string-ის აგება არის ის ერთადერთი
-ადგილი, სადაც ორიგინალი პლაგინი ტყდება PostGIS/FileGDB-ზე (იქ PK
+ადგილი, სადაც ორიგინალი დანამატი ტყდება PostGIS/FileGDB-ზე (იქ PK
 არის gid/OBJECTID და არა "fid"). ამ ლოგიკის გატესტვა ცალკე გვინდა.
 """
 from __future__ import annotations

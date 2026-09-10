@@ -20,11 +20,14 @@ _lang = DEFAULT_LANG
 
 _STRINGS = {
     # --- ფანჯარა / ფორმა ---
-    "window_title":   {"en": "QGIS Plugin Downloader", "ka": "QGIS ფლაგინების ჩამომტვირთავი"},
+    "window_title":   {"en": "QGIS Plugin Downloader", "ka": "QGIS დანამატების ჩამომტვირთავი"},
+    # Shown on the QGIS toolbar button and menu entry, before the user has picked a
+    # language in the dialog — so it follows DEFAULT_LANG.
+    "menu_action":    {"en": "Download all plugins…", "ka": "ყველა დანამატის ჩამოტვირთვა…"},
     "language":       {"en": "Language:", "ka": "ენა:"},
     "folder":         {"en": "Folder:", "ka": "საქაღალდე:"},
     "folder_hint":    {"en": "Choose a folder where plugins will be downloaded…",
-                       "ka": "აირჩიე საქაღალდე, სადაც ჩამოიწერება ფლაგინები…"},
+                       "ka": "აირჩიე საქაღალდე, სადაც ჩამოიწერება დანამატები…"},
     "browse":         {"en": "Browse…", "ka": "დათვალიერება…"},
     "choose_folder":  {"en": "Choose a folder", "ka": "აირჩიე საქაღალდე"},
     "qgis_version":   {"en": "QGIS version:", "ka": "QGIS ვერსია:"},
@@ -37,7 +40,7 @@ _STRINGS = {
 
     # --- სტატუსები / პროგრესი ---
     "ready":          {"en": "Ready.", "ka": "მზადაა."},
-    "total_plugins":  {"en": "Total {0} plugins.", "ka": "სულ {0} ფლაგინი."},
+    "total_plugins":  {"en": "Total {0} plugins.", "ka": "სულ {0} დანამატი."},
     "progress":       {"en": "Progress: {0} / {1}", "ka": "პროგრესი: {0} / {1}"},
     "st_running":     {"en": "Running…", "ka": "მიმდინარეობს…"},
     "st_paused":      {"en": "Paused", "ka": "დაპაუზებულია"},
@@ -53,8 +56,8 @@ _STRINGS = {
 
     # --- ლოგი (core) ---
     "log_fetching":   {"en": "Fetching plugin list (QGIS {0})…",
-                       "ka": "ვიღებ ფლაგინების სიას (QGIS {0})…"},
-    "log_found":      {"en": "Found {0} plugins.", "ka": "ნაპოვნია {0} ფლაგინი."},
+                       "ka": "ვიღებ დანამატების სიას (QGIS {0})…"},
+    "log_found":      {"en": "Found {0} plugins.", "ka": "ნაპოვნია {0} დანამატი."},
     "err_mkdir":      {"en": "Could not create folder: {0}",
                        "ka": "საქაღალდის შექმნა ვერ მოხერხდა: {0}"},
     "err_list":       {"en": "Failed to fetch list: {0}",

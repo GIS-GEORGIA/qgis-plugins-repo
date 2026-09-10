@@ -11,7 +11,7 @@ from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QTranslator, QLocale
 
 # solar_wind_core-ის მოძებნა ორ სცენარში:
-#  1) გამოქვეყნებული zip — core ბანდლდება პლაგინის საქაღალდეშივე (_PLUGIN_DIR)
+#  1) გამოქვეყნებული zip — core ბანდლდება დანამატის საქაღალდეშივე (_PLUGIN_DIR)
 #  2) dev repo — core ერთი დონით ზემოთაა (_ROOT)
 _PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_PLUGIN_DIR)

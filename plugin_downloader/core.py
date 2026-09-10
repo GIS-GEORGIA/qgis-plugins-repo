@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-core.py — QGIS ფლაგინების ჩამომტვირთავი ლოგიკა (GUI-ს გარეშე).
+core.py — QGIS დანამატების ჩამომტვირთავი ლოგიკა (GUI-ს გარეშე).
 
 აქ არის:
-  * fetch_plugin_list() — ოფიციალური რეპოზიტორიდან ფლაგინების სიის წამოღება
+  * fetch_plugin_list() — ოფიციალური რეპოზიტორიდან დანამატების სიის წამოღება
   * DownloadWorker      — QThread, რომელიც ჩამოტვირთავს ZIP-ებს, აგზავნის
                           პროგრესის სიგნალებს და უჭერს pause / resume / stop.
 
 ეს ფაილი არ არის დამოკიდებული არც QGIS-ზე და არც GUI-ს კოდზე, ამიტომ
-ერთნაირად მუშაობს ცალკე გაშვებულ პროგრამაშიც და QGIS ფლაგინის შიგნითაც.
+ერთნაირად მუშაობს ცალკე გაშვებულ პროგრამაშიც და QGIS დანამატის შიგნითაც.
 """
 
 import os
@@ -24,7 +24,7 @@ except ImportError:
     from qt import QThread, pyqtSignal
     from i18n import tr
 
-# ოფიციალური QGIS ფლაგინების რეპოზიტორია.
+# ოფიციალური QGIS დანამატების რეპოზიტორია.
 REPO_XML = "https://plugins.qgis.org/plugins/plugins.xml?qgis={qgis}"
 
 # რამდენ ბაიტს ვკითხულობთ ერთ ბიჯზე (pause/stop ამ ბიჯებს შორის მოწმდება).
@@ -48,10 +48,10 @@ def _ssl_context():
 
 def fetch_plugin_list(qgis_version="3.34", timeout=60):
     """
-    აბრუნებს ფლაგინების სიას — list of dict:
+    აბრუნებს დანამატების სიას — list of dict:
         {"name", "version", "file_name", "download_url"}
 
-    რეპოზიტორია ავტომატურად აბრუნებს თითო ფლაგინის უახლეს, თავსებად,
+    რეპოზიტორია ავტომატურად აბრუნებს თითო დანამატის უახლეს, თავსებად,
     სტაბილურ ვერსიას მითითებული QGIS ვერსიისთვის.
     """
     url = REPO_XML.format(qgis=qgis_version)
@@ -70,7 +70,7 @@ def fetch_plugin_list(qgis_version="3.34", timeout=60):
         version = node.get("version") or node.findtext("version") or ""
         file_name = node.findtext("file_name")
         if not file_name:
-            # თუ სახელი არ არის, ვაგენერირებთ ფლაგინის სახელიდან.
+            # თუ სახელი არ არის, ვაგენერირებთ დანამატის სახელიდან.
             safe = "".join(c if c.isalnum() else "_" for c in name)
             file_name = "{0}.zip".format(safe)
         plugins.append(
@@ -89,7 +89,7 @@ class DownloadWorker(QThread):
 
     # ---- სიგნალები, რომლებსაც GUI უსმენს ----
     log = pyqtSignal(str)                       # ტექსტური შეტყობინება
-    listReady = pyqtSignal(int)                 # ფლაგინების საერთო რაოდენობა
+    listReady = pyqtSignal(int)                 # დანამატების საერთო რაოდენობა
     overallProgress = pyqtSignal(int, int)      # (დამუშავებული, სულ)
     fileProgress = pyqtSignal(str, int, int)    # (სახელი, ბაიტი, სულ_ბაიტი)
     statusChanged = pyqtSignal(str)             # "running" / "paused" / "stopped"
@@ -129,7 +129,7 @@ class DownloadWorker(QThread):
         return not self._stop
 
     def _download_one(self, plugin, dest_path):
-        """ერთი ფლაგინის ჩამოტვირთვა .part ფაილში, ბოლოს — გადარქმევა."""
+        """ერთი დანამატის ჩამოტვირთვა .part ფაილში, ბოლოს — გადარქმევა."""
         req = Request(plugin["download_url"], headers=_HEADERS)
         ctx = _ssl_context()
         tmp_path = dest_path + ".part"
