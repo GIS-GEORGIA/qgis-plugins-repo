@@ -16,8 +16,9 @@
         "ka_name": "ფლაგინების ჩამომტვირთავი",
         "status": "new",
         "featured": true,
+        "bilingual": true,
         "en": "Download every QGIS plugin into one folder from the official repository — with overall and per-file progress and pause / resume / stop. Runs as a QGIS plugin and as a standalone PyQt app. Bilingual EN/KA.",
-        "ka": "ჩამოწერე ყველა QGIS ფლაგინი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS ფლაგინადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA.",
+        "ka": "ჩამოწერე ყველა QGIS დანამატი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS დანამატადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA.",
         "tags": [
           "download",
           "plugins",
@@ -37,6 +38,7 @@
         "ka_name": "სახელების ტრანსლიტერაცია",
         "status": "experimental",
         "featured": true,
+        "bilingual": true,
         "en": "Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become “_”. Preview first, then apply in place or on a copy.",
         "ka": "ქართული სახელების მასობრივი ტრანსლიტერაცია სუფთა ლათინურზე მთელ საქაღალდეში: shapefile-ები (+sidecar), ბაზის ფაილები (gpkg/sqlite/gdb) და მათ შიგნით შრეები/feature class-ები და ველები. სხვა სიმბოლოები → „_“. ჯერ გადახედვა, მერე ადგილზე ან ასლზე.",
         "tags": [
@@ -59,6 +61,7 @@
         "ka_name": "მონიშვნის ხელსაწყოები",
         "status": "experimental",
         "featured": true,
+        "bilingual": true,
         "en": "ArcGIS Pro-style “Selection” submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
         "ka": "ArcGIS Pro-ს „Selection“ ქვემენიუს ანალოგი შრის მარჯვენა-კლიკის მენიუში. მთავარი: შრის შექმნა მონიშნულებიდან — ახალი შრე იმავე პირველწყაროთი (ფაილი არ იქმნება), ინახება პროექტში. მუშაობს GeoPackage, PostGIS, Shapefile და FileGDB-ზე.",
         "tags": [
@@ -85,16 +88,16 @@
         "ka_name": "ქართული კადასტრი",
         "status": "experimental",
         "featured": true,
-        "en": "Fetch cadastral parcels by code from maps.gov.ge (NAPR) — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
-        "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით maps.gov.ge-დან (NAPR) — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი.",
+        "bilingual": true,
+        "en": "Fetch cadastral parcels by code from the public cadastre service — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
+        "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით საჯარო საკადასტრო სერვისიდან — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი.",
         "tags": [
           "cadastre",
-          "napr",
-          "maps.gov.ge",
           "parcel",
           "utm",
           "survey",
-          "layout"
+          "layout",
+          "wms"
         ]
       }
     },
@@ -110,6 +113,7 @@
         "ka_name": "PostGIS მენეჯერი",
         "status": "stable",
         "featured": true,
+        "bilingual": true,
         "en": "Spatial-database toolkit for PostGIS: geometry editor, CRS audit, spatial-join GUI, data-quality scoring, pgRouting network wizard, WFS connector and GPX import.",
         "ka": "სივრცული მონაცემთა ბაზის ხელსაწყოები PostGIS-ისთვის: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხის შეფასება, pgRouting ოსტატი, WFS და GPX იმპორტი.",
         "tags": [
@@ -131,6 +135,7 @@
         "ka_name": "GeoEco",
         "status": "experimental",
         "featured": true,
+        "bilingual": true,
         "en": "Renewable-energy “last mile” on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback and optimal tilt; wind resource, Weibull and annual energy (AEP).",
         "ka": "განახლებადი ენერგიის „ბოლო მილი“ SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია (AEP).",
         "tags": [
@@ -153,6 +158,7 @@
         "ka_name": "გეომეტრიის კალკულატორი",
         "status": "experimental",
         "featured": false,
+        "bilingual": false,
         "en": "Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions required.",
         "ka": "გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე.",
         "tags": [
@@ -173,6 +179,7 @@
         "ka_name": "მფლობელების ანალიზატორი",
         "status": "new",
         "featured": false,
+        "bilingual": false,
         "en": "Analyzes attribute tables — counts unique values, sorts in Georgian, filters by keyword and exports the results.",
         "ka": "ატრიბუტების ანალიზი — უნიკალური მნიშვნელობების დათვლა, ქართული სორტირება, საკვანძო სიტყვით ფილტრი და ექსპორტი.",
         "tags": [
@@ -192,6 +199,7 @@
         "ka_name": "შრეების გამწმენდი",
         "status": "new",
         "featured": false,
+        "bilingual": false,
         "en": "Removes all layers except base maps and adds Google Satellite Hybrid and OpenStreetMap in one click.",
         "ka": "ყველა შრის წაშლა საბაზო ფენების გარდა და Google Satellite Hybrid-ისა და OpenStreetMap-ის დამატება ერთი დაჭერით.",
         "tags": [
@@ -211,6 +219,7 @@
         "ka_name": "ბაზის რუკის ჩამტვირთავი",
         "status": "stable",
         "featured": false,
+        "bilingual": false,
         "en": "Adds an OpenStreetMap basemap layer to QGIS and sets the coordinate reference system.",
         "ka": "OpenStreetMap ბაზის რუკის ფენის დამატება QGIS-ში და საკოორდინატო სისტემის დაყენება.",
         "tags": [
@@ -230,6 +239,7 @@
         "ka_name": "ატრიბუტების შენახვა",
         "status": "beta",
         "featured": false,
+        "bilingual": false,
         "en": "Saves a vector layer's attribute table to a CSV file.",
         "ka": "ვექტორული ფენის ატრიბუტების ცხრილის CSV ფაილში შენახვა.",
         "tags": [
@@ -249,6 +259,7 @@
         "ka_name": "ტრანსლიტერატორი",
         "status": "beta",
         "featured": false,
+        "bilingual": false,
         "en": "Transliterates Georgian script into Latin characters.",
         "ka": "ქართული ტექსტის ლათინურ ასოებად ტრანსლიტერაცია.",
         "tags": [

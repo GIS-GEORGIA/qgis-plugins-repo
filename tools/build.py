@@ -196,6 +196,7 @@ def render_site_block(entries: list[dict]) -> str:
                 "zip": os.path.basename(e["download_url"]),
                 "emoji": site["emoji"],
                 "featured": site["featured"],
+                "bilingual": site.get("bilingual", False),
                 "qgis_min": md.get("qgisMinimumVersion", ""),
                 "qgis_max": md.get("qgisMaximumVersion", ""),
                 "en": site["en"],

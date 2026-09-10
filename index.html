@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>GIS GEORGIA — QGIS Plugins</title>
-<meta name="description" content="Official QGIS plugin repository by GIS GEORGIA — tools for Georgian spatial data: cadastre, PostGIS, renewable energy and more. / GIS GEORGIA-ს QGIS პლაგინების ოფიციალური რეპოზიტორია." />
+<meta name="description" content="Official QGIS plugin repository by GIS GEORGIA — tools for Georgian spatial data: cadastre, PostGIS, renewable energy and more. / GIS GEORGIA-ს QGIS დანამატების ოფიციალური რეპოზიტორია." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23059669'/%3E%3Cpath d='M14 40 20 16 44 12 52 30 40 48 22 50Z' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <style>
   @font-face{font-family:'Noto Sans Georgian';src:url('assets/fonts/NotoSansGeorgian-Regular.ttf') format('truetype');font-weight:400;font-display:swap;}
@@ -122,6 +122,8 @@
   .card .foot{display:flex;gap:10px;margin-top:4px}
   .pill.qgis{color:var(--accent-2);border-color:color-mix(in srgb,var(--accent-2) 38%,transparent);
     background:color-mix(in srgb,var(--accent-2) 10%,transparent)}
+  .pill.lang{color:var(--muted);border-color:var(--border);background:var(--surface-2);
+    letter-spacing:.2px}
   .card.off{opacity:.5}
   .card.off:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border)}
   .card .needs{font-size:.78rem;font-weight:600;color:#b45309;background:#f59e0b18;
@@ -174,7 +176,7 @@
       <span>GIS GEORGIA</span>
     </a>
     <nav class="links">
-      <a href="#plugins"><span data-en>Plugins</span><span data-ka>პლაგინები</span></a>
+      <a href="#plugins"><span data-en>Plugins</span><span data-ka>დანამატები</span></a>
       <a href="#install"><span data-en>Install</span><span data-ka>ინსტალაცია</span></a>
       <a href="#about"><span data-en>About</span><span data-ka>შესახებ</span></a>
     </nav>
@@ -196,14 +198,14 @@
 <a id="top"></a>
 <section class="hero">
   <div class="wrap">
-    <span class="eyebrow"><span class="dot"></span><span data-en>Official QGIS plugin repository</span><span data-ka>QGIS პლაგინების ოფიციალური რეპოზიტორია</span></span>
+    <span class="eyebrow"><span class="dot"></span><span data-en>Official QGIS plugin repository</span><span data-ka>QGIS დანამატების ოფიციალური რეპოზიტორია</span></span>
     <h1>
-      <span data-en>QGIS plugins for Georgian spatial data</span>
-      <span data-ka>QGIS პლაგინები საქართველოს სივრცითი მონაცემებისთვის</span>
+      <span data-en>QGIS plugins for spatial data</span>
+      <span data-ka>QGIS დანამატები სივრცითი მონაცემებისთვის</span>
     </h1>
     <p class="lead">
       <span data-en>A curated set of open plugins by GIS GEORGIA — cadastre, PostGIS, renewable energy and everyday mapping tools. Add one URL to QGIS and install any of them.</span>
-      <span data-ka>GIS GEORGIA-ს ღია პლაგინების კრებული — კადასტრი, PostGIS, განახლებადი ენერგია და ყოველდღიური რუკების ხელსაწყოები. დაამატე ერთი ბმული QGIS-ში და დააინსტალირე ნებისმიერი.</span>
+      <span data-ka>GIS GEORGIA-ს ღია დანამატების კრებული — კადასტრი, PostGIS, განახლებადი ენერგია და ყოველდღიური რუკების ხელსაწყოები. დაამატე ერთი ბმული QGIS-ში და დააინსტალირე ნებისმიერი.</span>
     </p>
     <div class="repobox">
       <div class="urlpill">
@@ -215,12 +217,12 @@
       </div>
     </div>
     <div class="hero-actions" style="margin-top:16px">
-      <a class="btn" href="#plugins"><span data-en>Browse plugins</span><span data-ka>პლაგინების ნახვა</span></a>
+      <a class="btn" href="#plugins"><span data-en>Browse plugins</span><span data-ka>დანამატების ნახვა</span></a>
       <a class="btn" href="#install"><span data-en>How to install</span><span data-ka>როგორ დავაინსტალირო</span></a>
     </div>
     <div class="stats">
-      <div class="stat"><div class="n" id="stat-count">—</div><div class="l"><span data-en>Plugins</span><span data-ka>პლაგინი</span></div></div>
-      <div class="stat"><div class="n">EN · ქა</div><div class="l"><span data-en>Bilingual</span><span data-ka>ორენოვანი</span></div></div>
+      <div class="stat"><div class="n" id="stat-count">—</div><div class="l"><span data-en>Plugins</span><span data-ka>დანამატი</span></div></div>
+      <div class="stat"><div class="n" id="stat-bilingual">—</div><div class="l"><span data-en>Bilingual EN · ქა</span><span data-ka>ორენოვანი EN · ქა</span></div></div>
       <div class="stat"><div class="n">3.40 – 4.x</div><div class="l"><span data-en>QGIS versions</span><span data-ka>QGIS ვერსიები</span></div></div>
       <div class="stat"><div class="n">MIT · GPL</div><div class="l"><span data-en>Open source</span><span data-ka>ღია კოდი</span></div></div>
     </div>
@@ -229,10 +231,10 @@
 
 <section class="pad wrap" id="plugins">
   <div class="sec-head">
-    <h2><span data-en>Plugins</span><span data-ka>პლაგინები</span></h2>
+    <h2><span data-en>Plugins</span><span data-ka>დანამატები</span></h2>
     <p>
-      <span data-en>Every plugin ships with a bilingual (EN/KA) interface and runs on both QGIS 3.40+ and QGIS 4. Download a ZIP directly, or install from the repository URL above.</span>
-      <span data-ka>თითოეულ პლაგინს აქვს ორენოვანი (EN/KA) ინტერფეისი და მუშაობს QGIS 3.40+ და QGIS 4-ზე. ჩამოტვირთე ZIP პირდაპირ, ან დააინსტალირე ზემოთ მოცემული ბმულით.</span>
+      <span data-en>Every plugin runs on both QGIS 3.40+ and QGIS 4. The ones marked <b>EN&nbsp;·&nbsp;ქა</b> have a bilingual interface you can switch at runtime. Download a ZIP directly, or install from the repository URL above.</span>
+      <span data-ka>ყველა დანამატი მუშაობს QGIS 3.40+ და QGIS 4-ზე. <b>EN&nbsp;·&nbsp;ქა</b> ნიშნის მქონეებს ორენოვანი ინტერფეისი აქვთ, ენა გაშვებისას გადაირთვება. ჩამოტვირთე ZIP პირდაპირ, ან დააინსტალირე ზემოთ მოცემული ბმულით.</span>
     </p>
   </div>
   <div class="filterbar" id="filterbar"></div>
@@ -243,7 +245,7 @@
   <div class="wrap">
     <div class="sec-head">
       <h2><span data-en>Installation</span><span data-ka>ინსტალაცია</span></h2>
-      <p><span data-en>Two ways to get the plugins into QGIS.</span><span data-ka>პლაგინების QGIS-ში დამატების ორი გზა.</span></p>
+      <p><span data-en>Two ways to get the plugins into QGIS.</span><span data-ka>დანამატების QGIS-ში დამატების ორი გზა.</span></p>
     </div>
     <div class="two">
       <div class="step">
@@ -252,13 +254,13 @@
           <li><span data-en>QGIS → <b>Plugins</b> → <b>Manage and Install Plugins…</b></span><span data-ka>QGIS → <b>Plugins</b> → <b>Manage and Install Plugins…</b></span></li>
           <li><span data-en>Open the <b>Settings</b> tab → <b>Add…</b></span><span data-ka>გახსენი <b>Settings</b> ჩანართი → <b>Add…</b></span></li>
           <li><span data-en>Name: <code>GIS GEORGIA</code>, URL: <code>https://plugins.qgis.ge/plugins.xml</code></span><span data-ka>სახელი: <code>GIS GEORGIA</code>, URL: <code>https://plugins.qgis.ge/plugins.xml</code></span></li>
-          <li><span data-en>Enable <b>Show experimental plugins</b>, then install any plugin.</span><span data-ka>ჩართე <b>Show experimental plugins</b> და დააინსტალირე ნებისმიერი პლაგინი.</span></li>
+          <li><span data-en>Enable <b>Show experimental plugins</b>, then install any plugin.</span><span data-ka>ჩართე <b>Show experimental plugins</b> და დააინსტალირე ნებისმიერი დანამატი.</span></li>
         </ol>
       </div>
       <div class="step">
         <h3><span class="num">B</span><span data-en>Install from ZIP</span><span data-ka>დააინსტალირე ZIP-იდან</span></h3>
         <ol>
-          <li><span data-en>Download a plugin's ZIP from the cards above.</span><span data-ka>ჩამოტვირთე პლაგინის ZIP ზემოთ მოცემული ბარათებიდან.</span></li>
+          <li><span data-en>Download a plugin's ZIP from the cards above.</span><span data-ka>ჩამოტვირთე დანამატის ZIP ზემოთ მოცემული ბარათებიდან.</span></li>
           <li><span data-en>QGIS → <b>Plugins</b> → <b>Manage and Install Plugins…</b></span><span data-ka>QGIS → <b>Plugins</b> → <b>Manage and Install Plugins…</b></span></li>
           <li><span data-en>Open <b>Install from ZIP</b>, pick the file → <b>Install Plugin</b>.</span><span data-ka>გახსენი <b>Install from ZIP</b>, აირჩიე ფაილი → <b>Install Plugin</b>.</span></li>
           <li><span data-en>Enable it in the <b>Installed</b> tab.</span><span data-ka>ჩართე <b>Installed</b> ჩანართში.</span></li>
@@ -271,11 +273,11 @@
     </div>
     <div class="note" style="margin-bottom:14px">
       <span data-en><b>QGIS 3 or QGIS 4?</b> Use the same repository URL for both. Every plugin here is built once and runs on QGIS 3.40+ (Qt5) and QGIS 4.x (Qt6); QGIS reads <code>plugins.xml</code> and only offers you the versions that match the QGIS you are running. Use the <b>QGIS 3 / QGIS 4</b> switch at the top of the page to see what your version gets.</span>
-      <span data-ka><b>QGIS 3 თუ QGIS 4?</b> ორივესთვის ერთი და იგივე ბმულია. აქ ყველა პლაგინი ერთხელ იწყობა და მუშაობს როგორც QGIS 3.40+-ზე (Qt5), ისე QGIS 4.x-ზე (Qt6); QGIS თავად კითხულობს <code>plugins.xml</code>-ს და მხოლოდ შენს ვერსიასთან თავსებადს გაჩვენებს. გვერდის თავში <b>QGIS 3 / QGIS 4</b> გადამრთველით ნახავ, რა ხვდება შენს ვერსიას.</span>
+      <span data-ka><b>QGIS 3 თუ QGIS 4?</b> ორივესთვის ერთი და იგივე ბმულია. აქ ყველა დანამატი ერთხელ იწყობა და მუშაობს როგორც QGIS 3.40+-ზე (Qt5), ისე QGIS 4.x-ზე (Qt6); QGIS თავად კითხულობს <code>plugins.xml</code>-ს და მხოლოდ შენს ვერსიასთან თავსებადს გაჩვენებს. გვერდის თავში <b>QGIS 3 / QGIS 4</b> გადამრთველით ნახავ, რა ხვდება შენს ვერსიას.</span>
     </div>
     <div class="note">
       <span data-en><b>Tip:</b> the repository also appears on <a href="https://qgis.ge/" target="_blank" rel="noopener" class="accent">qgis.ge</a>. Source for every plugin lives in the <a href="https://github.com/GIS-GEORGIA/qgis-plugins-repo" target="_blank" rel="noopener" class="accent">GitHub repository</a>.</span>
-      <span data-ka><b>რჩევა:</b> რეპოზიტორია ასევე ხელმისაწვდომია <a href="https://qgis.ge/" target="_blank" rel="noopener" class="accent">qgis.ge</a>-ზე. თითოეული პლაგინის კოდი <a href="https://github.com/GIS-GEORGIA/qgis-plugins-repo" target="_blank" rel="noopener" class="accent">GitHub რეპოზიტორიაშია</a>.</span>
+      <span data-ka><b>რჩევა:</b> რეპოზიტორია ასევე ხელმისაწვდომია <a href="https://qgis.ge/" target="_blank" rel="noopener" class="accent">qgis.ge</a>-ზე. თითოეული დანამატის კოდი <a href="https://github.com/GIS-GEORGIA/qgis-plugins-repo" target="_blank" rel="noopener" class="accent">GitHub რეპოზიტორიაშია</a>.</span>
     </div>
   </div>
 </section>
@@ -284,8 +286,8 @@
   <div class="sec-head">
     <h2><span data-en>About GIS GEORGIA</span><span data-ka>GIS GEORGIA-ს შესახებ</span></h2>
     <p>
-      <span data-en>GIS GEORGIA builds open QGIS tools for processing, analysing and visualising Georgian spatial data. The plugins wrap official data sources (maps.gov.ge / NAPR) and proven engines (SAGA, GRASS, PostGIS) — adding the “last mile” that local surveyors and analysts actually need, in Georgian and English.</span>
-      <span data-ka>GIS GEORGIA ქმნის ღია QGIS ხელსაწყოებს საქართველოს სივრცითი მონაცემების დასამუშავებლად, გასაანალიზებლად და ვიზუალიზაციისთვის. პლაგინები ეყრდნობა ოფიციალურ წყაროებს (maps.gov.ge / საჯარო რეესტრი) და დადასტურებულ ძრავებს (SAGA, GRASS, PostGIS) — და ამატებს „ბოლო მილს“, რომელიც ადგილობრივ სპეციალისტებს რეალურად სჭირდებათ, ქართულად და ინგლისურად.</span>
+      <span data-en>GIS GEORGIA builds open QGIS tools for processing, analysing and visualising Georgian spatial data. The plugins wrap official data sources and proven engines (SAGA, GRASS, PostGIS) — adding the “last mile” that local surveyors and analysts actually need, in Georgian and English.</span>
+      <span data-ka>GIS GEORGIA ქმნის ღია QGIS ხელსაწყოებს საქართველოს სივრცითი მონაცემების დასამუშავებლად, გასაანალიზებლად და ვიზუალიზაციისთვის. დანამატები ეყრდნობა ოფიციალურ წყაროებს და დადასტურებულ ძრავებს (SAGA, GRASS, PostGIS) — და ამატებს „ბოლო მილს“, რომელიც ადგილობრივ სპეციალისტებს რეალურად სჭირდებათ, ქართულად და ინგლისურად.</span>
     </p>
   </div>
 </section>
@@ -294,7 +296,7 @@
   <div class="wrap foot-grid">
     <div>
       <div class="brand" style="margin-bottom:6px"><span class="logo"><svg viewBox="0 0 64 64"><path d="M14 40 20 16 44 12 52 30 40 48 22 50Z" fill="none" stroke="white" stroke-width="4" stroke-linejoin="round"/></svg></span><span>GIS GEORGIA</span></div>
-      <div class="muted">© <span id="year"></span> GIS GEORGIA · <span data-en>Open-source QGIS plugins</span><span data-ka>ღია QGIS პლაგინები</span></div>
+      <div class="muted">© <span id="year"></span> GIS GEORGIA · <span data-en>Open-source QGIS plugins</span><span data-ka>ღია QGIS დანამატები</span></div>
     </div>
     <div class="foot-links">
       <a href="https://qgis.ge/" target="_blank" rel="noopener">qgis.ge</a>
@@ -319,10 +321,11 @@ const PLUGINS=[
   "zip": "plugin_downloader.zip?v=1.0.1",
   "emoji": "📥",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.0",
   "qgis_max": "4.99",
   "en": "Download every QGIS plugin into one folder from the official repository — with overall and per-file progress and pause / resume / stop. Runs as a QGIS plugin and as a standalone PyQt app. Bilingual EN/KA.",
-  "ka": "ჩამოწერე ყველა QGIS ფლაგინი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS ფლაგინადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA.",
+  "ka": "ჩამოწერე ყველა QGIS დანამატი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS დანამატადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA.",
   "tags": [
    "download",
    "plugins",
@@ -340,6 +343,7 @@ const PLUGINS=[
   "zip": "transliterate_data.zip?v=0.2.0",
   "emoji": "🔡",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become “_”. Preview first, then apply in place or on a copy.",
@@ -362,6 +366,7 @@ const PLUGINS=[
   "zip": "selection_tools.zip?v=0.2.0",
   "emoji": "🎯",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "ArcGIS Pro-style “Selection” submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
@@ -384,18 +389,18 @@ const PLUGINS=[
   "zip": "georgian_cadastre.zip?v=0.4.0",
   "emoji": "🗺️",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
-  "en": "Fetch cadastral parcels by code from maps.gov.ge (NAPR) — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
-  "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით maps.gov.ge-დან (NAPR) — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი.",
+  "en": "Fetch cadastral parcels by code from the public cadastre service — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
+  "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით საჯარო საკადასტრო სერვისიდან — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი.",
   "tags": [
    "cadastre",
-   "napr",
-   "maps.gov.ge",
    "parcel",
    "utm",
    "survey",
-   "layout"
+   "layout",
+   "wms"
   ]
  },
  {
@@ -407,6 +412,7 @@ const PLUGINS=[
   "zip": "postgis_manager.zip?v=1.2.0",
   "emoji": "🐘",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Spatial-database toolkit for PostGIS: geometry editor, CRS audit, spatial-join GUI, data-quality scoring, pgRouting network wizard, WFS connector and GPX import.",
@@ -428,6 +434,7 @@ const PLUGINS=[
   "zip": "geoeco.zip?v=0.4.0",
   "emoji": "⚡",
   "featured": true,
+  "bilingual": true,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Renewable-energy “last mile” on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback and optimal tilt; wind resource, Weibull and annual energy (AEP).",
@@ -450,6 +457,7 @@ const PLUGINS=[
   "zip": "calculate_geometry.zip?v=0.2.0",
   "emoji": "📐",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions required.",
@@ -470,6 +478,7 @@ const PLUGINS=[
   "zip": "owners_analyzer.zip?v=1.1",
   "emoji": "📊",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Analyzes attribute tables — counts unique values, sorts in Georgian, filters by keyword and exports the results.",
@@ -489,6 +498,7 @@ const PLUGINS=[
   "zip": "layer_cleaner.zip?v=1.1",
   "emoji": "🧹",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Removes all layers except base maps and adds Google Satellite Hybrid and OpenStreetMap in one click.",
@@ -508,6 +518,7 @@ const PLUGINS=[
   "zip": "basemap_loader.zip?v=1.2",
   "emoji": "🌐",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Adds an OpenStreetMap basemap layer to QGIS and sets the coordinate reference system.",
@@ -527,6 +538,7 @@ const PLUGINS=[
   "zip": "save_attributes.zip?v=1.1",
   "emoji": "💾",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Saves a vector layer's attribute table to a CSV file.",
@@ -546,6 +558,7 @@ const PLUGINS=[
   "zip": "transliterator.zip?v=1.1",
   "emoji": "🔤",
   "featured": false,
+  "bilingual": false,
   "qgis_min": "3.40",
   "qgis_max": "4.99",
   "en": "Transliterates Georgian script into Latin characters.",
@@ -612,6 +625,7 @@ function renderGrid(){
         <span class="pill ver">v${esc(p.version)}</span>
         <span class="pill st-${p.status}"><span data-en>${st.en}</span><span data-ka>${st.ka}</span></span>
         <span class="pill qgis">${esc(cl.en)}</span>
+        ${p.bilingual?`<span class="pill lang" title="Bilingual EN / ქართული">EN · ქა</span>`:""}
       </div>
       <p class="desc"><span data-en>${esc(p.en)}</span><span data-ka>${esc(p.ka)}</span></p>
       <div class="tags">${tags}</div>
@@ -625,14 +639,26 @@ function renderGrid(){
     </article>`;
   }).join("");
 
+  const total=PLUGINS.length;
   const shown=PLUGINS.filter(isCompatible).length;
-  document.getElementById("stat-count").textContent=PLUGINS.length;
-  const bar=document.getElementById("filterbar");
-  bar.innerHTML=QV==="all"
-    ? `<span data-en>Showing all <b>${PLUGINS.length}</b> plugins.</span>
-       <span data-ka>ნაჩვენებია ყველა <b>${PLUGINS.length}</b> პლაგინი.</span>`
-    : `<span data-en><b>${shown}</b> of <b>${PLUGINS.length}</b> plugins run on <b>QGIS ${esc(QV)}</b>; the rest are dimmed.</span>
-       <span data-ka><b>${PLUGINS.length}</b>-დან <b>${shown}</b> მუშაობს <b>QGIS ${esc(QV)}</b>-ზე; დანარჩენი მიბინდულია.</span>`;
+  document.getElementById("stat-count").textContent=total;
+  document.getElementById("stat-bilingual").textContent=
+    `${PLUGINS.filter(p=>p.bilingual).length} / ${total}`;
+
+  // Three cases, because "12 of 12 run on QGIS 4; the rest are dimmed" is nonsense.
+  let msg;
+  if(QV==="all"){
+    msg=`<span data-en>Showing all <b>${total}</b> plugins.</span>
+         <span data-ka>ნაჩვენებია ყველა <b>${total}</b> დანამატი.</span>`;
+  }else if(shown===total){
+    msg=`<span data-en>All <b>${total}</b> plugins run on <b>QGIS ${esc(QV)}</b>.</span>
+         <span data-ka>ყველა <b>${total}</b> დანამატი მუშაობს <b>QGIS ${esc(QV)}</b>-ზე.</span>`;
+  }else{
+    const n=total-shown;
+    msg=`<span data-en><b>${shown}</b> of <b>${total}</b> plugins run on <b>QGIS ${esc(QV)}</b>; the other ${n} ${n===1?"is":"are"} dimmed below.</span>
+         <span data-ka><b>${total}</b>-დან <b>${shown}</b> მუშაობს <b>QGIS ${esc(QV)}</b>-ზე; დანარჩენი ${n} ქვემოთ მიბინდულია.</span>`;
+  }
+  document.getElementById("filterbar").innerHTML=msg;
 }
 
 function applyQgisVersion(){

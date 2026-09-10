@@ -23,7 +23,7 @@
 | `GeoEco` | Renewable-energy "last mile" on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback & optimal tilt; wind resource, Weibull & annual energy (AEP) | განახლებადი ენერგიის "ბოლო მილი" SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია | 🧪 ექსპერიმენტული |
 | `Selection Tools` | ArcGIS Pro-style Selection submenu; Make Layer From Selected Features on the same data source, no file written | ArcGIS Pro-ს „Selection" ქვემენიუ; შრის შექმნა მონიშნულებიდან იმავე პირველწყაროთი, ფაილის შექმნის გარეშე | 🧪 ექსპერიმენტული |
 | `Transliterate Data` | Batch-transliterates Georgian file, layer and field names to clean Latin across a folder | ქართული ფაილების, შრეებისა და ველების სახელების მასობრივი ტრანსლიტერაცია ლათინურზე | 🧪 ექსპერიმენტული |
-| `Georgian Cadastre` | NAPR parcel fetch by code (batch & map-click reverse, SHP/DXF/CSV) **+ Cadastral Drawing**: UTM 37/38 templates, WMS/WMTS, name-based styles, fonts, A4 layout, Excel attachment & packaged export | საკადასტრო კოდით ნაკვეთის ჩამოტვირთვა maps.gov.ge-დან **+ საკადასტრო ნახაზი**: UTM 37/38 შაბლონები, WMS/WMTS, სტილები სახელით, ფონტები, A4 layout, ექსელ დანართი და შეფუთული ექსპორტი | 🧪 ექსპერიმენტული |
+| `Georgian Cadastre` | Cadastral parcel fetch by code from the public cadastre service (batch & map-click reverse, SHP/DXF/CSV) **+ Cadastral Drawing**: UTM 37/38 templates, WMS/WMTS, name-based styles, fonts, A4 layout, Excel attachment & packaged export | საკადასტრო კოდით ნაკვეთის ჩამოტვირთვა საჯარო საკადასტრო სერვისიდან **+ საკადასტრო ნახაზი**: UTM 37/38 შაბლონები, WMS/WMTS, სტილები სახელით, ფონტები, A4 layout, ექსელ დანართი და შეფუთული ექსპორტი | 🧪 ექსპერიმენტული |
 
 ---
 
@@ -159,7 +159,7 @@ You can install these plugins in two ways:
 - QGIS core-ში ჩაშენების წინადადება: [qgis/QGIS#66902](https://github.com/qgis/QGIS/issues/66902)
 
 ### `Georgian Cadastre` — ქართული კადასტრი 🧪
-- საკადასტრო კოდით (მაგ. `38.10.42.107`) ნაკვეთის ჩამოტვირთვა პირდაპირ `maps.gov.ge`-დან (NAPR) — login-ისა და ქულების გარეშე
+- საკადასტრო კოდით (მაგ. `38.10.42.107`) ნაკვეთის ჩამოტვირთვა საჯარო საკადასტრო სერვისიდან — login-ისა და ქულების გარეშე
 - სია (batch): ბევრი კოდი ან CSV → ერთ ფენად; უკუძებნა: რუკაზე დაკლიკებით კოდი + გეომეტრია
 - ავტომატური UTM ზონა 37N/38N + WGS84 / Web Mercator; ექსპორტი SHP / DXF / CSV
 - ატრიბუტები: ფართობი (QGIS-ით გამოთვლილი + ოფიციალური), ტიპი, სტატუსი — **პერსონალური მონაცემების გარეშე**
