@@ -368,6 +368,14 @@ class CadastralDialog(QDialog):
             self.iface.mapCanvas().refresh()
         return area
 
+    def _napr_text(self, exc):
+        """Render a NaprError's stable key into a readable KA/EN message."""
+        key = getattr(exc, "key", None)
+        detail = getattr(exc, "detail", "") or ""
+        if isinstance(key, str) and key in i18n.STRINGS:
+            return _tr(key, detail=detail)
+        return str(exc)
+
     def _on_fetch_code(self):
         code = self.code_edit.text().strip()
         if not code:
@@ -381,7 +389,7 @@ class CadastralDialog(QDialog):
                 result["features"], result["code"], result.get("address") or "", zone)
         except napr_client.NaprError as exc:
             QApplication.restoreOverrideCursor()
-            return self._msg(f"{code}: {' '.join(str(a) for a in exc.args)}", Qgis.Warning)
+            return self._msg(f"{code}: {self._napr_text(exc)}", Qgis.Warning)
         except Exception as exc:  # noqa: BLE001
             QApplication.restoreOverrideCursor()
             return self._error(exc)
@@ -415,7 +423,7 @@ class CadastralDialog(QDialog):
             area = self._insert_features(feats, m.get("code", ""), m.get("address", ""), zone)
         except napr_client.NaprError as exc:
             QApplication.restoreOverrideCursor()
-            return self._msg(" ".join(str(a) for a in exc.args), Qgis.Warning)
+            return self._msg(self._napr_text(exc), Qgis.Warning)
         except Exception as exc:  # noqa: BLE001
             QApplication.restoreOverrideCursor()
             return self._error(exc)
@@ -578,7 +586,7 @@ class CadastralDialog(QDialog):
             points, per_radius, err = self._compute_points(zone)
         except napr_client.NaprError as exc:
             QApplication.restoreOverrideCursor()
-            return self._msg(" ".join(str(a) for a in exc.args), Qgis.Warning)
+            return self._msg(self._napr_text(exc), Qgis.Warning)
         except Exception as exc:  # noqa: BLE001
             QApplication.restoreOverrideCursor()
             return self._error(exc)

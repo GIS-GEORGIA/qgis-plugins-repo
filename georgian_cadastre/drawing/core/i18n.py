@@ -60,6 +60,17 @@ STRINGS = {
                         "en": "batch / export (full window)…"},
     "no_code": {"ka": "ჩაწერეთ საკადასტრო კოდი.", "en": "Enter a cadastral code."},
     "fetched_ok": {"ka": "ჩამოიწერა: {code} · {area} მ²", "en": "Fetched: {code} · {area} m²"},
+    # NaprError keys → readable text (service errors are upstream, not the plugin)
+    "err_access_denied": {
+        "ka": "საკადასტრო სერვისმა უარყო მოთხოვნა (Access Denied). სცადეთ მოგვიანებით.",
+        "en": "The cadastre service denied the request (Access Denied). Try again later."},
+    "err_network": {"ka": "ქსელის შეცდომა: {detail}", "en": "Network error: {detail}"},
+    "err_invalid": {"ka": "სერვისმა არასწორი პასუხი დააბრუნა. სცადეთ მოგვიანებით.",
+                     "en": "The service returned an invalid response. Try again later."},
+    "err_no_geom": {"ka": "ამ კოდზე გეომეტრია ვერ მოიძებნა.", "en": "No geometry found for this code."},
+    "err_empty_geom": {"ka": "ცარიელი გეომეტრია.", "en": "Empty geometry."},
+    "err_not_found": {"ka": "კოდი ვერ მოიძებნა: {detail}", "en": "Code not found: {detail}"},
+    "err_empty_code": {"ka": "ჩაწერეთ საკადასტრო კოდი.", "en": "Cadastral code is empty."},
 
     # --- area (bulk) fetch -------------------------------------------------
     "area_group": {"ka": "არეალის ჩამოწერა (ბევრი ნაკვეთი)",

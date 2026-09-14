@@ -55,6 +55,7 @@ class NaprError(Exception):
         "err_no_geom": "No geometry returned for this parcel.",
         "err_empty_geom": "Empty geometry.",
         "err_not_found": "Code not found: {}",
+        "err_access_denied": "The cadastre service denied the request (Access Denied).",
     }
 
     def __init__(self, key, detail=""):
@@ -84,11 +85,19 @@ def _get_text(url, data=None, fetch=None):
     if body is not None:
         headers["Content-Type"] = "application/x-www-form-urlencoded"
     try:
-        return fetch(url, body, headers, TIMEOUT)
+        text = fetch(url, body, headers, TIMEOUT)
     except NaprError:
         raise
     except Exception as exc:  # noqa: BLE001 — surface any network/HTTP issue
         raise NaprError("err_network", str(exc))
+    # The data endpoints (/lr/bo/mg/*) sometimes answer HTTP 200 with an HTML
+    # "Access Denied"/"Oops" page instead of JSON when the service blocks or is
+    # down. Detect that and raise a clear, dedicated error.
+    head = text.lstrip()[:400].lower()
+    if "<html" in head and ("access denied" in head or "oops" in head
+                            or "not be accessed" in head):
+        raise NaprError("err_access_denied", "")
+    return text
 
 
 def _get_json(url, data=None, fetch=None):

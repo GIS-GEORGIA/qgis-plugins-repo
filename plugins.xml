@@ -54,15 +54,15 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="Georgian Cadastre" version="0.4.0">
+  <pyqgis_plugin name="Georgian Cadastre" version="0.4.1">
     <description>Georgian cadastre toolkit for QGIS: fetch parcels by code from the public cadastre service, and prepare full cadastral survey drawings — UTM 37N/38N templates, WMS/WMTS services, name-based styles, Georgian fonts, an A4 layout with dynamic fields, an Excel attachment and a one-click packaged export.</description>
     <about>Two tools in one bilingual (ka/en) plugin. (1) Cadastre fetch — enter a cadastral code (e.g. 38.10.42.107), search the public cadastre service and load the parcel: single, batch and bulk (radius / map extent) lookup, map-click reverse lookup, auto UTM zone 37N/38N, non-personal attributes, export to SHP/DXF/CSV. All network work runs on background tasks, proxy-aware, no login. (2) Cadastral Drawing — create the official "საკადასტრო აგეგმვითი/აზომვითი ნახაზი": download SHP templates (cadastre + floor-plan) in the right CRS, add WMS/WMTS orthophoto &amp; cadastre services, apply symbology + labels automatically by layer name, download Georgian fonts, build an A4 print layout with dynamic date/area/CRS fields, fill the Excel attachment and package the PDF + Excel + photos into one folder named after the interested party. / ქართული კადასტრი + საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული ხელსაწყო.</about>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>georgian_cadastre.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/georgian_cadastre.zip?v=0.4.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/georgian_cadastre.zip?v=0.4.1</download_url>
     <icon>https://plugins.qgis.ge/georgian_cadastre/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
