@@ -12,6 +12,7 @@
 
 | Plugin Name | Description (Eng) | აღწერა (ქარ) | Status |
 |-------------|-------------------|--------------|--------|
+| `DevBridge` | Debug your own PyQGIS plugins live from VS Code / PyCharm: control panel with buttons (EN/KA), one-click plugin preparation, bundled standalone desktop tool | საკუთარი PyQGIS დანამატების ცოცხალი დებაგინგი VS Code-იდან / PyCharm-იდან: მართვის პანელი ღილაკებით (EN/KA), დანამატის მომზადება ერთი დაჭერით, ჩაშენებული დამოუკიდებელი დესკტოპ ხელსაწყო | 🆕 ახალი |
 | `plugin_downloader` | Downloads every plugin from the official QGIS repository into one folder, with progress and pause/resume | ყველა დანამატის ჩამოწერა ოფიციალური QGIS რეპოზიტორიიდან ერთ საქაღალდეში, პროგრესითა და pause/resume-ით | 🆕 ახალი |
 | `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
 | `basemap_loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
