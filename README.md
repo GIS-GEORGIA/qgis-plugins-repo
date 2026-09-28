@@ -71,6 +71,7 @@ the header shows the same thing at a glance.
 | Most plugins in this repository | QGIS 3.40 – 4.99 |
 | `plugin_downloader` | QGIS 3.0 – 4.99 (it only needs plain Qt) |
 | `PostGIS Manager` | QGIS 3.40 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/postgis-manager) |
+| `DevBridge` | QGIS 3.40 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/pyqgis-devbridge) |
 
 What makes one build work on both: Qt is imported through `qgis.PyQt` (never `PyQt5`/`PyQt6` directly),
 Qt enums are written in the scoped form (`Qt.AlignmentFlag.AlignLeft`), dialogs use `exec()` rather than
