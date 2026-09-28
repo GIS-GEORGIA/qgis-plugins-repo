@@ -89,15 +89,15 @@
     <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="DevBridge" version="0.2.6">
+  <pyqgis_plugin name="DevBridge" version="0.2.7">
     <description>Live PyQGIS debugging from QGIS: control panel with buttons for the VS Code (debugpy) and PyCharm bridges, one-click "prepare my plugin for debugging", and a bundled standalone desktop tool. Bilingual EN/KA.</description>
     <about>DevBridge starts a debugpy server inside a running QGIS session so Visual Studio Code can attach and set breakpoints in plugin code or console scripts, without restarting QGIS; for PyCharm it detects your build, installs the matching pydevd-pycharm and connects. The Control Panel (Plugins &gt; DevBridge) does everything with buttons, in English or Georgian: start/stop the bridges, pick one of your plugins and prepare it (a .venv that can import qgis, debugpy, VS Code launch configuration), open it in the file manager or VS Code. The same operations are also available as a separate desktop program bundled in the plugin's tool folder (launch it or open its folder from the panel); both share one settings file. Requires no extra Python packages except debugpy, which the preparation step installs.</about>
-    <version>0.2.6</version>
+    <version>0.2.7</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/pyqgis-devbridge</homepage>
     <file_name>DevBridge.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/DevBridge.zip?v=0.2.6</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/DevBridge.zip?v=0.2.7</download_url>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/pyqgis-devbridge/issues</tracker>
