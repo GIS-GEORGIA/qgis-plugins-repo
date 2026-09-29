@@ -268,6 +268,13 @@ def write_if_changed(path: str, data, check: bool, changed: list[str]) -> None:
 
 
 def main() -> int:
+    # Plugin names/descriptions are UTF-8 (Georgian text, en dashes); a plain
+    # Windows console (cp1252) would otherwise crash mid-run on the summary
+    # print below instead of finishing the build it already did.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
+
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="report what is out of date, write nothing")
     args = ap.parse_args()

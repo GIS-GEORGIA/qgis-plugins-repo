@@ -190,6 +190,23 @@ Then load every built ZIP in a real QGIS of each generation:
 `tools/qt_enum_map.json.gz` is the unscoped→scoped Qt enum table used by the linter; regenerate it with
 `tools/gen_qt_enum_map.py` under a PyQt6 interpreter only when targeting a newer Qt.
 
+### Troubleshooting: `build.py --check` reports a ZIP as out of date, but you didn't touch that plugin
+
+The ZIP is built from whatever bytes actually sit in your working tree (`open(..., "rb")`), not from git's
+index. `.gitattributes` pins every source file to LF, but a file checked out *before* that rule existed (or
+edited by a tool that doesn't respect it) can still be CRLF on disk while git's own copy is LF - `build.py`
+then produces a different ZIP locally than CI does from a fresh clone, for a plugin you never edited. Find and
+fix it with:
+
+```bash
+git ls-files --eol | grep crlf     # lists every file whose working-tree line endings disagree with .gitattributes
+git add --renormalize .            # stages the LF-normalized content (matches what a fresh clone already has)
+```
+
+`add --renormalize` only fixes what would be *committed*, not the file sitting in your working tree - if
+`build.py` still disagrees afterwards, the working-tree bytes themselves need rewriting, e.g. `sed -i 's/\r$//'
+<file>`, then re-run `git ls-files --eol` to confirm it's clean.
+
 ---
 
 ## 📞 Contact / კონტაქტი

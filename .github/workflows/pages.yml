@@ -44,6 +44,12 @@ jobs:
           PY
       - name: Generated files are up to date
         run: python tools/build.py --check
+      - name: build.py survives a restrictive console encoding
+        # CI's UTF-8 Linux console never catches a Windows cp1252 console
+        # crashing on the Georgian/en-dash text in the summary print - this
+        # forces that same class of failure here instead, where it's caught
+        # before a contributor on Windows hits it locally.
+        run: PYTHONIOENCODING=ascii python tools/build.py --check
 
   deploy:
     needs: verify
