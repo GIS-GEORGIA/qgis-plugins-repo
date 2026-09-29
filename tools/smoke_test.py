@@ -21,6 +21,7 @@ import importlib
 import json
 import os
 import pkgutil
+import shutil
 import sys
 import tempfile
 import traceback
@@ -123,6 +124,18 @@ def main() -> int:
     ap.add_argument("--only", help="check just this plugin id")
     args = ap.parse_args()
 
+    # QgsApplication reads/writes the real default profile (installed plugins,
+    # ini settings, plugin-repository state) unless told otherwise. A real
+    # incident traced back to exactly this: running this script against a dev
+    # machine's live profile let QGIS's own plugin-manager startup logic touch
+    # the real profile's installed DevBridge (which happened to be a junction
+    # into this checkout's own source) while a newer version was registered on
+    # a configured custom repository. An isolated, throwaway profile directory
+    # removes that whole class of risk - this script only ever needs to import
+    # plugin code, never the user's real settings.
+    config_dir = tempfile.mkdtemp(prefix="qgis-smoke-profile-")
+    os.environ["QGIS_CUSTOM_CONFIG_PATH"] = config_dir
+
     from qgis.core import QgsApplication
 
     app = QgsApplication([], False)
@@ -147,6 +160,7 @@ def main() -> int:
 
     QgsApplication.exitQgis()
     del app
+    shutil.rmtree(config_dir, ignore_errors=True)
 
     print("-" * 72)
     print("all plugins loaded" if not failures else f"{failures} failure(s)")
