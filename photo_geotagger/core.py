@@ -17,13 +17,20 @@ import mmap
 import os
 import re
 import shutil
+import json
 import struct
+import subprocess
+import tempfile
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 
 TYPE_SIZE = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8}
 GPS_POINTER, EXIF_POINTER = 0x8825, 0x8769
 WINDOW = 4 << 20  # EXIF is small; never copy more than this out of a large file
+
+# engine: "builtin" (default) never uses ExifTool, "auto" uses it when it can be found, "exiftool" insists on it.
+# raw_embed: write RAW/HEIC GPS into the file with ExifTool instead of an XMP sidecar.
+CONFIG = {"engine": "builtin", "exiftool": "", "raw_embed": False}
 
 JPEG_EXT = (".jpg", ".jpeg", ".jpe")
 TIFF_EXT = (".tif", ".tiff", ".dng")
@@ -212,7 +219,10 @@ def read_gps(path):
                 return lat, lon, alt, heading
     except (GeotagError, struct.error, IndexError, KeyError, ValueError):
         pass
-    return _read_sidecar(path)
+    found = _read_sidecar(path)
+    if found is None and ext_of(path) in RAW_EXT + HEIF_EXT and _use_exiftool():
+        found = _read_exiftool(path)[0]
+    return found
 
 
 def read_datetime(path):
@@ -231,6 +241,8 @@ def read_datetime(path):
                             pass
     except (GeotagError, struct.error, IndexError, ValueError):
         pass
+    if ext_of(path) in RAW_EXT + HEIF_EXT and _use_exiftool():
+        return _read_exiftool(path)[1]
     return None
 
 
@@ -349,7 +361,9 @@ def _xmp_gps_attrs(lat, lon, alt, direction):
     return attrs
 
 
+XMP_MARKER = "<!-- written by Photo Geotagger -->"
 _XMP_NEW = """<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<!-- written by Photo Geotagger -->
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="" xmlns:exif="http://ns.adobe.com/exif/1.0/"
@@ -380,6 +394,85 @@ def _write_sidecar(path, lat, lon, alt, direction, out_path, backup):
     _atomic_write(target, xml.encode("utf-8"))
 
 
+def find_exiftool(explicit=None):
+    """Path of the ExifTool executable, or None. An explicit/configured path is never second-guessed."""
+    cand = explicit or CONFIG.get("exiftool") or os.environ.get("GEOTAG_EXIFTOOL")
+    if cand:
+        return cand if os.path.isfile(cand) else None
+    for name in ("exiftool", "exiftool.exe", "exiftool(-k).exe"):
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
+def _use_exiftool():
+    if CONFIG["engine"] == "builtin":
+        return False
+    if find_exiftool():
+        return True
+    if CONFIG["engine"] == "exiftool":
+        raise GeotagError("ExifTool not found")
+    return False
+
+
+def _run_exiftool(args):
+    """Run ExifTool with UTF-8 arguments passed through an argument file (safe for Georgian paths)."""
+    exe = find_exiftool()
+    with tempfile.NamedTemporaryFile("w", suffix=".args", delete=False, encoding="utf-8") as f:
+        f.write("\n".join(args) + "\n")
+        argfile = f.name
+    try:
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        proc = subprocess.run([exe, "-charset", "filename=utf8", "-@", argfile], capture_output=True,
+                              timeout=180, creationflags=flags)
+    finally:
+        os.remove(argfile)
+    return proc.stdout.decode("utf-8", "replace"), proc.stderr.decode("utf-8", "replace")
+
+
+def _write_exiftool(path, lat, lon, alt, direction, out_path, backup):
+    target = out_path or path
+    if target != path:
+        shutil.copy2(path, target)
+    args = ["-n", "-P", "-GPSLatitude=%.8f" % abs(lat), "-GPSLatitudeRef=%s" % ("S" if lat < 0 else "N"),
+            "-GPSLongitude=%.8f" % abs(lon), "-GPSLongitudeRef=%s" % ("W" if lon < 0 else "E"),
+            "-GPSMapDatum=WGS-84"]
+    if alt is not None:
+        args += ["-GPSAltitude=%.2f" % abs(alt), "-GPSAltitudeRef=%d" % (1 if alt < 0 else 0)]
+    if direction is not None:
+        args += ["-GPSImgDirection=%.2f" % (direction % 360), "-GPSImgDirectionRef=T"]
+    # ExifTool refuses to touch a file whose backup already exists unless told to overwrite
+    if not backup or target != path or os.path.exists(target + "_original"):
+        args.append("-overwrite_original")
+    args.append(target)
+    out, err = _run_exiftool(args)
+    if "1 image files updated" not in out:
+        raise GeotagError((err or out).strip() or "ExifTool failed")
+
+
+def _read_exiftool(path):
+    """(position or None, taken or None) via ExifTool, for formats the built-in reader cannot parse."""
+    out, _ = _run_exiftool(["-j", "-n", "-GPSLatitude", "-GPSLongitude", "-GPSAltitude", "-GPSImgDirection",
+                            "-DateTimeOriginal", path])
+    try:
+        row = json.loads(out)[0]
+    except (ValueError, IndexError):
+        return None, None
+    pos = None
+    if "GPSLatitude" in row and "GPSLongitude" in row:
+        pos = (float(row["GPSLatitude"]), float(row["GPSLongitude"]),
+               float(row["GPSAltitude"]) if "GPSAltitude" in row else None,
+               float(row["GPSImgDirection"]) if "GPSImgDirection" in row else None)
+    taken = None
+    if row.get("DateTimeOriginal"):
+        try:
+            taken = datetime.strptime(str(row["DateTimeOriginal"])[:19], "%Y:%m:%d %H:%M:%S")
+        except ValueError:
+            pass
+    return pos, taken
+
+
 def write_gps(path, lat, lon, alt=None, direction=None, out_path=None, backup=True):
     """Geotag a photo. Returns "embedded" or "sidecar" (how the GPS was stored)."""
     if not (-90 <= lat <= 90 and -180 <= lon <= 180):
@@ -388,7 +481,15 @@ def write_gps(path, lat, lon, alt=None, direction=None, out_path=None, backup=Tr
     if ext not in PHOTO_EXT:
         raise GeotagError("unsupported format: " + ext)
     target = out_path or path
-    if ext in JPEG_EXT + TIFF_EXT:
+    native = ext in JPEG_EXT + TIFF_EXT
+    if (native or CONFIG["raw_embed"]) and _use_exiftool():
+        try:
+            _write_exiftool(path, lat, lon, alt, direction, out_path, backup)
+            return "embedded"
+        except (GeotagError, OSError, subprocess.SubprocessError):
+            if CONFIG["engine"] == "exiftool" or not native:
+                raise
+    if native:
         with open(path, "rb") as f:
             data = f.read()
         result = (_write_jpeg if ext in JPEG_EXT else _write_tiff)(data, lat, lon, alt, direction)
@@ -584,8 +685,52 @@ def tag_photo(path, source, backup=True, out_dir=None, overwrite=False):
             out_path = os.path.join(out_dir, os.path.basename(path))
         mode = write_gps(path, pos[0], pos[1], pos[2], pos[3], out_path=out_path, backup=backup)
         return ("ok" if mode == "embedded" else "ok_xmp"), pos, ""
-    except (GeotagError, OSError, struct.error, ValueError) as exc:
+    except (GeotagError, OSError, struct.error, ValueError, subprocess.SubprocessError) as exc:
         return "error", None, str(exc)
+
+
+def _same(a, b, tol):
+    return (a is None and b is None) or (a is not None and b is not None and abs(a - b) <= tol)
+
+
+def set_position(path, lat, lon, alt=None, direction=None, backup=True):
+    """Make the photo carry exactly this position. Returns (status, detail): ok / ok_xmp / same / error.
+
+    A missing altitude or direction keeps what the photo already has.
+    """
+    try:
+        cur = read_gps(path)
+        if cur:
+            alt = cur[2] if alt is None else alt
+            direction = cur[3] if direction is None else direction
+            if (_same(cur[0], lat, 1e-7) and _same(cur[1], lon, 1e-7) and _same(cur[2], alt, 0.01)
+                    and _same(cur[3], direction, 0.01)):
+                return "same", ""
+        mode = write_gps(path, lat, lon, alt, direction, backup=backup)
+        return ("ok" if mode == "embedded" else "ok_xmp"), ""
+    except (GeotagError, OSError, struct.error, ValueError, subprocess.SubprocessError) as exc:
+        return "error", str(exc)
+
+
+def restore_photo(path):
+    """Undo: put the `_original` backup back. Returns (restored / sidecar_removed / nothing / error, detail)."""
+    try:
+        sc = sidecar_path(path)
+        if os.path.exists(path + "_original"):
+            os.replace(path + "_original", path)
+            return "restored", ""
+        if os.path.exists(sc + "_original"):
+            os.replace(sc + "_original", sc)
+            return "restored", ""
+        if os.path.exists(sc):
+            with open(sc, encoding="utf-8", errors="replace") as f:
+                ours = XMP_MARKER in f.read()
+            if ours:
+                os.remove(sc)
+                return "sidecar_removed", ""
+        return "nothing", ""
+    except OSError as exc:
+        return "error", str(exc)
 
 
 def build_records(paths):

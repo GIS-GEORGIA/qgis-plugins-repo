@@ -4,6 +4,8 @@
     python geotag.py --gpx track.gpx --utc-offset 4 -r photos/
     python geotag.py --csv points.csv photos/
     python geotag.py --dry-run --gpx track.gpx photos/
+    python geotag.py --restore photos/
+    python geotag.py --engine exiftool --raw-embed --lat 41.7 --lon 44.8 raw_photos/
     python geotag.py --read photos/
     python geotag.py --lat 41.7 --lon 44.8 photos/ --export gpkg,shp,geojson,csv --export-dir out/
     python geotag.py            (no arguments: opens a small window)
@@ -64,15 +66,30 @@ def run_cli(argv):
     ap.add_argument("--export", help=t("cli_export"))
     ap.add_argument("--export-dir", default=".", help=t("cli_export_dir"))
     ap.add_argument("--export-name", default="photos", help=t("cli_export_name"))
+    ap.add_argument("--engine", choices=("auto", "builtin", "exiftool"), default="builtin", help=t("cli_engine"))
+    ap.add_argument("--exiftool", default="", help=t("cli_exiftool"))
+    ap.add_argument("--raw-embed", action="store_true", help=t("cli_raw_embed"))
+    ap.add_argument("--restore", action="store_true", help=t("cli_restore"))
     ap.add_argument("--gui", action="store_true", help=t("cli_gui"))
     args = ap.parse_args(argv)
 
+    core.CONFIG.update({"engine": args.engine, "exiftool": args.exiftool, "raw_embed": args.raw_embed})
     if args.gui or not argv:
         return run_gui(args.lang)
     photos = core.collect_photos(args.paths, args.recursive)
     if not photos:
         print(t("no_files"))
         return 2
+
+    if args.restore:
+        counts = {"restored": 0, "sidecar_removed": 0, "nothing": 0, "error": 0}
+        for p in photos:
+            status, detail = core.restore_photo(p)
+            counts[status] += 1
+            print("%s: %s %s" % (p, t("res_" + status), detail))
+        print(t("restore_summary", ok=counts["restored"] + counts["sidecar_removed"], skip=counts["nothing"],
+                err=counts["error"]))
+        return 1 if counts["error"] else 0
 
     formats = [k.strip().lower() for k in args.export.split(",") if k.strip()] if args.export else []
     bad = [k for k in formats if k not in export.available()]

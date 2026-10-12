@@ -20,6 +20,20 @@ estimate) or CSV table (`file;lat;lon[;alt[;direction]]`). Existing coordinates 
 Output: a point layer in the project and/or files in GeoPackage, Shapefile, GeoJSON, CSV, KML, GPX,
 FlatGeobuf, GML, MapInfo TAB, SpatiaLite.
 
+## Move points, write back / Undo
+
+Photos loaded as a layer (*Create output*) can be corrected on the map: edit the point geometry, then
+*Layer to photos > Write layer coordinates to photos* (needs a `path` field; `alt` and `direction` optional).
+Only photos whose position actually changed are rewritten. *Restore originals* (or `--restore`) puts the
+`_original` backups back, and removes `.xmp` sidecars that this plugin created.
+
+## Writing engine
+
+The built-in writer needs nothing. Optionally [ExifTool](https://exiftool.org) can write instead
+(*Writing engine* in the dialog, or `--engine auto|exiftool --exiftool PATH`); it is called as a separate
+program and is not bundled. With ExifTool, *Write into RAW/HEIC files* (`--raw-embed`) puts the GPS inside
+the camera file instead of an `.xmp` sidecar. The default is the built-in writer.
+
 ## Standalone
 
 ```bash

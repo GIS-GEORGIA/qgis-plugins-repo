@@ -3,11 +3,12 @@ import os
 from qgis.PyQt.QtCore import QMetaType
 from qgis.PyQt.QtWidgets import (
     QButtonGroup, QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFileDialog, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QPlainTextEdit, QProgressBar,
+    QGroupBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPlainTextEdit, QProgressBar,
     QPushButton, QRadioButton, QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout)
 from qgis.core import (
     QgsApplication, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsFeature, QgsField,
-    QgsGeometry, QgsMarkerSymbol, QgsPointXY, QgsProject, QgsProperty, QgsTask, QgsVectorLayer)
+    QgsGeometry, QgsMarkerSymbol, QgsPointXY, QgsProject, QgsProperty, QgsSettings, QgsTask, QgsVectorLayer,
+    QgsWkbTypes)
 from qgis.gui import QgsMapToolEmitPoint
 
 from . import core, export, i18n
@@ -68,6 +69,7 @@ class GeotagDialog(QDialog):
         self.prev_tool = None
         self.task = None
         self._build()
+        self._load_engine()
         self.retranslate()
 
     # ------------------------------------------------------------------ UI
@@ -164,6 +166,50 @@ class GeotagDialog(QDialog):
         opts.addWidget(self.overwrite)
         root.addLayout(opts)
 
+        self.engine_box = QGroupBox()
+        el = QGridLayout(self.engine_box)
+        self.engine = QComboBox()
+        for key in ("auto", "builtin", "exiftool"):
+            self.engine.addItem("", key)
+        self.et_path = QLineEdit()
+        self.b_et = QPushButton()
+        self.l_et = QLabel()
+        self.raw_embed = QCheckBox()
+        self.et_status = QLabel()
+        self.et_status.setWordWrap(True)
+        self.b_et.clicked.connect(self._browse_exiftool)
+        self.engine.currentIndexChanged.connect(self._apply_engine)
+        self.et_path.editingFinished.connect(self._apply_engine)
+        self.raw_embed.toggled.connect(self._apply_engine)
+        el.addWidget(self.engine, 0, 0, 1, 3)
+        el.addWidget(self.l_et, 1, 0)
+        el.addWidget(self.et_path, 1, 1)
+        el.addWidget(self.b_et, 1, 2)
+        el.addWidget(self.raw_embed, 2, 0, 1, 3)
+        el.addWidget(self.et_status, 3, 0, 1, 3)
+        root.addWidget(self.engine_box)
+
+        self.wb_box = QGroupBox()
+        wl = QGridLayout(self.wb_box)
+        self.wb_layer = QComboBox()
+        self.wb_refresh = QPushButton("\u21bb")
+        self.wb_refresh.setMaximumWidth(32)
+        self.wb_refresh.clicked.connect(self._fill_layers)
+        self.l_wb_layer = QLabel()
+        self.wb_selected = QCheckBox()
+        self.wb_hint = QLabel()
+        self.wb_hint.setWordWrap(True)
+        self.btn_wb = QPushButton()
+        self.btn_wb.clicked.connect(self._writeback)
+        wl.addWidget(self.l_wb_layer, 0, 0)
+        wl.addWidget(self.wb_layer, 0, 1)
+        wl.addWidget(self.wb_refresh, 0, 2)
+        wl.addWidget(self.wb_selected, 1, 0, 1, 3)
+        wl.addWidget(self.wb_hint, 2, 0, 1, 3)
+        wl.addWidget(self.btn_wb, 3, 0, 1, 3)
+        root.addWidget(self.wb_box)
+        self._fill_layers()
+
         self.out_box = QGroupBox()
         ol = QGridLayout(self.out_box)
         self.out_layer = QCheckBox()
@@ -191,14 +237,15 @@ class GeotagDialog(QDialog):
         btns = QHBoxLayout()
         self.btn_preview, self.btn_run = QPushButton(), QPushButton()
         self.btn_layer, self.btn_close = QPushButton(), QPushButton()
-        self.btn_cancel = QPushButton()
+        self.btn_cancel, self.btn_restore = QPushButton(), QPushButton()
         self.btn_cancel.setEnabled(False)
+        self.btn_restore.clicked.connect(self._restore)
         self.btn_preview.clicked.connect(self._preview)
         self.btn_run.clicked.connect(self._run)
         self.btn_layer.clicked.connect(self._make_output)
         self.btn_cancel.clicked.connect(self._cancel)
         self.btn_close.clicked.connect(self.close)
-        for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_cancel, self.btn_close):
+        for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_restore, self.btn_cancel, self.btn_close):
             btns.addWidget(b)
         root.addLayout(btns)
 
@@ -250,6 +297,19 @@ class GeotagDialog(QDialog):
         self.btn_run.setText(t("run"))
         self.btn_layer.setText(t("export_btn"))
         self.btn_cancel.setText(t("cancel"))
+        self.btn_restore.setText(t("restore_btn"))
+        self.engine_box.setTitle(t("engine"))
+        for i, key in enumerate(("engine_auto", "engine_builtin", "engine_exiftool")):
+            self.engine.setItemText(i, t(key))
+        self.l_et.setText(t("exiftool_path"))
+        self.b_et.setText(t("browse"))
+        self.raw_embed.setText(t("raw_embed"))
+        self.wb_box.setTitle(t("wb_title"))
+        self.l_wb_layer.setText(t("wb_layer"))
+        self.wb_selected.setText(t("wb_selected"))
+        self.wb_hint.setText(t("wb_hint"))
+        self.btn_wb.setText(t("wb_btn"))
+        self._apply_engine()
         self.btn_close.setText(t("close"))
         self.tabs.setTabText(0, t("preview"))
         self.tabs.setTabText(1, t("log"))
@@ -357,7 +417,7 @@ class GeotagDialog(QDialog):
 
     # -------------------------------------------------------- background work
     def _busy(self, on):
-        for b in (self.btn_preview, self.btn_run, self.btn_layer):
+        for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_restore, self.btn_wb):
             b.setEnabled(not on)
         self.btn_cancel.setEnabled(on)
         if not on:
@@ -441,6 +501,110 @@ class GeotagDialog(QDialog):
                 skip += 1
         self.log.appendPlainText(t("summary", ok=ok, skip=skip, err=err))
         self.tabs.setCurrentIndex(1)
+
+    # --------------------------------------------------------------- engine
+    def _load_engine(self):
+        settings = QgsSettings()
+        self.engine.setCurrentIndex(max(0, self.engine.findData(settings.value("photo_geotagger/engine", "builtin"))))
+        self.et_path.setText(settings.value("photo_geotagger/exiftool", "") or "")
+        self.raw_embed.setChecked(str(settings.value("photo_geotagger/raw_embed", "false")).lower() == "true")
+
+    def _browse_exiftool(self):
+        name, _ = QFileDialog.getOpenFileName(self, t("exiftool_path"))
+        if name:
+            self.et_path.setText(name)
+            self._apply_engine()
+
+    def _apply_engine(self, *_):
+        core.CONFIG.update({"engine": self.engine.currentData() or "builtin", "exiftool": self.et_path.text().strip(),
+                            "raw_embed": self.raw_embed.isChecked()})
+        settings = QgsSettings()
+        settings.setValue("photo_geotagger/engine", core.CONFIG["engine"])
+        settings.setValue("photo_geotagger/exiftool", core.CONFIG["exiftool"])
+        settings.setValue("photo_geotagger/raw_embed", "true" if core.CONFIG["raw_embed"] else "false")
+        found = core.find_exiftool()
+        self.et_status.setText(t("exiftool_found", found) if found else t("exiftool_missing"))
+
+    # ------------------------------------------------------- layer to photos
+    def _fill_layers(self):
+        current = self.wb_layer.currentData()
+        self.wb_layer.clear()
+        for layer in QgsProject.instance().mapLayers().values():
+            if isinstance(layer, QgsVectorLayer) and "Point" in QgsWkbTypes.displayString(layer.wkbType()):
+                self.wb_layer.addItem(layer.name(), layer.id())
+        index = self.wb_layer.findData(current)
+        if index >= 0:
+            self.wb_layer.setCurrentIndex(index)
+
+    def showEvent(self, event):
+        self._fill_layers()
+        super().showEvent(event)
+
+    def _writeback(self):
+        self.tabs.setCurrentIndex(1)
+        layer = QgsProject.instance().mapLayer(self.wb_layer.currentData()) if self.wb_layer.currentData() else None
+        if layer is None:
+            self.log.appendPlainText(t("wb_no_layer"))
+            return
+        names = layer.fields().names()
+        if "path" not in names:
+            self.log.appendPlainText(t("wb_no_field"))
+            return
+        to_wgs = QgsCoordinateTransform(layer.crs(), WGS84, QgsProject.instance())
+        features = layer.getSelectedFeatures() if self.wb_selected.isChecked() else layer.getFeatures()
+
+        def number(feature, name):
+            value = feature[name] if name in names else None
+            return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+
+        items = []
+        for f in features:
+            path = f["path"]
+            if not isinstance(path, str) or not path or f.geometry().isNull():
+                continue
+            p = to_wgs.transform(f.geometry().asPoint())
+            items.append((path, p.y(), p.x(), number(f, "alt"), number(f, "direction")))
+        if not items:
+            self.log.appendPlainText(t("wb_nothing"))
+            return
+        self.log.clear()
+        backup = self.backup.isChecked()
+        self._start(t("wb_btn"), items, lambda it: (it[0], core.set_position(it[0], it[1], it[2], it[3], it[4], backup)),
+                    self._show_writeback)
+
+    def _show_writeback(self, results):
+        ok = same = err = 0
+        for path, (status, detail) in results:
+            if status == "error":
+                err += 1
+                self.log.appendPlainText("%s: %s %s" % (path, t("res_error"), detail))
+            elif status == "same":
+                same += 1
+            else:
+                ok += 1
+                self.log.appendPlainText("%s: %s" % (path, t("res_" + status)))
+        self.log.appendPlainText(t("wb_summary", ok=ok, same=same, err=err))
+
+    # ---------------------------------------------------------------- undo
+    def _restore(self):
+        photos = self._paths()
+        self.tabs.setCurrentIndex(1)
+        if not photos:
+            self.log.appendPlainText(t("no_files"))
+            return
+        answer = QMessageBox.question(self, t("restore_btn"), t("restore_confirm", len(photos)))
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        self.log.clear()
+        self._start(t("restore_btn"), photos, lambda p: (p, core.restore_photo(p)), self._show_restore)
+
+    def _show_restore(self, results):
+        counts = {"restored": 0, "sidecar_removed": 0, "nothing": 0, "error": 0}
+        for path, (status, detail) in results:
+            counts[status] += 1
+            self.log.appendPlainText("%s: %s %s" % (path, t("res_" + status), detail))
+        self.log.appendPlainText(t("restore_summary", ok=counts["restored"] + counts["sidecar_removed"],
+                                   skip=counts["nothing"], err=counts["error"]))
 
     # ------------------------------------------------------------- output
     def _make_output(self):

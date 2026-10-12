@@ -181,5 +181,114 @@ class CoreTests(unittest.TestCase):
             self.assertGreater(os.path.getsize(out), 0, key)
 
 
+STUB = """import json, sys
+args = open(sys.argv[sys.argv.index("-@") + 1], encoding="utf-8").read().split(chr(10))
+open(__file__ + ".log", "w", encoding="utf-8").write(json.dumps(args))
+print("    1 image files updated")
+"""
+
+
+class UndoAndPositionTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = self.tmp.name
+
+    def tearDown(self):
+        core.CONFIG.update({"engine": "builtin", "exiftool": "", "raw_embed": False})
+        self.tmp.cleanup()
+
+    def path(self, name):
+        return os.path.join(self.dir, name)
+
+    def jpeg(self, name="a.jpg"):
+        with open(self.path(name), "wb") as f:
+            f.write(TINY_JPEG)
+        return self.path(name)
+
+    def test_restore_brings_back_original_bytes(self):
+        p = self.jpeg()
+        core.write_gps(p, 1, 2)
+        self.assertEqual(core.restore_photo(p)[0], "restored")
+        self.assertEqual(slurp(p), TINY_JPEG)
+        self.assertFalse(os.path.exists(p + "_original"))
+        self.assertEqual(core.restore_photo(p)[0], "nothing")
+
+    def test_restore_removes_only_our_sidecar(self):
+        p = self.path("r.nef")
+        make_tiff(p)
+        core.write_gps(p, 1, 2, backup=False)
+        self.assertEqual(core.restore_photo(p)[0], "sidecar_removed")
+        self.assertFalse(os.path.exists(core.sidecar_path(p)))
+        with open(core.sidecar_path(p), "w") as f:  # a sidecar from another program
+            f.write("<x:xmpmeta/>")
+        self.assertEqual(core.restore_photo(p)[0], "nothing")
+        self.assertTrue(os.path.exists(core.sidecar_path(p)))
+
+    def test_restore_foreign_sidecar_after_update(self):
+        p = self.path("r.nef")
+        make_tiff(p)
+        foreign = '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about=""/></rdf:RDF></x:xmpmeta>'
+        with open(core.sidecar_path(p), "w") as f:
+            f.write(foreign)
+        core.write_gps(p, 1, 2)
+        self.assertEqual(core.restore_photo(p)[0], "restored")
+        self.assertEqual(slurp(core.sidecar_path(p)).decode("utf-8"), foreign)
+
+    def test_set_position_writes_only_when_different(self):
+        p = self.jpeg()
+        self.assertEqual(core.set_position(p, 41.7, 44.8, 300, 10, backup=False)[0], "ok")
+        self.assertEqual(core.set_position(p, 41.7, 44.8, 300, 10, backup=False)[0], "same")
+        status, _ = core.set_position(p, 41.8, 44.8, None, None, backup=False)
+        self.assertEqual(status, "ok")
+        lat, lon, alt, heading = core.read_gps(p)
+        self.assertEqual((round(lat, 4), round(alt, 1), round(heading, 1)), (41.8, 300.0, 10.0))  # kept
+
+    def make_stub(self):
+        stub = self.path("fake_exiftool.py")
+        with open(stub, "w", encoding="utf-8") as f:
+            f.write(STUB)
+        if os.name == "nt":
+            launcher = self.path("fake_exiftool.bat")
+            with open(launcher, "w") as f:
+                f.write('@"%s" "%s" %%*' % (sys.executable, stub) + chr(13) + chr(10))
+        else:
+            launcher = self.path("fake_exiftool")
+            with open(launcher, "w") as f:
+                f.write('#!/bin/sh' + chr(10) + 'exec "%s" "%s" "$@"' % (sys.executable, stub) + chr(10))
+            os.chmod(launcher, 0o755)
+        return launcher, stub
+
+    def test_exiftool_engine_builds_expected_command(self):
+        import json
+        launcher, stub = self.make_stub()
+        core.CONFIG.update({"engine": "exiftool", "exiftool": launcher})
+        p = self.jpeg()
+        self.assertEqual(core.write_gps(p, -41.5, 44.25, -12, 90, backup=True), "embedded")
+        args = json.loads(slurp(stub + ".log").decode("utf-8"))
+        for expected in ("-GPSLatitude=41.50000000", "-GPSLatitudeRef=S", "-GPSLongitude=44.25000000",
+                         "-GPSLongitudeRef=E", "-GPSAltitude=12.00", "-GPSAltitudeRef=1",
+                         "-GPSImgDirection=90.00", "-GPSImgDirectionRef=T", "-n"):
+            self.assertIn(expected, args)
+        self.assertNotIn("-overwrite_original", args)  # first write keeps ExifTool's own backup
+        self.assertEqual(args[-2], p)
+
+    def test_raw_embed_goes_through_exiftool_else_sidecar(self):
+        launcher, stub = self.make_stub()
+        p = self.path("r.nef")
+        make_tiff(p)
+        core.CONFIG.update({"engine": "auto", "exiftool": launcher, "raw_embed": False})
+        self.assertEqual(core.write_gps(p, 1, 2, backup=False), "sidecar")
+        core.CONFIG["raw_embed"] = True
+        self.assertEqual(core.write_gps(p, 1, 2, backup=False), "embedded")
+
+    def test_missing_exiftool_falls_back_in_auto_but_not_when_forced(self):
+        core.CONFIG.update({"engine": "auto", "exiftool": self.path("nope.exe")})
+        p = self.jpeg()
+        self.assertEqual(core.write_gps(p, 1, 2, backup=False), "embedded")  # built-in writer
+        core.CONFIG["engine"] = "exiftool"
+        with self.assertRaises(core.GeotagError):
+            core.write_gps(p, 3, 4, backup=False)
+
+
 if __name__ == "__main__":
     unittest.main()
