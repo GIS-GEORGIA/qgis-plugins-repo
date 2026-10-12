@@ -11,8 +11,15 @@ class PhotoGeotaggerPlugin:
         self.iface = iface
         self.action = None
         self.dialog = None
+        self.provider = None
+
+    def initProcessing(self):
+        from .processing_provider import PhotoGeotaggerProvider
+        self.provider = PhotoGeotaggerProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
+        self.initProcessing()
         self.action = QAction(QgsApplication.getThemeIcon("/mActionAddImage.svg"),
                               i18n.t("title"), self.iface.mainWindow())
         self.action.triggered.connect(self.run)
@@ -20,6 +27,9 @@ class PhotoGeotaggerPlugin:
         self.iface.addPluginToMenu(MENU, self.action)
 
     def unload(self):
+        if self.provider:
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self.action:
             self.iface.removeToolBarIcon(self.action)
             self.iface.removePluginMenu(MENU, self.action)

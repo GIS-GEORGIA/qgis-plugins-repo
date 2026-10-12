@@ -34,6 +34,13 @@ The built-in writer needs nothing. Optionally [ExifTool](https://exiftool.org) c
 program and is not bundled. With ExifTool, *Write into RAW/HEIC files* (`--raw-embed`) puts the GPS inside
 the camera file instead of an `.xmp` sidecar. By default (*Automatic*) ExifTool is used when it can be found, otherwise the built-in writer. Checked against ExifTool 13.59; both engines produce the same GPS tags and the pixel data is untouched.
 
+## Processing toolbox
+
+Group *Photo Geotagger* in the Processing Toolbox (also usable in Model Builder and `qgis_process`):
+`Photos to points`, `Geotag photos from a GPX track`, `... from a CSV table`, `... from a point layer`,
+`Restore photo originals`, `Estimate camera clock offset`. Names and help follow the QGIS language
+(Georgian or English). The tagging algorithms report counts and an optional report layer.
+
 ## Standalone
 
 ```bash

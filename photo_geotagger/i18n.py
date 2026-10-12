@@ -86,6 +86,55 @@ STRINGS = {
     "cli_exiftool": ("ExifTool-ის გზა", "path to ExifTool"),
     "cli_raw_embed": ("RAW/HEIC-ში ჩაწერა .xmp-ის ნაცვლად (ExifTool)", "write into RAW/HEIC instead of .xmp (ExifTool)"),
     "cli_restore": ("ორიგინალების აღდგენა `_original` ასლებიდან", "restore originals from the `_original` backups"),
+    "provider_name": ("ფოტოს გეოტეგირება", "Photo Geotagger"),
+    "alg_group": ("ფოტოს გეოტეგირება", "Photo Geotagger"),
+    "alg_photos_to_points": ("ფოტოები წერტილებად", "Photos to points"),
+    "alg_photos_to_points_help": (
+        "ფოტოებში ჩაწერილი GPS კოორდინატებიდან ქმნის წერტილოვან შრეს (EPSG:4326). იკითხება JPEG, TIFF, DNG, RAW და HEIC. შედეგი ნებისმიერ ფორმატში შეინახება Processing-ის ჩვეულებრივი გამოტანით.",
+        "Creates a point layer (EPSG:4326) from the GPS coordinates stored in photos. Reads JPEG, TIFF, DNG, RAW and HEIC. Save the result in any format with the normal Processing output."),
+    "alg_geotag_gpx": ("ფოტოს გეოტეგირება GPX ტრეკით", "Geotag photos from a GPX track"),
+    "alg_geotag_gpx_help": (
+        "ფოტოს გადაღების დროს ადარებს GPX ტრეკს და კოორდინატებს ფოტოში წერს. კამერის საათი ხშირად UTC-სგან განსხვავდება; მიუთითე სხვაობა საათებში (თბილისისთვის 4) და საჭიროების შემთხვევაში კორექცია წამებში. ფოტო, რომელსაც უკვე აქვს კოორდინატები, გამოტოვდება, თუ გადაწერა არ არის მონიშნული.",
+        "Matches each photo's capture time to a GPX track and writes the coordinates into the photo. Camera clocks often differ from UTC; give the offset in hours (4 for Georgia) and a correction in seconds if needed. Photos that already have coordinates are skipped unless overwrite is ticked."),
+    "alg_geotag_csv": ("ფოტოს გეოტეგირება CSV ცხრილით", "Geotag photos from a CSV table"),
+    "alg_geotag_csv_help": (
+        "CSV-ის სტრიქონები: ფაილი;განედი;გრძედი[;სიმაღლე[;მიმართულება]]. ფოტო ფაილის სახელით ემთხვევა.",
+        "CSV rows: file;lat;lon[;alt[;direction]]. Photos are matched by file name."),
+    "alg_geotag_layer": ("ფოტოს გეოტეგირება წერტილოვანი შრით", "Geotag photos from a point layer"),
+    "alg_geotag_layer_help": (
+        "ფოტოებში წერს შრის წერტილების კოორდინატებს. ველი ფოტოს გზით სავალდებულოა. რედაქტირებული წერტილები ფოტოებში ბრუნდება; ჩაიწერება მხოლოდ შეცვლილი პოზიცია.",
+        "Writes the layer's point coordinates into the photos. A field with the photo path is required. Edited points go back into the photos; only changed positions are written."),
+    "alg_restore": ("ფოტოების ორიგინალების აღდგენა", "Restore photo originals"),
+    "alg_restore_help": (
+        "აბრუნებს ფოტოებს `_original` ასლებიდან და შლის ამ ფლაგინის შექმნილ .xmp ფაილებს.",
+        "Puts photos back from their `_original` backups and removes .xmp sidecars created by this plugin."),
+    "alg_offset": ("კამერის საათის სხვაობის გამოთვლა", "Estimate camera clock offset"),
+    "alg_offset_help": (
+        "ერთი ფოტოს ნამდვილი ადგილით და GPX ტრეკით გამოითვლის კამერის საათის სხვაობას UTC-სგან და კორექციას წამებში.",
+        "From one photo with a known true position and a GPX track, estimates the camera clock offset from UTC and the correction in seconds."),
+    "p_photos": ("ფოტოების საქაღალდე", "Photos folder"),
+    "p_recursive": ("ქვესაქაღალდეებშიც", "Include sub-folders"),
+    "p_gpx": ("GPX ფაილი", "GPX file"),
+    "p_csv": ("CSV ფაილი", "CSV file"),
+    "p_layer": ("წერტილოვანი შრე", "Point layer"),
+    "p_path_field": ("ველი ფოტოს გზით", "Field with the photo path"),
+    "p_alt_field": ("სიმაღლის ველი (არასავალდებულო)", "Altitude field (optional)"),
+    "p_dir_field": ("მიმართულების ველი (არასავალდებულო)", "Direction field (optional)"),
+    "p_photo": ("ფოტო", "Photo"),
+    "p_true_lat": ("ფოტოს ნამდვილი განედი", "True latitude of the photo"),
+    "p_true_lon": ("ფოტოს ნამდვილი გრძედი", "True longitude of the photo"),
+    "o_photos": ("ფოტოები", "Photos"),
+    "o_report": ("ჩაწერის შედეგი", "Write report"),
+    "o_written": ("ჩაიწერა", "Written"),
+    "o_skipped": ("გამოტოვდა", "Skipped"),
+    "o_errors": ("შეცდომა", "Errors"),
+    "o_restored": ("აღდგა", "Restored"),
+    "o_utc": ("სხვაობა UTC-სგან (სთ)", "Offset from UTC (h)"),
+    "o_shift": ("კორექცია (წმ)", "Correction (s)"),
+    "o_distance": ("უახლოესი წერტილის მანძილი (მ)", "Distance to nearest track point (m)"),
+    "alg_no_photos": ("ფოტო ვერ მოიძებნა.", "No photos found."),
+    "alg_bad_field": ("ველი არ არის შრეში: {0}", "Field not in the layer: {0}"),
+    "alg_no_time": ("ფოტოს გადაღების დრო არ აქვს.", "The photo has no capture time."),
     "formats_note": ("JPEG, TIFF და DNG ფაილში იწერება პირდაპირ. RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF და სხვა) და HEIC ფაილებისთვის იქმნება გვერდითა .xmp ფაილი.",
                      "JPEG, TIFF and DNG are written directly. For RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF and others) and HEIC a sidecar .xmp file is created."),
     "output": ("შედეგი", "Output"),
@@ -134,6 +183,22 @@ STRINGS = {
 def set_lang(lang):
     global LANG
     LANG = "en" if lang == "en" else "ka"
+
+
+def locale_lang():
+    """Language for places without a dialog (Processing): Georgian when QGIS runs in Georgian."""
+    try:
+        from qgis.core import QgsSettings
+        loc = str(QgsSettings().value("locale/userLocale", "") or "")
+    except ImportError:
+        loc = ""
+    return "ka" if loc.lower().startswith("ka") else "en"
+
+
+def t_lang(key, lang, *args, **kw):
+    ka, en = STRINGS[key]
+    text = en if lang == "en" else ka
+    return text.format(*args, **kw) if (args or kw) else text
 
 
 def t(key, *args, **kw):
