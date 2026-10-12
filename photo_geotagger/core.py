@@ -22,6 +22,7 @@ import struct
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape as _xml_escape, unescape as _xml_unescape
 from datetime import datetime, timedelta, timezone
 
 TYPE_SIZE = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8}
@@ -181,9 +182,9 @@ def _xmp_dms(text):
     return -v if m.group(3) in "SW" else v
 
 
-def _xmp_attr(xml, name):
-    m = re.search(r'exif:%s\s*=\s*"([^"]*)"' % name, xml) or re.search(
-        r"<exif:%s>([^<]*)</exif:%s>" % (name, name), xml)
+def _xmp_attr(xml, name, prefix="exif"):
+    m = re.search(r'%s:%s\s*=\s*"([^"]*)"' % (prefix, name), xml) or re.search(
+        r"<%s:%s>([^<]*)</%s:%s>" % (prefix, name, prefix, name), xml)
     return m.group(1) if m else None
 
 
@@ -362,11 +363,14 @@ def _xmp_gps_attrs(lat, lon, alt, direction):
 
 
 XMP_MARKER = "<!-- written by Photo Geotagger -->"
+NS = {"exif": "http://ns.adobe.com/exif/1.0/",
+      "photoshop": "http://ns.adobe.com/photoshop/1.0/",
+      "Iptc4xmpCore": "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"}
 _XMP_NEW = """<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<!-- written by Photo Geotagger -->
+""" + XMP_MARKER + """
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-  <rdf:Description rdf:about="" xmlns:exif="http://ns.adobe.com/exif/1.0/"
+  <rdf:Description rdf:about=""%s
    %s/>
  </rdf:RDF>
 </x:xmpmeta>
@@ -374,24 +378,144 @@ _XMP_NEW = """<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
 """
 
 
-def _write_sidecar(path, lat, lon, alt, direction, out_path, backup):
-    attrs = _xmp_gps_attrs(lat, lon, alt, direction)
+def _update_sidecar(path, out_path, backup, attrs, strip, prefixes):
+    """Create or update `<name>.xmp`: drop old attributes matching `strip`, add `attrs`."""
     target = sidecar_path(out_path or path)
     if os.path.exists(target):
         _backup(target, backup)
         with open(target, encoding="utf-8") as f:
             xml = f.read()
-        xml = re.sub(r'\s+exif:GPS\w+\s*=\s*"[^"]*"', "", xml)
-        xml = re.sub(r"<exif:GPS\w+>[^<]*</exif:GPS\w+>\s*", "", xml)
+        for name in strip:
+            xml = re.sub(r'\s+(?:%s)\s*=\s*"[^"]*"' % name, "", xml)
+            xml = re.sub(r"<(%s)>[^<]*</\1>\s*" % name, "", xml)
         m = re.search(r"<rdf:Description\b", xml)
         if not m:
             raise GeotagError("unreadable XMP sidecar")
-        xml = xml[:m.end()] + "\n   " + "\n   ".join(attrs) + xml[m.end():]
-        if "xmlns:exif=" not in xml[m.start():xml.find(">", m.end())]:
-            xml = xml.replace("<rdf:Description", '<rdf:Description xmlns:exif="http://ns.adobe.com/exif/1.0/"', 1)
+        declare = "".join(' xmlns:%s="%s"' % (p, NS[p]) for p in prefixes if "xmlns:%s=" % p not in xml)
+        xml = xml[:m.end()] + declare + "\n   " + "\n   ".join(attrs) + xml[m.end():]
     else:
-        xml = _XMP_NEW % "\n   ".join(attrs)
+        declare = "".join(' xmlns:%s="%s"' % (p, NS[p]) for p in prefixes)
+        xml = _XMP_NEW % (declare, "\n   ".join(attrs))
     _atomic_write(target, xml.encode("utf-8"))
+
+
+def _write_sidecar(path, lat, lon, alt, direction, out_path, backup):
+    _update_sidecar(path, out_path, backup, _xmp_gps_attrs(lat, lon, alt, direction), [r"exif:GPS\w+"], ["exif"])
+
+
+# ------------------------------------------------------------ place names
+PLACE_FIELDS = ("country", "region", "city", "location")
+_PLACE_XMP = {"country": "photoshop:Country", "region": "photoshop:State", "city": "photoshop:City",
+              "location": "Iptc4xmpCore:Location"}
+_PLACE_IPTC = {"country": "Country-PrimaryLocationName", "region": "Province-State", "city": "City",
+               "location": "Sub-location"}
+_IPTC_LIMIT = {"country": 64, "region": 32, "city": 32, "location": 32}  # bytes
+_PLACE_STRIP = [r"photoshop:(?:Country|State|City)", r"Iptc4xmpCore:Location"]
+
+
+def _place_from_xml(xml):
+    place = {}
+    for key, qname in _PLACE_XMP.items():
+        prefix, name = qname.split(":")
+        value = _xmp_attr(xml, name, prefix)
+        if value:
+            place[key] = _xml_unescape(value, {"&quot;": '"', "&apos;": "'"})
+    return place
+
+
+def _jpeg_xmp(path):
+    """XMP packet text embedded in a JPEG, or ''."""
+    with open(path, "rb") as f:
+        data = f.read(1 << 20)
+    header = b"http://ns.adobe.com/xap/1.0/\0"
+    pos = 2
+    while pos + 4 <= len(data) and data[pos] == 0xFF and data[pos + 1] != 0xDA:
+        end = pos + 2 + struct.unpack(">H", data[pos + 2:pos + 4])[0]
+        if data[pos + 1] == 0xE1 and data[pos + 4:pos + 4 + len(header)] == header:
+            return data[pos + 4 + len(header):end].decode("utf-8", "replace")
+        pos = end
+    return ""
+
+
+def read_place(path):
+    """{country, region, city, location} stored in the photo or its sidecar (empty values omitted)."""
+    place = {}
+    try:
+        if ext_of(path) in JPEG_EXT:
+            place.update(_place_from_xml(_jpeg_xmp(path)))
+        elif ext_of(path) in RAW_EXT + HEIF_EXT and _use_exiftool():
+            place.update(_read_exiftool_place(path))
+        sc = sidecar_path(path)
+        if os.path.exists(sc):
+            with open(sc, encoding="utf-8", errors="replace") as f:
+                place.update(_place_from_xml(f.read()))
+    except (OSError, struct.error, ValueError, subprocess.SubprocessError):
+        pass
+    return place
+
+
+def _read_exiftool_place(path):
+    out, _ = _run_exiftool(["-j", "-XMP-photoshop:Country", "-XMP-photoshop:State", "-XMP-photoshop:City",
+                            "-XMP-iptcCore:Location", path])
+    try:
+        row = json.loads(out)[0]
+    except (ValueError, IndexError):
+        return {}
+    names = {"country": "Country", "region": "State", "city": "City", "location": "Location"}
+    return {k: str(row[v]) for k, v in names.items() if row.get(v)}
+
+
+def _write_place_exiftool(path, place, out_path, backup):
+    target = out_path or path
+    if target != path:
+        shutil.copy2(path, target)
+    args = ["-P", "-charset", "iptc=utf8", "-IPTC:CodedCharacterSet=UTF8"]
+    for key in PLACE_FIELDS:
+        if place.get(key):
+            args.append("-XMP-%s=%s" % (_PLACE_XMP[key].replace("Iptc4xmpCore", "iptcCore"), place[key]))
+            if len(place[key].encode("utf-8")) <= _IPTC_LIMIT[key]:  # IIM fields are short; XMP keeps the full text
+                args.append("-IPTC:%s=%s" % (_PLACE_IPTC[key], place[key]))
+    if not backup or target != path or os.path.exists(target + "_original"):
+        args.append("-overwrite_original")
+    args.append(target)
+    out, err = _run_exiftool(args)
+    if "1 image files updated" not in out:
+        raise GeotagError((err or out).strip() or "ExifTool failed")
+
+
+def write_place(path, place, out_path=None, backup=True):
+    """Store place names as XMP/IPTC. Returns "embedded" (ExifTool) or "sidecar"."""
+    ext = ext_of(path)
+    if ext not in PHOTO_EXT:
+        raise GeotagError("unsupported format: " + ext)
+    place = {k: v for k, v in place.items() if k in PLACE_FIELDS and v}
+    if not place:
+        raise GeotagError("no place names to write")
+    native = ext in JPEG_EXT + TIFF_EXT
+    if (native or CONFIG["raw_embed"]) and _use_exiftool():
+        _write_place_exiftool(path, place, out_path, backup)
+        return "embedded"
+    if out_path and out_path != path:
+        shutil.copy2(path, out_path)
+    attrs = ['%s="%s"' % (_PLACE_XMP[k], _xml_escape(place[k], {'"': "&quot;"})) for k in PLACE_FIELDS if k in place]
+    _update_sidecar(path, out_path, backup, attrs, _PLACE_STRIP, ["photoshop", "Iptc4xmpCore"])
+    return "sidecar"
+
+
+def set_place(path, place, overwrite=False, backup=True):
+    """Add place names to a photo. Returns (status, detail): ok / ok_xmp / has_place / error.
+
+    Without `overwrite` only missing fields are filled; existing ones are kept.
+    """
+    try:
+        existing = read_place(path)
+        new = {k: v for k, v in place.items() if k in PLACE_FIELDS and v and (overwrite or not existing.get(k))}
+        if not new:
+            return "has_place", ""
+        mode = write_place(path, {**existing, **new}, backup=backup)
+        return ("ok" if mode == "embedded" else "ok_xmp"), ""
+    except (GeotagError, OSError, struct.error, ValueError, subprocess.SubprocessError) as exc:
+        return "error", str(exc)
 
 
 def find_exiftool(explicit=None):
@@ -743,7 +867,10 @@ def build_records(paths):
         if not pos:
             continue
         taken = read_datetime(p)
+        place = read_place(p)
         records.append({"file": os.path.basename(p), "path": os.path.abspath(p), "lat": pos[0], "lon": pos[1],
-                        "alt": pos[2], "direction": pos[3], "taken": taken.isoformat(" ") if taken else "",
+                        "alt": pos[2], "direction": pos[3], "country": place.get("country", ""),
+                        "region": place.get("region", ""), "city": place.get("city", ""),
+                        "location": place.get("location", ""), "taken": taken.isoformat(" ") if taken else "",
                         "format": ext_of(p).lstrip(".").upper()})
     return records

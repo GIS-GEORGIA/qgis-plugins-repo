@@ -11,7 +11,8 @@ from qgis.core import (
     QgsWkbTypes)
 from qgis.gui import QgsMapToolEmitPoint
 
-from . import core, export, i18n
+from . import core, export, geocode, i18n
+from .layer_places import LayerLookup
 
 t = i18n.t
 WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
@@ -166,6 +167,47 @@ class GeotagDialog(QDialog):
         opts.addWidget(self.overwrite)
         root.addLayout(opts)
 
+        self.place_box = QGroupBox()
+        pl2 = QGridLayout(self.place_box)
+        self.place_src = QComboBox()
+        for key in ("osm", "layer"):
+            self.place_src.addItem("", key)
+        self.place_lang = QComboBox()
+        self.place_lang.addItem("ქართული", "ka")
+        self.place_lang.addItem("English", "en")
+        self.place_lang.setCurrentIndex(0 if i18n.LANG == "ka" else 1)
+        self.l_place_lang, self.l_place_url = QLabel(), QLabel()
+        self.place_url = QLineEdit(geocode.PUBLIC_URL)
+        self.place_layer = QComboBox()
+        self.l_place_layer = QLabel()
+        self.place_fields = {key: QComboBox() for key in core.PLACE_FIELDS}
+        self.l_place_fields = {key: QLabel() for key in core.PLACE_FIELDS}
+        self.l_place_max = QLabel()
+        self.place_max = _spin(0, 100000, 0, 100)
+        self.place_overwrite = QCheckBox()
+        self.place_note = QLabel()
+        self.place_note.setWordWrap(True)
+        self.btn_place = QPushButton()
+        self.place_layer.currentIndexChanged.connect(self._fill_place_fields)
+        self.place_src.currentIndexChanged.connect(self._place_src_changed)
+        self.btn_place.clicked.connect(self._write_places)
+        pl2.addWidget(self.place_src, 0, 0, 1, 4)
+        pl2.addWidget(self.l_place_lang, 1, 0)
+        pl2.addWidget(self.place_lang, 1, 1)
+        pl2.addWidget(self.l_place_url, 1, 2)
+        pl2.addWidget(self.place_url, 1, 3)
+        pl2.addWidget(self.l_place_layer, 2, 0)
+        pl2.addWidget(self.place_layer, 2, 1, 1, 3)
+        for i, key in enumerate(core.PLACE_FIELDS):
+            pl2.addWidget(self.l_place_fields[key], 3 + i // 2, (i % 2) * 2)
+            pl2.addWidget(self.place_fields[key], 3 + i // 2, (i % 2) * 2 + 1)
+        pl2.addWidget(self.l_place_max, 5, 0)
+        pl2.addWidget(self.place_max, 5, 1)
+        pl2.addWidget(self.place_overwrite, 6, 0, 1, 4)
+        pl2.addWidget(self.place_note, 7, 0, 1, 4)
+        pl2.addWidget(self.btn_place, 8, 0, 1, 4)
+        root.addWidget(self.place_box)
+
         self.engine_box = QGroupBox()
         el = QGridLayout(self.engine_box)
         self.engine = QComboBox()
@@ -298,6 +340,19 @@ class GeotagDialog(QDialog):
         self.btn_layer.setText(t("export_btn"))
         self.btn_cancel.setText(t("cancel"))
         self.btn_restore.setText(t("restore_btn"))
+        self.place_box.setTitle(t("place_title"))
+        self.place_src.setItemText(0, t("place_osm"))
+        self.place_src.setItemText(1, t("place_layer_src"))
+        self.l_place_lang.setText(t("lang"))
+        self.l_place_url.setText(t("place_url"))
+        self.l_place_layer.setText(t("place_layer"))
+        for key in core.PLACE_FIELDS:
+            self.l_place_fields[key].setText(t("place_" + key))
+        self.l_place_max.setText(t("place_max"))
+        self.place_overwrite.setText(t("place_overwrite"))
+        self.place_note.setText(t("place_note"))
+        self.btn_place.setText(t("place_btn"))
+        self._place_src_changed()
         self.engine_box.setTitle(t("engine"))
         for i, key in enumerate(("engine_auto", "engine_builtin", "engine_exiftool")):
             self.engine.setItemText(i, t(key))
@@ -417,7 +472,7 @@ class GeotagDialog(QDialog):
 
     # -------------------------------------------------------- background work
     def _busy(self, on):
-        for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_restore, self.btn_wb):
+        for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_restore, self.btn_wb, self.btn_place):
             b.setEnabled(not on)
         self.btn_cancel.setEnabled(on)
         if not on:
@@ -529,12 +584,24 @@ class GeotagDialog(QDialog):
     def _fill_layers(self):
         current = self.wb_layer.currentData()
         self.wb_layer.clear()
+        current_place = self.place_layer.currentData()
+        self.place_layer.blockSignals(True)
+        self.place_layer.clear()
         for layer in QgsProject.instance().mapLayers().values():
-            if isinstance(layer, QgsVectorLayer) and "Point" in QgsWkbTypes.displayString(layer.wkbType()):
+            if not isinstance(layer, QgsVectorLayer):
+                continue
+            kind = QgsWkbTypes.displayString(layer.wkbType())
+            if "Point" in kind:
                 self.wb_layer.addItem(layer.name(), layer.id())
+            if "Point" in kind or "Polygon" in kind:
+                self.place_layer.addItem(layer.name(), layer.id())
         index = self.wb_layer.findData(current)
         if index >= 0:
             self.wb_layer.setCurrentIndex(index)
+        index = self.place_layer.findData(current_place)
+        self.place_layer.setCurrentIndex(max(index, 0))
+        self.place_layer.blockSignals(False)
+        self._fill_place_fields()
 
     def showEvent(self, event):
         self._fill_layers()
@@ -584,6 +651,81 @@ class GeotagDialog(QDialog):
                 ok += 1
                 self.log.appendPlainText("%s: %s" % (path, t("res_" + status)))
         self.log.appendPlainText(t("wb_summary", ok=ok, same=same, err=err))
+
+    # ------------------------------------------------------------ place names
+    def _place_src_changed(self, *_):
+        osm = self.place_src.currentData() == "osm"
+        for w in (self.l_place_lang, self.place_lang, self.l_place_url, self.place_url):
+            w.setVisible(osm)
+        for w in [self.l_place_layer, self.place_layer, self.l_place_max, self.place_max,
+                  *self.place_fields.values(), *self.l_place_fields.values()]:
+            w.setVisible(not osm)
+
+    def _fill_place_fields(self, *_):
+        layer = QgsProject.instance().mapLayer(self.place_layer.currentData()) if self.place_layer.currentData() else None
+        names = layer.fields().names() if layer else []
+        for key, combo in self.place_fields.items():
+            keep = combo.currentText()
+            combo.clear()
+            combo.addItem("", "")
+            for name in names:
+                combo.addItem(name, name)
+            combo.setCurrentIndex(max(combo.findData(keep), 0))
+
+    def _write_places(self):
+        self.tabs.setCurrentIndex(1)
+        photos = self._paths()
+        if not photos:
+            self.log.appendPlainText(t("no_files"))
+            return
+        overwrite, backup = self.place_overwrite.isChecked(), self.backup.isChecked()
+        self.log.clear()
+        if self.place_src.currentData() == "osm":
+            geocoder = geocode.Geocoder(self.place_lang.currentData(), self.place_url.text().strip())
+
+            def worker(p):
+                pos = core.read_gps(p)
+                if not pos:
+                    return p, ("no_gps", "")
+                try:
+                    place = geocoder.lookup(pos[0], pos[1])
+                except geocode.GeocodeError as exc:
+                    return p, ("error", str(exc))
+                return p, (core.set_place(p, place, overwrite, backup) if place else ("no_place", ""))
+
+            self._start(t("place_btn"), photos, worker, self._show_place)
+            return
+        layer = QgsProject.instance().mapLayer(self.place_layer.currentData()) if self.place_layer.currentData() else None
+        mapping = {key: combo.currentData() for key, combo in self.place_fields.items()}
+        if layer is None:
+            self.log.appendPlainText(t("place_no_layer"))
+            return
+        if not any(mapping.values()):
+            self.log.appendPlainText(t("place_no_fields"))
+            return
+        max_distance = self.place_max.value()
+
+        def after_read(results):  # the layer is read on the GUI thread, the file writing runs in the task
+            lookup = LayerLookup(layer.getFeatures(), layer.crs(), mapping, QgsProject.instance().transformContext(),
+                                 max_distance)
+            items = [(p, lookup.lookup(pos[0], pos[1]) if pos else None) for p, pos in results]
+            self._start(t("place_btn"), items, lambda it: (it[0], (
+                ("no_gps", "") if it[1] is None else
+                core.set_place(it[0], it[1], overwrite, backup) if it[1] else ("no_place", ""))), self._show_place)
+
+        self._start(t("place_btn"), photos, lambda p: (p, core.read_gps(p)), after_read)
+
+    def _show_place(self, results):
+        ok = skip = err = 0
+        for path, (status, detail) in results:
+            if status in ("ok", "ok_xmp"):
+                ok += 1
+            elif status == "error":
+                err += 1
+            else:
+                skip += 1
+            self.log.appendPlainText("%s: %s %s" % (path, t("res_" + status), detail))
+        self.log.appendPlainText(t("summary", ok=ok, skip=skip, err=err))
 
     # ---------------------------------------------------------------- undo
     def _restore(self):

@@ -27,6 +27,15 @@ Photos loaded as a layer (*Create output*) can be corrected on the map: edit the
 Only photos whose position actually changed are rewritten. *Restore originals* (or `--restore`) puts the
 `_original` backups back, and removes `.xmp` sidecars that this plugin created.
 
+## Place names
+
+Writes country, region, city and street/location into the photo (XMP `photoshop:Country/State/City`,
+`Iptc4xmpCore:Location`; the IPTC copy too when ExifTool is used and the text fits the 32-byte IIM limit).
+Sources: **OpenStreetMap Nominatim** (names in Georgian or English; one request per second, cached; for many
+photos give your own Nominatim URL) or a **QGIS layer** (the polygon that contains the photo, or the nearest
+point within a maximum distance; offline). Existing names are kept unless *Overwrite* is ticked. Without
+ExifTool the names go into the `.xmp` sidecar. Place names also appear in the point layer and in all exports.
+
 ## Writing engine
 
 The built-in writer needs nothing. Optionally [ExifTool](https://exiftool.org) can write instead

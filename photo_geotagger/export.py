@@ -15,7 +15,8 @@ try:
 except ImportError:  # standalone Python without GDAL
     ogr = osr = None
 
-FIELDS = ("file", "path", "lat", "lon", "alt", "direction", "taken", "format")
+FIELDS = ("file", "path", "lat", "lon", "alt", "direction", "country", "region", "city", "location",
+          "taken", "format")
 REAL_FIELDS = ("lat", "lon", "alt", "direction")
 
 # key -> (label, file extension, OGR driver or None for the built-in writers)

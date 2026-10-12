@@ -7,9 +7,11 @@ from qgis.core import (
     QgsGeometry, QgsPointXY, QgsProcessing, QgsProcessingAlgorithm, QgsProcessingException,
     QgsProcessingOutputNumber, QgsProcessingParameterBoolean, QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFeatureSource, QgsProcessingParameterField, QgsProcessingParameterFile,
-    QgsProcessingParameterNumber, QgsProcessingProvider, QgsSettings)
+    QgsProcessingParameterEnum, QgsProcessingParameterNumber, QgsProcessingParameterString, QgsProcessingProvider,
+    QgsSettings)
 
-from . import core, export, i18n
+from . import core, export, geocode, i18n
+from .layer_places import LayerLookup
 
 WGS84 = QgsCoordinateReferenceSystem("EPSG:4326")
 GROUP_ID = "photo_geotagger"
@@ -293,6 +295,95 @@ class EstimateOffset(_Base):
         return {"UTC_OFFSET": offset, "SHIFT": round(shift), "DISTANCE": round(dist)}
 
 
+def _tally(counts, status):
+    counts["WRITTEN" if status in ("ok", "ok_xmp") else ("ERRORS" if status == "error" else "SKIPPED")] += 1
+
+
+class PlaceFromOsm(_Base):
+    ID = "place_names_from_osm"
+    KEY = "alg_place_osm"
+
+    def initAlgorithm(self, config=None):
+        self._add_photos()
+        self.addParameter(QgsProcessingParameterEnum("LANGUAGE", _tr("p_language"), ["ქართული", "English"],
+                                                     defaultValue=0 if i18n.locale_lang() == "ka" else 1))
+        self.addParameter(QgsProcessingParameterString("URL", _tr("p_url"), defaultValue=geocode.PUBLIC_URL))
+        self._add_write_options()
+        self._add_counts()
+
+    def processAlgorithm(self, parameters, context, feedback):
+        photos = self._photos(parameters, context)
+        lang = ("ka", "en")[self.parameterAsEnum(parameters, "LANGUAGE", context)]
+        geocoder = geocode.Geocoder(lang, self.parameterAsString(parameters, "URL", context))
+        overwrite = self.parameterAsBool(parameters, "OVERWRITE", context)
+        backup = self.parameterAsBool(parameters, "BACKUP", context)
+        counts = {"WRITTEN": 0, "SKIPPED": 0, "ERRORS": 0}
+        for i, path in enumerate(photos):
+            if feedback.isCanceled():
+                break
+            pos = core.read_gps(path)
+            if not pos:
+                status, detail = "no_gps", ""
+            else:
+                try:
+                    place = geocoder.lookup(pos[0], pos[1])
+                    status, detail = core.set_place(path, place, overwrite, backup) if place else ("no_place", "")
+                except geocode.GeocodeError as exc:
+                    status, detail = "error", str(exc)
+            _tally(counts, status)
+            feedback.pushInfo("%s: %s %s" % (path, _tr("res_" + status), detail))
+            feedback.setProgress(100.0 * (i + 1) / max(len(photos), 1))
+        return counts
+
+
+class PlaceFromLayer(_Base):
+    ID = "place_names_from_layer"
+    KEY = "alg_place_layer"
+    FIELDS = (("COUNTRY", "p_country_field", "country"), ("REGION", "p_region_field", "region"),
+              ("CITY", "p_city_field", "city"), ("LOCATION", "p_location_field", "location"))
+
+    def initAlgorithm(self, config=None):
+        self._add_photos()
+        self.addParameter(QgsProcessingParameterFeatureSource(
+            "LAYER", _tr("p_layer"), [QgsProcessing.SourceType.VectorPolygon, QgsProcessing.SourceType.VectorPoint]))
+        for key, label, _ in self.FIELDS:
+            self.addParameter(QgsProcessingParameterField(key + "_FIELD", _tr(label), None, "LAYER",
+                                                          QgsProcessingParameterField.DataType.Any, optional=True))
+        self.addParameter(QgsProcessingParameterNumber("MAX_DISTANCE", _tr("p_max_distance"),
+                                                       QgsProcessingParameterNumber.Type.Double, 100.0, minValue=0))
+        self._add_write_options()
+        self._add_counts()
+
+    def processAlgorithm(self, parameters, context, feedback):
+        photos = self._photos(parameters, context)
+        source = self.parameterAsSource(parameters, "LAYER", context)
+        mapping = {name: self.parameterAsString(parameters, key + "_FIELD", context) for key, _, name in self.FIELDS}
+        names = source.fields().names()
+        for field in mapping.values():
+            if field and field not in names:
+                raise QgsProcessingException(_tr("alg_bad_field", field))
+        if not any(mapping.values()):
+            raise QgsProcessingException(_tr("place_no_fields"))
+        lookup = LayerLookup(source.getFeatures(), source.sourceCrs(), mapping, context.transformContext(),
+                             self.parameterAsDouble(parameters, "MAX_DISTANCE", context))
+        overwrite = self.parameterAsBool(parameters, "OVERWRITE", context)
+        backup = self.parameterAsBool(parameters, "BACKUP", context)
+        counts = {"WRITTEN": 0, "SKIPPED": 0, "ERRORS": 0}
+        for i, path in enumerate(photos):
+            if feedback.isCanceled():
+                break
+            pos = core.read_gps(path)
+            if not pos:
+                status, detail = "no_gps", ""
+            else:
+                place = lookup.lookup(pos[0], pos[1])
+                status, detail = core.set_place(path, place, overwrite, backup) if place else ("no_place", "")
+            _tally(counts, status)
+            feedback.pushInfo("%s: %s %s" % (path, _tr("res_" + status), detail))
+            feedback.setProgress(100.0 * (i + 1) / max(len(photos), 1))
+        return counts
+
+
 class PhotoGeotaggerProvider(QgsProcessingProvider):
     def id(self):
         return GROUP_ID
@@ -305,5 +396,6 @@ class PhotoGeotaggerProvider(QgsProcessingProvider):
 
     def loadAlgorithms(self):
         _load_engine_settings()
-        for cls in (PhotosToPoints, GeotagFromGpx, GeotagFromCsv, GeotagFromLayer, RestoreOriginals, EstimateOffset):
+        for cls in (PhotosToPoints, GeotagFromGpx, GeotagFromCsv, GeotagFromLayer, PlaceFromOsm, PlaceFromLayer,
+                    RestoreOriginals, EstimateOffset):
             self.addAlgorithm(cls())

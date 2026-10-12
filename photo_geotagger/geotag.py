@@ -4,6 +4,7 @@
     python geotag.py --gpx track.gpx --utc-offset 4 -r photos/
     python geotag.py --csv points.csv photos/
     python geotag.py --dry-run --gpx track.gpx photos/
+    python geotag.py --place-names --place-lang ka photos/
     python geotag.py --restore photos/
     python geotag.py --engine exiftool --raw-embed --lat 41.7 --lon 44.8 raw_photos/
     python geotag.py --read photos/
@@ -15,11 +16,12 @@ import os
 import sys
 
 try:
-    from . import core, export, i18n
+    from . import core, export, geocode, i18n
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import core
     import export
+    import geocode
     import i18n
 
 t = i18n.t
@@ -70,6 +72,10 @@ def run_cli(argv):
     ap.add_argument("--exiftool", default="", help=t("cli_exiftool"))
     ap.add_argument("--raw-embed", action="store_true", help=t("cli_raw_embed"))
     ap.add_argument("--restore", action="store_true", help=t("cli_restore"))
+    ap.add_argument("--place-names", action="store_true", help=t("cli_place"))
+    ap.add_argument("--place-lang", choices=("ka", "en"), default=None, help=t("cli_place_lang"))
+    ap.add_argument("--place-url", default=geocode.PUBLIC_URL, help=t("cli_place_url"))
+    ap.add_argument("--place-overwrite", action="store_true", help=t("cli_place_overwrite"))
     ap.add_argument("--gui", action="store_true", help=t("cli_gui"))
     args = ap.parse_args(argv)
 
@@ -101,7 +107,13 @@ def run_cli(argv):
     if args.read:
         for p in photos:
             pos = core.read_gps(p)
-            print("%s: %s" % (p, _fmt_pos(pos) if pos else t("no_gps")))
+            place = ", ".join(core.read_place(p).get(k, "") for k in core.PLACE_FIELDS if core.read_place(p).get(k))
+            print("%s: %s%s" % (p, _fmt_pos(pos) if pos else t("no_gps"), " | " + place if place else ""))
+        return _export(photos, formats, args)
+
+    has_source = bool(args.gpx or args.csv or (args.lat is not None and args.lon is not None))
+    if args.place_names and not has_source:
+        _place(photos, args)
         return _export(photos, formats, args)
 
     try:
@@ -141,10 +153,36 @@ def run_cli(argv):
     if args.dry_run:
         return 0
     print(t("summary", ok=ok, skip=skip, err=err))
+    tagged = [os.path.join(args.out, os.path.basename(p)) if args.out else p for p in photos]
+    if args.place_names:
+        _place([p for p in tagged if os.path.exists(p)], args)
     if formats:
-        tagged = [os.path.join(args.out, os.path.basename(p)) if args.out else p for p in photos]
         _export(tagged, formats, args)
     return 1 if err else 0
+
+
+def _place(photos, args):
+    geocoder = geocode.Geocoder(args.place_lang or i18n.LANG, args.place_url)
+    ok = skip = err = 0
+    for p in photos:
+        pos = core.read_gps(p)
+        if not pos:
+            print("%s: %s" % (p, t("res_no_gps")))
+            skip += 1
+            continue
+        try:
+            place = geocoder.lookup(pos[0], pos[1])
+        except geocode.GeocodeError as exc:
+            print("%s: %s %s" % (p, t("res_error"), exc))
+            err += 1
+            continue
+        status, detail = core.set_place(p, place, args.place_overwrite, not args.no_backup) if place else ("no_place", "")
+        label = t("res_ok") if status in ("ok", "ok_xmp") else (t("res_error") if status == "error" else t("res_" + status))
+        print("%s: %s %s" % (p, label, detail or ", ".join(place.values())))
+        ok += status in ("ok", "ok_xmp")
+        err += status == "error"
+        skip += status not in ("ok", "ok_xmp", "error")
+    print(t("summary", ok=ok, skip=skip, err=err))
 
 
 def _export(photos, formats, args):
