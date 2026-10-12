@@ -4,6 +4,7 @@
     python geotag.py --gpx track.gpx --utc-offset 4 -r photos/
     python geotag.py --csv points.csv photos/
     python geotag.py --read photos/
+    python geotag.py --lat 41.7 --lon 44.8 photos/ --export gpkg,shp,geojson,csv --export-dir out/
     python geotag.py            (no arguments: opens a small window)
 """
 import argparse
@@ -11,10 +12,11 @@ import os
 import sys
 
 try:
-    from . import core, i18n
+    from . import core, export, i18n
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import core
+    import export
     import i18n
 
 t = i18n.t
@@ -54,6 +56,9 @@ def run_cli(argv):
     ap.add_argument("--read", action="store_true", help=t("cli_read"))
     ap.add_argument("--out", help=t("cli_out"))
     ap.add_argument("--no-backup", action="store_true", help=t("cli_nobackup"))
+    ap.add_argument("--export", help=t("cli_export"))
+    ap.add_argument("--export-dir", default=".", help=t("cli_export_dir"))
+    ap.add_argument("--export-name", default="photos", help=t("cli_export_name"))
     ap.add_argument("--gui", action="store_true", help=t("cli_gui"))
     args = ap.parse_args(argv)
 
@@ -64,11 +69,18 @@ def run_cli(argv):
         print(t("no_files"))
         return 2
 
+    formats = [k.strip().lower() for k in args.export.split(",") if k.strip()] if args.export else []
+    bad = [k for k in formats if k not in export.available()]
+    if bad:
+        print(t("cli_bad_format", ", ".join(bad)))
+        print(t("cli_formats", ", ".join(export.available())))
+        return 2
+
     if args.read:
         for p in photos:
             pos = core.read_gps(p)
             print("%s: %s" % (p, _fmt_pos(pos) if pos else t("no_gps")))
-        return 0
+        return _export(photos, formats, args)
 
     try:
         if args.gpx:
@@ -90,14 +102,34 @@ def run_cli(argv):
         status, pos, detail = core.tag_photo(p, src, backup=not args.no_backup, out_dir=args.out)
         info = _fmt_pos(pos) if pos else detail
         print("%s: %s %s" % (p, t("res_" + status), info))
-        if status == "ok":
+        if status in ("ok", "ok_xmp"):
             ok += 1
         elif status == "error":
             err += 1
         else:
             skip += 1
     print(t("summary", ok=ok, skip=skip, err=err))
+    if formats:
+        tagged = [os.path.join(args.out, os.path.basename(p)) if args.out else p for p in photos]
+        _export(tagged, formats, args)
     return 1 if err else 0
+
+
+def _export(photos, formats, args):
+    if not formats:
+        return 0
+    records = core.build_records(photos)
+    if not records:
+        print(t("layer_none"))
+        return 1
+    os.makedirs(args.export_dir, exist_ok=True)
+    for key in formats:
+        try:
+            path = export.export_records(records, key, os.path.join(args.export_dir, args.export_name))
+            print(t("out_saved", path))
+        except Exception as exc:  # GDAL raises plain RuntimeError
+            print(t("out_failed", key, exc))
+    return 0
 
 
 def run_gui(lang="ka"):
@@ -113,7 +145,7 @@ def run_gui(lang="ka"):
     log = tk.Text(root, height=10, width=70)
 
     def add():
-        files.extend(filedialog.askopenfilenames(filetypes=[(t("photo_filter"), "*.jpg *.jpeg")]))
+        files.extend(filedialog.askopenfilenames(filetypes=[(t("photo_filter"), " ".join("*" + e for e in core.PHOTO_EXT))]))
         listing.configure(text="\n".join(os.path.basename(f) for f in files[-6:]))
 
     def folder():
@@ -136,7 +168,7 @@ def run_gui(lang="ka"):
         ok = 0
         for p in files:
             status, pos, detail = core.tag_photo(p, src, backup=backup.get())
-            ok += status == "ok"
+            ok += status in ("ok", "ok_xmp")
             log.insert("end", "%s: %s %s\n" % (os.path.basename(p), t("res_" + status), detail))
         log.insert("end", t("summary", ok=ok, skip=0, err=len(files) - ok) + "\n")
 

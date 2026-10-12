@@ -223,15 +223,15 @@
     <experimental>False</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="Photo Geotagger" version="0.1.0">
-    <description>Writes GPS coordinates into JPEG photos (EXIF) from fixed or map-picked coordinates, a GPX track or a CSV table. Bilingual KA/EN; also runs as a standalone script.</description>
+  <pyqgis_plugin name="Photo Geotagger" version="0.2.0">
+    <description>Writes GPS coordinates into photos (JPEG, TIFF, DNG; XMP sidecar for RAW and HEIC) from fixed or map-picked coordinates, a GPX track or a CSV table. Bilingual KA/EN; also runs as a standalone script.</description>
     <about>Geotags JPEG photos from fixed or map-picked coordinates, a GPX track (by capture time) or a CSV table (by file name), and can add the photos to the project as a point layer. The core has no dependencies, so geotag.py also runs outside QGIS from the command line or a small window. Interface languages Georgian and English.</about>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>photo_geotagger.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/photo_geotagger.zip?v=0.1.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/photo_geotagger.zip?v=0.2.0</download_url>
     <icon>https://plugins.qgis.ge/photo_geotagger/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>kapan.gio777@gmail.com</email>
