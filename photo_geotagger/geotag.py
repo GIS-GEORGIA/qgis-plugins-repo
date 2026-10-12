@@ -3,6 +3,7 @@
     python geotag.py --lang en --lat 41.7151 --lon 44.8271 photo.jpg folder/
     python geotag.py --gpx track.gpx --utc-offset 4 -r photos/
     python geotag.py --csv points.csv photos/
+    python geotag.py --dry-run --gpx track.gpx photos/
     python geotag.py --read photos/
     python geotag.py --lat 41.7 --lon 44.8 photos/ --export gpkg,shp,geojson,csv --export-dir out/
     python geotag.py            (no arguments: opens a small window)
@@ -33,7 +34,8 @@ def _lang_from_argv(argv):
 
 def _fmt_pos(pos):
     alt = "" if pos[2] is None else ", %.1f m" % pos[2]
-    return "%.6f, %.6f%s" % (pos[0], pos[1], alt)
+    heading = "" if len(pos) < 4 or pos[3] is None else ", %.0f°" % pos[3]
+    return "%.6f, %.6f%s%s" % (pos[0], pos[1], alt, heading)
 
 
 def run_cli(argv):
@@ -47,6 +49,9 @@ def run_cli(argv):
     ap.add_argument("--lat", type=float, help=t("lat"))
     ap.add_argument("--lon", type=float, help=t("lon"))
     ap.add_argument("--alt", type=float, help=t("alt"))
+    ap.add_argument("--direction", type=float, help=t("direction"))
+    ap.add_argument("--overwrite", action="store_true", help=t("overwrite"))
+    ap.add_argument("--dry-run", action="store_true", help=t("cli_dry"))
     ap.add_argument("--gpx", help=t("src_gpx"))
     ap.add_argument("--csv", help=t("src_csv"))
     ap.add_argument("--utc-offset", type=float, default=0, help=t("utc_offset"))
@@ -89,7 +94,7 @@ def run_cli(argv):
         elif args.csv:
             src = core.load_source("csv", file=args.csv)
         elif args.lat is not None and args.lon is not None:
-            src = core.load_source("fixed", lat=args.lat, lon=args.lon, alt=args.alt)
+            src = core.load_source("fixed", lat=args.lat, lon=args.lon, alt=args.alt, direction=args.direction)
         else:
             print(t("cli_need_source"))
             return 2
@@ -99,7 +104,15 @@ def run_cli(argv):
 
     ok = skip = err = 0
     for p in photos:
-        status, pos, detail = core.tag_photo(p, src, backup=not args.no_backup, out_dir=args.out)
+        if args.dry_run:
+            status, pos, _, existing = core.plan_photo(p, src, args.overwrite)
+            detail = status[6:] if status.startswith("error") else ""
+            status = "error" if status.startswith("error") else status
+            print("%s: %s %s" % (p, t("res_" + status) if status != "ok" else t("would_write"),
+                                 _fmt_pos(pos) if pos else detail))
+            continue
+        status, pos, detail = core.tag_photo(p, src, backup=not args.no_backup, out_dir=args.out,
+                                             overwrite=args.overwrite)
         info = _fmt_pos(pos) if pos else detail
         print("%s: %s %s" % (p, t("res_" + status), info))
         if status in ("ok", "ok_xmp"):
@@ -108,6 +121,8 @@ def run_cli(argv):
             err += 1
         else:
             skip += 1
+    if args.dry_run:
+        return 0
     print(t("summary", ok=ok, skip=skip, err=err))
     if formats:
         tagged = [os.path.join(args.out, os.path.basename(p)) if args.out else p for p in photos]
@@ -142,6 +157,7 @@ def run_gui(lang="ka"):
     var = {k: tk.StringVar() for k in ("lat", "lon", "alt", "lang")}
     var["lang"].set(i18n.LANG)
     backup = tk.BooleanVar(value=True)
+    overwrite = tk.BooleanVar(value=False)
     log = tk.Text(root, height=10, width=70)
 
     def add():
@@ -167,7 +183,7 @@ def run_gui(lang="ka"):
             return
         ok = 0
         for p in files:
-            status, pos, detail = core.tag_photo(p, src, backup=backup.get())
+            status, pos, detail = core.tag_photo(p, src, backup=backup.get(), overwrite=overwrite.get())
             ok += status in ("ok", "ok_xmp")
             log.insert("end", "%s: %s %s\n" % (os.path.basename(p), t("res_" + status), detail))
         log.insert("end", t("summary", ok=ok, skip=0, err=len(files) - ok) + "\n")
@@ -196,8 +212,10 @@ def run_gui(lang="ka"):
         ttk.Entry(frm, textvariable=var[key]).grid(row=r, column=1, sticky="we")
     widgets["backup"] = ttk.Checkbutton(frm, variable=backup)
     widgets["backup"].grid(row=6, column=0, columnspan=2, sticky="w")
+    widgets["overwrite"] = ttk.Checkbutton(frm, variable=overwrite)
+    widgets["overwrite"].grid(row=7, column=0, columnspan=2, sticky="w")
     widgets["run"] = ttk.Button(frm, command=write)
-    widgets["run"].grid(row=7, column=0, columnspan=2, sticky="we")
+    widgets["run"].grid(row=8, column=0, columnspan=2, sticky="we")
     log.pack(fill="both", expand=True, padx=8, pady=8)
     var["lang"].trace_add("write", retitle)
     retitle()

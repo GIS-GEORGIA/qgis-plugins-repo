@@ -1,0 +1,185 @@
+"""Unit tests for core.py and export.py (standard library only).
+
+    python -m unittest discover -s photo_geotagger/tests -t photo_geotagger
+"""
+import base64
+import os
+import struct
+import sys
+import tempfile
+import unittest
+from datetime import datetime, timezone
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import core  # noqa: E402
+import export  # noqa: E402
+
+TINY_JPEG = base64.b64decode("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwAooooA/9k=")
+
+
+def slurp(path):
+    with open(path, "rb") as f:
+        return f.read()
+
+
+def make_tiff(path, with_time=True):
+    """Little-endian TIFF with Make in IFD0 and an Exif IFD holding DateTimeOriginal."""
+    make = b"TestCam\0"
+    taken = b"2024:05:01 12:00:00\0"
+    ifd0_n = 3 if with_time else 2
+    ifd0_off = 8
+    make_off = ifd0_off + 2 + ifd0_n * 12 + 4
+    exif_off = make_off + len(make)
+    taken_off = exif_off + 2 + 12 + 4
+    ifd0 = [(0x010F, 2, len(make), struct.pack("<I", make_off)),
+            (0x0100, 4, 1, struct.pack("<I", 8))]
+    if with_time:
+        ifd0.append((0x8769, 4, 1, struct.pack("<I", exif_off)))
+    ifd0.sort(key=lambda e: e[0])
+    out = b"II*\0" + struct.pack("<I", ifd0_off) + struct.pack("<H", ifd0_n)
+    for tag, typ, cnt, val in ifd0:
+        out += struct.pack("<HHI", tag, typ, cnt) + val
+    out += struct.pack("<I", 0) + make
+    if with_time:
+        out += (struct.pack("<H", 1) + struct.pack("<HHII", 0x9003, 2, len(taken), taken_off)
+                + struct.pack("<I", 0) + taken)
+    with open(path, "wb") as f:
+        f.write(out)
+
+
+class CoreTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = self.tmp.name
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def path(self, name):
+        return os.path.join(self.dir, name)
+
+    def jpeg(self, name="a.jpg"):
+        with open(self.path(name), "wb") as f:
+            f.write(TINY_JPEG)
+        return self.path(name)
+
+    def test_jpeg_roundtrip(self):
+        p = self.jpeg()
+        self.assertIsNone(core.read_gps(p))
+        core.write_gps(p, 41.715138, -44.827096, 512.34, 270.5, backup=False)
+        lat, lon, alt, heading = core.read_gps(p)
+        self.assertAlmostEqual(lat, 41.715138, 6)
+        self.assertAlmostEqual(lon, -44.827096, 6)
+        self.assertAlmostEqual(alt, 512.34, 2)
+        self.assertAlmostEqual(heading, 270.5, 2)
+        self.assertTrue(slurp(p).startswith(b"\xff\xd8"))
+
+    def test_southern_and_below_sea_level(self):
+        p = self.jpeg()
+        core.write_gps(p, -0.5, 100.25, -30, backup=False)
+        lat, lon, alt, heading = core.read_gps(p)
+        self.assertEqual((round(lat, 6), round(lon, 6), round(alt, 2), heading), (-0.5, 100.25, -30.0, None))
+
+    def test_rewrite_replaces_old_gps(self):
+        p = self.jpeg()
+        core.write_gps(p, 10, 20, backup=False)
+        core.write_gps(p, 11, 21, backup=False)
+        self.assertEqual(tuple(round(v, 4) for v in core.read_gps(p)[:2]), (11.0, 21.0))
+
+    def test_out_of_range_rejected(self):
+        with self.assertRaises(core.GeotagError):
+            core.write_gps(self.jpeg(), 91, 0)
+
+    def test_backup_is_made_once(self):
+        p = self.jpeg()
+        core.write_gps(p, 1, 2)
+        core.write_gps(p, 3, 4)
+        self.assertEqual(slurp(p + "_original"), TINY_JPEG)
+
+    def test_tiff_embedded_and_datetime(self):
+        p = self.path("t.tif")
+        make_tiff(p)
+        self.assertEqual(core.read_datetime(p), datetime(2024, 5, 1, 12, 0, 0))
+        self.assertEqual(core.write_gps(p, 41.7, 44.8, backup=False), "embedded")
+        self.assertEqual(tuple(round(v, 4) for v in core.read_gps(p)[:2]), (41.7, 44.8))
+        self.assertEqual(core.read_datetime(p), datetime(2024, 5, 1, 12, 0, 0))
+
+    def test_raw_gets_sidecar_and_original_untouched(self):
+        p = self.path("r.nef")
+        make_tiff(p)
+        before = slurp(p)
+        self.assertEqual(core.write_gps(p, -12.5, -70.25, 100, 90, backup=False), "sidecar")
+        self.assertEqual(slurp(p), before)
+        lat, lon, alt, heading = core.read_gps(p)
+        self.assertEqual((round(lat, 4), round(lon, 4), round(alt, 2), round(heading, 2)),
+                         (-12.5, -70.25, 100.0, 90.0))
+        core.write_gps(p, 5, 6, backup=False)  # a second write updates the existing sidecar
+        self.assertEqual(tuple(round(v, 4) for v in core.read_gps(p)[:2]), (5.0, 6.0))
+
+    def test_gpx_interpolation_and_gaps(self):
+        gpx = self.path("t.gpx")
+        with open(gpx, "w") as f:
+            f.write('<gpx xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>'
+                    '<trkpt lat="41.0" lon="44.0"><ele>400</ele><time>2024-05-01T08:00:00Z</time></trkpt>'
+                    '<trkpt lat="42.0" lon="45.0"><ele>500</ele><time>2024-05-01T08:10:00Z</time></trkpt>'
+                    '</trkseg></trk></gpx>')
+        pts = core.parse_gpx(gpx)
+        mid = core.match_track(pts, datetime(2024, 5, 1, 8, 5, tzinfo=timezone.utc))
+        self.assertEqual(tuple(round(v, 6) for v in mid), (41.5, 44.5, 450.0))
+        self.assertIsNone(core.match_track(pts, datetime(2024, 5, 1, 9, 0, tzinfo=timezone.utc)))
+
+    def test_gpx_tagging_uses_clock_offset(self):
+        gpx = self.path("t.gpx")
+        with open(gpx, "w") as f:
+            f.write('<gpx><trk><trkseg><trkpt lat="41" lon="44"><time>2024-05-01T08:00:00Z</time></trkpt>'
+                    '<trkpt lat="42" lon="45"><time>2024-05-01T08:10:00Z</time></trkpt></trkseg></trk></gpx>')
+        p = self.path("t.tif")
+        make_tiff(p)  # camera time 12:00 is 08:00 UTC at +4
+        status, pos, _ = core.tag_photo(p, core.load_source("gpx", file=gpx, utc_offset=4), backup=False)
+        self.assertEqual(status, "ok")
+        self.assertEqual(tuple(round(v, 4) for v in pos[:2]), (41.0, 44.0))
+
+    def test_estimate_offset(self):
+        pts = [(datetime(2024, 5, 1, 8, 0, tzinfo=timezone.utc), 41.0, 44.0, None),
+               (datetime(2024, 5, 1, 8, 10, tzinfo=timezone.utc), 42.0, 45.0, None)]
+        offset, shift, dist = core.estimate_offset(pts, datetime(2024, 5, 1, 12, 0, 30), 41.0, 44.0)
+        self.assertEqual(offset, 4.0)
+        self.assertEqual(shift, -30.0)
+        self.assertLess(dist, 1)
+
+    def test_existing_gps_skipped_unless_overwrite(self):
+        p = self.jpeg()
+        core.write_gps(p, 1, 2, backup=False)
+        src = core.load_source("fixed", lat=3, lon=4)
+        self.assertEqual(core.tag_photo(p, src, backup=False)[0], "has_gps")
+        self.assertEqual(core.plan_photo(p, src, overwrite=True)[0], "ok")
+        self.assertEqual(core.tag_photo(p, src, backup=False, overwrite=True)[0], "ok")
+        self.assertEqual(tuple(core.read_gps(p)[:2]), (3.0, 4.0))
+
+    def test_csv_with_direction_and_missing_file(self):
+        c = self.path("p.csv")
+        with open(c, "w", encoding="utf-8") as f:
+            f.write("file;lat;lon;alt;dir\nA.JPG;41,5;44,5;300;45\n")
+        src = core.load_source("csv", file=c)
+        status, pos, _ = core.tag_photo(self.jpeg("a.jpg"), src, backup=False)
+        self.assertEqual((status, pos), ("ok", (41.5, 44.5, 300.0, 45.0)))
+        self.assertEqual(core.tag_photo(self.jpeg("b.jpg"), src, backup=False)[0], "no_csv")
+
+    def test_collect_photos_filters_by_extension(self):
+        self.jpeg("x.jpg")
+        open(self.path("n.txt"), "w").close()
+        make_tiff(self.path("y.dng"))
+        self.assertEqual([os.path.basename(p) for p in core.collect_photos([self.dir])], ["x.jpg", "y.dng"])
+
+    def test_exports_pure_python(self):
+        p = self.jpeg()
+        core.write_gps(p, 41.7, 44.8, 10, 90, backup=False)
+        records = core.build_records([p])
+        self.assertEqual(len(records), 1)
+        for key in ("csv", "geojson", "kml", "gpx"):
+            out = export.export_records(records, key, self.path("out/pts"))
+            self.assertGreater(os.path.getsize(out), 0, key)
+
+
+if __name__ == "__main__":
+    unittest.main()

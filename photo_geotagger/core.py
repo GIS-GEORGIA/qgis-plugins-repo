@@ -7,8 +7,13 @@ Formats
   XMP sidecar    : camera RAW (NEF, CR2, CR3, ARW, ORF, RW2, PEF, RAF ...) and HEIC/HEIF;
                    the camera file is never modified, a <name>.xmp next to it carries the GPS
   read           : all of the above (GPS from the file's EXIF, or from the sidecar)
+
+A "position" is the tuple (lat, lon, alt, direction); alt and direction may be None.
 """
+import contextlib
 import csv
+import math
+import mmap
 import os
 import re
 import shutil
@@ -18,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 
 TYPE_SIZE = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8}
 GPS_POINTER, EXIF_POINTER = 0x8825, 0x8769
+WINDOW = 4 << 20  # EXIF is small; never copy more than this out of a large file
 
 JPEG_EXT = (".jpg", ".jpeg", ".jpe")
 TIFF_EXT = (".tif", ".tiff", ".dng")
@@ -113,30 +119,50 @@ def _dms(v):
 
 
 def _tiff_block(data, ext):
-    """The TIFF-structured EXIF block of any supported photo, or None."""
+    """The TIFF-structured EXIF block of any supported photo, or None.
+
+    `data` may be an mmap, so a 60 MB RAW is never read as a whole.
+    """
     if ext in JPEG_EXT:
-        return _find_exif(data)[2]
+        return _find_exif(bytes(data[:262144]))[2]
     if data[:2] in (b"II", b"MM"):  # TIFF, DNG and TIFF-based RAW (NEF, ARW, ORF, RW2 ...)
         return data
-    i = data.find(b"Exif\0\0")  # HEIC / HEIF / AVIF
-    if 0 <= i < len(data) - 16 and data[i + 6:i + 8] in (b"II", b"MM"):
-        return data[i + 6:]
+    i = data.find(b"Exif\0\0", 0, 1 << 20)  # HEIC / HEIF / AVIF
+    if i >= 0 and data[i + 6:i + 8] in (b"II", b"MM"):
+        return bytes(data[i + 6:i + 6 + WINDOW])
     for magic in (b"II*\0", b"MM\0*"):  # CR3 and other containers: raw TIFF inside a box
         i = data.find(magic, 0, 1 << 20)
         if i >= 0:
-            return data[i:]
+            return bytes(data[i:i + WINDOW])
     return None
 
 
-def _load_tiff(path):
+@contextlib.contextmanager
+def _open_tiff(path):
+    """Yield (tiff, byte_order, ifd0) for a photo, or (None, None, None)."""
     with open(path, "rb") as f:
-        data = f.read()
-    tiff = _tiff_block(data, ext_of(path))
-    if not tiff:
-        return None, None, None
-    bo = _bo(tiff)
-    ifd0, _ = _read_ifd(tiff, struct.unpack(bo + "I", tiff[4:8])[0], bo)
-    return tiff, bo, ifd0
+        try:
+            data = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        except ValueError:  # empty file
+            yield None, None, None
+            return
+        try:
+            tiff = _tiff_block(data, ext_of(path))
+            if not tiff:
+                yield None, None, None
+            else:
+                bo = _bo(tiff)
+                ifd0, _ = _read_ifd(tiff, struct.unpack(bo + "I", tiff[4:8])[0], bo)
+                yield tiff, bo, ifd0
+        finally:
+            data.close()
+
+
+def _rat(text):
+    if text and "/" in text:
+        num, den = text.split("/", 1)
+        return float(num) / float(den) if float(den) else None
+    return None
 
 
 def _xmp_dms(text):
@@ -164,30 +190,27 @@ def _read_sidecar(path):
     lat, lon = (_xmp_dms(lat) if lat else None), (_xmp_dms(lon) if lon else None)
     if lat is None or lon is None:
         return None
-    alt = None
-    a = _xmp_attr(xml, "GPSAltitude")
-    if a and "/" in a:
-        num, den = a.split("/", 1)
-        alt = float(num) / float(den) if float(den) else None
-        if alt is not None and _xmp_attr(xml, "GPSAltitudeRef") == "1":
-            alt = -alt
-    return lat, lon, alt
+    alt = _rat(_xmp_attr(xml, "GPSAltitude"))
+    if alt is not None and _xmp_attr(xml, "GPSAltitudeRef") == "1":
+        alt = -alt
+    return lat, lon, alt, _rat(_xmp_attr(xml, "GPSImgDirection"))
 
 
 def read_gps(path):
-    """Return (lat, lon, alt_or_None) from a photo (EXIF or XMP sidecar), or None."""
+    """Return (lat, lon, alt, direction) from a photo (EXIF or XMP sidecar), or None."""
     try:
-        tiff, bo, ifd0 = _load_tiff(path)
-        gps = _sub_ifd(tiff, ifd0, bo, GPS_POINTER) if tiff else None
-        if gps:
-            g = {e[0]: _value(tiff, e, bo) for e in gps}
-            lat = _dms(g[2]) * (-1 if g[1] == "S" else 1)
-            lon = _dms(g[4]) * (-1 if g[3] == "W" else 1)
-            alt = None
-            if 6 in g and g[6]:
-                alt = g[6][0] * (-1 if g.get(5, [0])[0] == 1 else 1)
-            return lat, lon, alt
-    except (GeotagError, struct.error, IndexError, KeyError):
+        with _open_tiff(path) as (tiff, bo, ifd0):
+            gps = _sub_ifd(tiff, ifd0, bo, GPS_POINTER) if tiff else None
+            if gps:
+                g = {e[0]: _value(tiff, e, bo) for e in gps}
+                lat = _dms(g[2]) * (-1 if g[1] == "S" else 1)
+                lon = _dms(g[4]) * (-1 if g[3] == "W" else 1)
+                alt = None
+                if 6 in g and g[6]:
+                    alt = g[6][0] * (-1 if g.get(5, [0])[0] == 1 else 1)
+                heading = g[0x11][0] if g.get(0x11) else None
+                return lat, lon, alt, heading
+    except (GeotagError, struct.error, IndexError, KeyError, ValueError):
         pass
     return _read_sidecar(path)
 
@@ -195,18 +218,18 @@ def read_gps(path):
 def read_datetime(path):
     """Capture time as a naive datetime (camera clock), or None."""
     try:
-        tiff, bo, ifd0 = _load_tiff(path)
-        if not tiff:
-            return None
-        exif = _sub_ifd(tiff, ifd0, bo, EXIF_POINTER) or []
-        for entries, tag in ((exif, 0x9003), (exif, 0x9004), (ifd0, 0x0132)):
-            for e in entries:
-                if e[0] == tag:
-                    try:
-                        return datetime.strptime(_value(tiff, e, bo), "%Y:%m:%d %H:%M:%S")
-                    except ValueError:
-                        pass
-    except (GeotagError, struct.error, IndexError):
+        with _open_tiff(path) as (tiff, bo, ifd0):
+            if not tiff:
+                return None
+            exif = _sub_ifd(tiff, ifd0, bo, EXIF_POINTER) or []
+            for entries, tag in ((exif, 0x9003), (exif, 0x9004), (ifd0, 0x0132)):
+                for e in entries:
+                    if e[0] == tag:
+                        try:
+                            return datetime.strptime(_value(tiff, e, bo), "%Y:%m:%d %H:%M:%S")
+                        except ValueError:
+                            pass
+    except (GeotagError, struct.error, IndexError, ValueError):
         pass
     return None
 
@@ -225,8 +248,8 @@ def _rational_dms(value):
     return [(deg, 1), (minutes, 1), (sec, 10000)]
 
 
-def _build_gps_ifd(lat, lon, alt, bo, base):
-    """GPS IFD placed at absolute TIFF offset `base`."""
+def _build_gps_ifd(lat, lon, alt, direction, bo, base):
+    """GPS IFD placed at absolute TIFF offset `base` (entries in ascending tag order)."""
     def rats(items):
         return b"".join(struct.pack(bo + "II", a, b) for a, b in items)
 
@@ -240,6 +263,9 @@ def _build_gps_ifd(lat, lon, alt, bo, base):
     if alt is not None:
         entries.append((0x05, 1, 1, bytes([1 if alt < 0 else 0])))
         entries.append((0x06, 5, 1, rats([(int(round(abs(alt) * 100)), 100)])))
+    if direction is not None:
+        entries.append((0x10, 2, 2, b"T\0"))
+        entries.append((0x11, 5, 1, rats([(int(round((direction % 360) * 100)), 100)])))
     entries.append((0x12, 2, 7, b"WGS-84\0"))
     data_off = base + 2 + len(entries) * 12 + 4
     head, tail = b"", b""
@@ -253,7 +279,7 @@ def _build_gps_ifd(lat, lon, alt, bo, base):
     return struct.pack(bo + "H", len(entries)) + head + struct.pack(bo + "I", 0) + tail
 
 
-def _with_gps(tiff, lat, lon, alt):
+def _with_gps(tiff, lat, lon, alt, direction):
     """New TIFF block: old data kept in place, new GPS IFD and a rebuilt IFD0 appended."""
     if not tiff:
         tiff = b"II*\0" + struct.pack("<I", 8) + struct.pack("<HI", 0, 0)
@@ -263,7 +289,7 @@ def _with_gps(tiff, lat, lon, alt):
     if len(out) % 2:
         out += b"\0"
     gps_off = len(out)
-    out += _build_gps_ifd(lat, lon, alt, bo, gps_off)
+    out += _build_gps_ifd(lat, lon, alt, direction, bo, gps_off)
     if len(out) % 2:
         out += b"\0"
     ifd0_off = len(out)
@@ -290,9 +316,9 @@ def _backup(path, enabled):
         shutil.copy2(path, path + "_original")
 
 
-def _write_jpeg(data, lat, lon, alt):
+def _write_jpeg(data, lat, lon, alt, direction):
     start, end, tiff, insert = _find_exif(data)
-    new_tiff = _with_gps(tiff, lat, lon, alt)
+    new_tiff = _with_gps(tiff, lat, lon, alt, direction)
     seg_len = len(new_tiff) + 8
     if seg_len > 0xFFFF:
         raise GeotagError("EXIF block too large")
@@ -302,13 +328,13 @@ def _write_jpeg(data, lat, lon, alt):
     return data[:start] + seg + data[end:]
 
 
-def _write_tiff(data, lat, lon, alt):
+def _write_tiff(data, lat, lon, alt, direction):
     if data[:2] not in (b"II", b"MM") or struct.unpack(_bo(data) + "H", data[2:4])[0] != 42:
         raise GeotagError("unsupported TIFF variant")
-    return _with_gps(data, lat, lon, alt)
+    return _with_gps(data, lat, lon, alt, direction)
 
 
-def _xmp_gps_attrs(lat, lon, alt):
+def _xmp_gps_attrs(lat, lon, alt, direction):
     def dm(v, pos, neg):
         a = abs(v)
         return "%d,%.6f%s" % (int(a), (a - int(a)) * 60, pos if v >= 0 else neg)
@@ -317,6 +343,9 @@ def _xmp_gps_attrs(lat, lon, alt):
     if alt is not None:
         attrs.append('exif:GPSAltitudeRef="%d"' % (1 if alt < 0 else 0))
         attrs.append('exif:GPSAltitude="%d/100"' % round(abs(alt) * 100))
+    if direction is not None:
+        attrs.append('exif:GPSImgDirectionRef="T"')
+        attrs.append('exif:GPSImgDirection="%d/100"' % round((direction % 360) * 100))
     return attrs
 
 
@@ -331,8 +360,8 @@ _XMP_NEW = """<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
 """
 
 
-def _write_sidecar(path, lat, lon, alt, out_path, backup):
-    attrs = _xmp_gps_attrs(lat, lon, alt)
+def _write_sidecar(path, lat, lon, alt, direction, out_path, backup):
+    attrs = _xmp_gps_attrs(lat, lon, alt, direction)
     target = sidecar_path(out_path or path)
     if os.path.exists(target):
         _backup(target, backup)
@@ -351,7 +380,7 @@ def _write_sidecar(path, lat, lon, alt, out_path, backup):
     _atomic_write(target, xml.encode("utf-8"))
 
 
-def write_gps(path, lat, lon, alt=None, out_path=None, backup=True):
+def write_gps(path, lat, lon, alt=None, direction=None, out_path=None, backup=True):
     """Geotag a photo. Returns "embedded" or "sidecar" (how the GPS was stored)."""
     if not (-90 <= lat <= 90 and -180 <= lon <= 180):
         raise GeotagError("coordinates out of range")
@@ -362,7 +391,7 @@ def write_gps(path, lat, lon, alt=None, out_path=None, backup=True):
     if ext in JPEG_EXT + TIFF_EXT:
         with open(path, "rb") as f:
             data = f.read()
-        result = (_write_jpeg if ext in JPEG_EXT else _write_tiff)(data, lat, lon, alt)
+        result = (_write_jpeg if ext in JPEG_EXT else _write_tiff)(data, lat, lon, alt, direction)
         if target == path:
             _backup(path, backup)
         _atomic_write(target, result)
@@ -371,7 +400,7 @@ def write_gps(path, lat, lon, alt=None, out_path=None, backup=True):
         return "embedded"
     if target != path:
         shutil.copy2(path, target)
-    _write_sidecar(path, lat, lon, alt, out_path, backup)
+    _write_sidecar(path, lat, lon, alt, direction, out_path, backup)
     return "sidecar"
 
 
@@ -432,8 +461,32 @@ def match_track(pts, utc_time, max_gap=600):
     return a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f, alt
 
 
+def _distance_m(lat1, lon1, lat2, lon2):
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = (math.sin((p2 - p1) / 2) ** 2
+         + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2)
+    return 12742000 * math.asin(math.sqrt(a))
+
+
+def estimate_offset(pts, taken, lat, lon):
+    """Clock offset from one photo whose true position is known.
+
+    Finds the track point nearest to (lat, lon) and compares its UTC time with the photo's
+    camera time. Returns (utc_offset_hours rounded to 0.5, shift_seconds, distance_m) so that
+    taken - utc_offset + shift equals the track time.
+    """
+    best = min(pts, key=lambda p: _distance_m(lat, lon, p[1], p[2]))
+    dist = _distance_m(lat, lon, best[1], best[2])
+    delta = (taken.replace(tzinfo=timezone.utc) - best[0]).total_seconds()
+    offset = round(delta / 1800.0) / 2.0
+    return offset, offset * 3600 - delta, dist
+
+
 def parse_csv(path):
-    """{lowercase file name: (lat, lon, alt_or_None)}; rows are name,lat,lon[,alt]."""
+    """{lowercase file name: position}; rows are name,lat,lon[,alt[,direction]]."""
+    def num(row, i):
+        return float(row[i].replace(",", ".")) if len(row) > i and row[i].strip() else None
+
     with open(path, newline="", encoding="utf-8-sig") as f:
         sample = f.read(2048)
         f.seek(0)
@@ -443,11 +496,12 @@ def parse_csv(path):
             if len(row) < 3:
                 continue
             try:
-                lat, lon = float(row[1].replace(",", ".")), float(row[2].replace(",", "."))
-                alt = float(row[3].replace(",", ".")) if len(row) > 3 and row[3].strip() else None
+                pos = (num(row, 1), num(row, 2), num(row, 3), num(row, 4))
             except ValueError:
                 continue
-            table[os.path.basename(row[0]).strip().lower()] = (lat, lon, alt)
+            if pos[0] is None or pos[1] is None:
+                continue
+            table[os.path.basename(row[0]).strip().lower()] = pos
     if not table:
         raise GeotagError("no usable rows in CSV")
     return table
@@ -468,7 +522,7 @@ def collect_photos(paths, recursive=False):
 
 
 def load_source(kind, **opts):
-    """Build the `source` dict used by tag_photo; raises GeotagError for unreadable input."""
+    """Build the `source` dict used by plan_photo/tag_photo; raises GeotagError for unreadable input."""
     try:
         if kind == "gpx":
             return dict(kind="gpx", points=parse_gpx(opts["file"]), utc_offset=opts.get("utc_offset", 0),
@@ -477,36 +531,58 @@ def load_source(kind, **opts):
             return dict(kind="csv", table=parse_csv(opts["file"]))
     except (OSError, ET.ParseError, ValueError) as exc:
         raise GeotagError(str(exc))
-    return dict(kind="fixed", lat=opts["lat"], lon=opts["lon"], alt=opts.get("alt"))
+    return dict(kind="fixed", lat=opts["lat"], lon=opts["lon"], alt=opts.get("alt"),
+                direction=opts.get("direction"))
 
 
-def tag_photo(path, source, backup=True, out_dir=None):
-    """Returns (status, (lat, lon, alt) or None, detail).
+def plan_photo(path, source, overwrite=False):
+    """Decide what would be written, without writing.
 
-    status: ok / ok_xmp (stored in a sidecar) / no_time / no_match / no_csv / error.
+    Returns (status, position or None, taken or None, existing position or None); status is
+    ok / has_gps / no_time / no_match / no_csv / error.
     """
     try:
+        existing = read_gps(path)
+        taken = read_datetime(path)
+        if existing and not overwrite:
+            return "has_gps", None, taken, existing
         kind = source["kind"]
         if kind == "fixed":
-            pos = (source["lat"], source["lon"], source.get("alt"))
+            pos = (source["lat"], source["lon"], source.get("alt"), source.get("direction"))
         elif kind == "csv":
             pos = source["table"].get(os.path.basename(path).lower())
             if pos is None:
-                return "no_csv", None, ""
+                return "no_csv", None, taken, existing
         else:
-            taken = read_datetime(path)
             if taken is None:
-                return "no_time", None, ""
+                return "no_time", None, None, existing
             utc = (taken - timedelta(hours=source["utc_offset"]) + timedelta(seconds=source["shift"])
                    ).replace(tzinfo=timezone.utc)
             pos = match_track(source["points"], utc, source["max_gap"])
             if pos is None:
-                return "no_match", None, ""
+                return "no_match", None, taken, existing
+            pos = tuple(pos) + (None,)
+        return "ok", pos, taken, existing
+    except (GeotagError, OSError, struct.error, ValueError) as exc:
+        return "error:" + str(exc), None, None, None
+
+
+def tag_photo(path, source, backup=True, out_dir=None, overwrite=False):
+    """Returns (status, position or None, detail).
+
+    status: ok / ok_xmp (stored in a sidecar) / has_gps / no_time / no_match / no_csv / error.
+    """
+    status, pos, _, _ = plan_photo(path, source, overwrite)
+    if status.startswith("error"):
+        return "error", None, status[6:]
+    if status != "ok":
+        return status, None, ""
+    try:
         out_path = None
         if out_dir:
             os.makedirs(out_dir, exist_ok=True)
             out_path = os.path.join(out_dir, os.path.basename(path))
-        mode = write_gps(path, pos[0], pos[1], pos[2], out_path=out_path, backup=backup)
+        mode = write_gps(path, pos[0], pos[1], pos[2], pos[3], out_path=out_path, backup=backup)
         return ("ok" if mode == "embedded" else "ok_xmp"), pos, ""
     except (GeotagError, OSError, struct.error, ValueError) as exc:
         return "error", None, str(exc)
@@ -523,6 +599,6 @@ def build_records(paths):
             continue
         taken = read_datetime(p)
         records.append({"file": os.path.basename(p), "path": os.path.abspath(p), "lat": pos[0], "lon": pos[1],
-                        "alt": pos[2], "taken": taken.isoformat(" ") if taken else "",
+                        "alt": pos[2], "direction": pos[3], "taken": taken.isoformat(" ") if taken else "",
                         "format": ext_of(p).lstrip(".").upper()})
     return records

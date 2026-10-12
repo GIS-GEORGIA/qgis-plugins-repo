@@ -15,7 +15,8 @@ try:
 except ImportError:  # standalone Python without GDAL
     ogr = osr = None
 
-FIELDS = ("file", "path", "lat", "lon", "alt", "taken", "format")
+FIELDS = ("file", "path", "lat", "lon", "alt", "direction", "taken", "format")
+REAL_FIELDS = ("lat", "lon", "alt", "direction")
 
 # key -> (label, file extension, OGR driver or None for the built-in writers)
 FORMATS = {
@@ -92,7 +93,7 @@ def _ogr(records, path, driver):
     opts = ["ENCODING=UTF-8"] if driver == "ESRI Shapefile" else []
     lyr = ds.CreateLayer(os.path.splitext(os.path.basename(path))[0], srs, ogr.wkbPoint, opts)
     for name in FIELDS:
-        kind = ogr.OFTReal if name in ("lat", "lon", "alt") else ogr.OFTString
+        kind = ogr.OFTReal if name in REAL_FIELDS else ogr.OFTString
         fd = ogr.FieldDefn(name, kind)
         if kind == ogr.OFTString:
             fd.SetWidth(254)

@@ -42,6 +42,8 @@ jobs:
                   ok &= compileall.compile_dir(plugin["source"], quiet=1, force=True)
           sys.exit(0 if ok else 1)
           PY
+      - name: Photo Geotagger unit tests
+        run: python -m unittest discover -s photo_geotagger/tests -t photo_geotagger
       - name: Generated files are up to date
         run: python tools/build.py --check
       - name: build.py survives a restrictive console encoding
