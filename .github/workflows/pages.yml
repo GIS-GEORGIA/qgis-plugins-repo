@@ -46,6 +46,8 @@ jobs:
         run: python -m unittest discover -s photo_geotagger/tests -t photo_geotagger
       - name: Generated files are up to date
         run: python tools/build.py --check
+      - name: Photo Geotagger is ready for plugins.qgis.org
+        run: python tools/check_upload_ready.py photo_geotagger
       - name: build.py survives a restrictive console encoding
         # CI's UTF-8 Linux console never catches a Windows cp1252 console
         # crashing on the Georgian/en-dash text in the summary print - this
