@@ -32,7 +32,7 @@ Only photos whose position actually changed are rewritten. *Restore originals* (
 The built-in writer needs nothing. Optionally [ExifTool](https://exiftool.org) can write instead
 (*Writing engine* in the dialog, or `--engine auto|exiftool --exiftool PATH`); it is called as a separate
 program and is not bundled. With ExifTool, *Write into RAW/HEIC files* (`--raw-embed`) puts the GPS inside
-the camera file instead of an `.xmp` sidecar. The default is the built-in writer.
+the camera file instead of an `.xmp` sidecar. By default (*Automatic*) ExifTool is used when it can be found, otherwise the built-in writer. Checked against ExifTool 13.59; both engines produce the same GPS tags and the pixel data is untouched.
 
 ## Standalone
 

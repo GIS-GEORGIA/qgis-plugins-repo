@@ -42,6 +42,8 @@ jobs:
                   ok &= compileall.compile_dir(plugin["source"], quiet=1, force=True)
           sys.exit(0 if ok else 1)
           PY
+      - name: Install ExifTool (used by the Photo Geotagger tests)
+        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl
       - name: Photo Geotagger unit tests
         run: python -m unittest discover -s photo_geotagger/tests -t photo_geotagger
       - name: Generated files are up to date

@@ -7,7 +7,7 @@ description=Writes GPS coordinates into photos (JPEG, TIFF, DNG; XMP sidecar for
 description[ka]=JPEG ფოტოს EXIF-ში GPS კოორდინატების ჩაწერა ერთი წერტილიდან, რუკიდან, GPX ტრეკიდან ან CSV ცხრილიდან. ორენოვანია (KA/EN) და გარედანაც ეშვება დამოუკიდებელ სკრიპტად.
 about[ka]=JPEG, TIFF და DNG ფოტოს EXIF-ში იწერს GPS კოორდინატებს ერთი წერტილიდან, რუკიდან, GPX ტრეკიდან (გადაღების დროით) ან CSV ცხრილიდან (ფაილის სახელით). RAW და HEIC ფაილებისთვის ქმნის გვერდითა XMP ფაილს. ჩაწერამდე აჩვენებს გადახედვას და შეუძლია კამერის საათის სხვაობის გამოთვლა. შედეგს აბრუნებს შრედ პროექტში ან ფაილად (GPKG, Shapefile, GeoJSON, CSV, KML, GPX და სხვა). ორენოვანია (ქართული და ინგლისური) და გარედანაც ეშვება სკრიპტად.
 about=Geotags JPEG photos from fixed or map-picked coordinates, a GPX track (by capture time) or a CSV table (by file name), and can add the photos to the project as a point layer. The core has no dependencies, so geotag.py also runs outside QGIS from the command line or a small window. Interface languages Georgian and English. License: GPL-3.0-or-later.
-version=0.4.0
+version=0.4.1
 author=GIS GEORGIA | Giorgi Kapanadze
 email=kapan.gio777@gmail.com
 tags=photo,geotag,exif,gps,gpx,csv,georgian
@@ -16,7 +16,8 @@ tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 category=Plugins
 icon=icon.svg
-changelog=0.4.0 - Layer to photos: move points in a layer and write the new coordinates back into the photos. Restore originals (undo) from the _original backups. Optional ExifTool engine (off by default: Writing engine setting / --engine) with RAW/HEIC embedding.
+changelog=0.4.1 - ExifTool engine verified against ExifTool 13.59 (Georgian file names, backups, restore, TIFF, --out copies, RAW read fallback); it is now used automatically when found, otherwise the built-in writer.
+    0.4.0 - Layer to photos: move points in a layer and write the new coordinates back into the photos. Restore originals (undo) from the _original backups. Optional ExifTool engine (off by default: Writing engine setting / --engine) with RAW/HEIC embedding.
     0.3.1 - GPL-3.0-or-later LICENSE and README added; package checked against plugins.qgis.org upload rules.
     0.3.0 - Preview table before writing; clock-offset estimate from one photo of known position; existing coordinates are kept unless Overwrite is ticked; direction (GPSImgDirection) with arrow symbol and photo map tip on the layer; work runs as a background task with progress and Cancel; --dry-run in the script; large RAW files are read through mmap; unit tests.
     0.2.0 - Camera formats: JPEG, TIFF, DNG written directly; RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF ...) and HEIC via XMP sidecar. Output: project layer and GPKG, Shapefile, GeoJSON, CSV, KML, GPX, FlatGeobuf, GML, MapInfo, SpatiaLite files.

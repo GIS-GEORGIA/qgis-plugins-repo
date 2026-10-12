@@ -194,7 +194,7 @@ class UndoAndPositionTests(unittest.TestCase):
         self.dir = self.tmp.name
 
     def tearDown(self):
-        core.CONFIG.update({"engine": "builtin", "exiftool": "", "raw_embed": False})
+        core.CONFIG.update({"engine": "auto", "exiftool": "", "raw_embed": False})
         self.tmp.cleanup()
 
     def path(self, name):
@@ -288,6 +288,33 @@ class UndoAndPositionTests(unittest.TestCase):
         core.CONFIG["engine"] = "exiftool"
         with self.assertRaises(core.GeotagError):
             core.write_gps(p, 3, 4, backup=False)
+
+
+@unittest.skipUnless(core.find_exiftool(), "ExifTool is not installed")
+class RealExifToolTests(unittest.TestCase):
+    """Runs only where ExifTool exists (CI installs it); uses a Georgian file name on purpose."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        core.CONFIG.update({"engine": "exiftool", "exiftool": "", "raw_embed": False})
+
+    def tearDown(self):
+        core.CONFIG.update({"engine": "auto", "exiftool": "", "raw_embed": False})
+        self.tmp.cleanup()
+
+    def test_roundtrip_backup_restore_with_unicode_name(self):
+        p = os.path.join(self.tmp.name, "ფოტო.jpg")
+        with open(p, "wb") as f:
+            f.write(TINY_JPEG)
+        self.assertEqual(core.write_gps(p, 41.715138, -44.827096, 512.34, 270.5), "embedded")
+        lat, lon, alt, heading = core.read_gps(p)  # read by the built-in reader
+        self.assertEqual((round(lat, 5), round(lon, 5), round(alt, 1), round(heading, 1)),
+                         (41.71514, -44.8271, 512.3, 270.5))
+        first_backup = slurp(p + "_original")
+        core.write_gps(p, 1, 2)  # backup of the very first state is kept
+        self.assertEqual(slurp(p + "_original"), first_backup)
+        self.assertEqual(core.restore_photo(p)[0], "restored")
+        self.assertIsNone(core.read_gps(p))
 
 
 if __name__ == "__main__":

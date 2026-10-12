@@ -505,7 +505,7 @@ class GeotagDialog(QDialog):
     # --------------------------------------------------------------- engine
     def _load_engine(self):
         settings = QgsSettings()
-        self.engine.setCurrentIndex(max(0, self.engine.findData(settings.value("photo_geotagger/engine", "builtin"))))
+        self.engine.setCurrentIndex(max(0, self.engine.findData(settings.value("photo_geotagger/engine", "auto"))))
         self.et_path.setText(settings.value("photo_geotagger/exiftool", "") or "")
         self.raw_embed.setChecked(str(settings.value("photo_geotagger/raw_embed", "false")).lower() == "true")
 
@@ -516,7 +516,7 @@ class GeotagDialog(QDialog):
             self._apply_engine()
 
     def _apply_engine(self, *_):
-        core.CONFIG.update({"engine": self.engine.currentData() or "builtin", "exiftool": self.et_path.text().strip(),
+        core.CONFIG.update({"engine": self.engine.currentData() or "auto", "exiftool": self.et_path.text().strip(),
                             "raw_embed": self.raw_embed.isChecked()})
         settings = QgsSettings()
         settings.setValue("photo_geotagger/engine", core.CONFIG["engine"])

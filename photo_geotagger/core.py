@@ -28,9 +28,9 @@ TYPE_SIZE = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8}
 GPS_POINTER, EXIF_POINTER = 0x8825, 0x8769
 WINDOW = 4 << 20  # EXIF is small; never copy more than this out of a large file
 
-# engine: "builtin" (default) never uses ExifTool, "auto" uses it when it can be found, "exiftool" insists on it.
+# engine: "auto" (default) uses ExifTool when it can be found, "builtin" never does, "exiftool" insists on it.
 # raw_embed: write RAW/HEIC GPS into the file with ExifTool instead of an XMP sidecar.
-CONFIG = {"engine": "builtin", "exiftool": "", "raw_embed": False}
+CONFIG = {"engine": "auto", "exiftool": "", "raw_embed": False}
 
 JPEG_EXT = (".jpg", ".jpeg", ".jpe")
 TIFF_EXT = (".tif", ".tiff", ".dng")
@@ -399,7 +399,7 @@ def find_exiftool(explicit=None):
     cand = explicit or CONFIG.get("exiftool") or os.environ.get("GEOTAG_EXIFTOOL")
     if cand:
         return cand if os.path.isfile(cand) else None
-    for name in ("exiftool", "exiftool.exe", "exiftool(-k).exe"):
+    for name in ("exiftool", "exiftool.exe"):
         found = shutil.which(name)
         if found:
             return found
@@ -425,7 +425,7 @@ def _run_exiftool(args):
     try:
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         proc = subprocess.run([exe, "-charset", "filename=utf8", "-@", argfile], capture_output=True,
-                              timeout=180, creationflags=flags)
+                              stdin=subprocess.DEVNULL, timeout=180, creationflags=flags)
     finally:
         os.remove(argfile)
     return proc.stdout.decode("utf-8", "replace"), proc.stderr.decode("utf-8", "replace")

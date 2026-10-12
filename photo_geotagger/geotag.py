@@ -66,7 +66,7 @@ def run_cli(argv):
     ap.add_argument("--export", help=t("cli_export"))
     ap.add_argument("--export-dir", default=".", help=t("cli_export_dir"))
     ap.add_argument("--export-name", default="photos", help=t("cli_export_name"))
-    ap.add_argument("--engine", choices=("auto", "builtin", "exiftool"), default="builtin", help=t("cli_engine"))
+    ap.add_argument("--engine", choices=("auto", "builtin", "exiftool"), default="auto", help=t("cli_engine"))
     ap.add_argument("--exiftool", default="", help=t("cli_exiftool"))
     ap.add_argument("--raw-embed", action="store_true", help=t("cli_raw_embed"))
     ap.add_argument("--restore", action="store_true", help=t("cli_restore"))
