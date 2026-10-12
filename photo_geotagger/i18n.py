@@ -174,6 +174,49 @@ STRINGS = {
     "p_region_field": ("რეგიონის ველი", "Region field"),
     "p_city_field": ("ქალაქის ან სოფლის ველი", "City or village field"),
     "p_location_field": ("ადგილის ან ქუჩის ველი", "Location or street field"),
+    "warn_title": ("მნიშვნელოვანი გაფრთხილება", "Important notice"),
+    "warn_short": (
+        "ფოტოს ადგილმდებარეობის შეცვლა ცვლის მის მეტამონაცემებს და ფოტოს სანდოობას. გამოიყენე მხოლოდ კანონიერი მიზნით და შეინახე ორიგინალები. დეტალებისთვის გახსენი სრული გაფრთხილება.",
+        "Changing a photo's location changes its metadata and how far the photo can be trusted. Use it only for lawful purposes and keep the originals. Open the full notice for details."),
+    "warn_more": ("სრული გაფრთხილება", "Read the full notice"),
+    "warn_ack": ("გავეცანი გაფრთხილებას და ვიღებ პასუხისმგებლობას", "I have read the notice and accept responsibility"),
+    "warn_continue": ("გაგრძელება", "Continue"),
+    "warn_not_legal": ("ეს ტექსტი იურიდიული რჩევა არ არის.", "This text is not legal advice."),
+    "warn_1_h": ("რას ცვლის ეს ფლაგინი", "What this plugin changes"),
+    "warn_1_b": (
+        "ფლაგინი ფოტოს პიქსელებს არ ცვლის. ის წერს მეტამონაცემებს: GPS კოორდინატებს, მიმართულებას, სიმაღლეს და ადგილის სახელებს. ასეთი მონაცემი ხშირად ფოტოს გადაღების ადგილისა და დროის მტკიცებულებად გამოიყენება. მისი შეცვლის შემდეგ ფაილი აღარ აჩვენებს იმას, რაც კამერამ ან GPS მოწყობილობამ თავდაპირველად ჩაწერა.",
+        "The plugin does not change the pixels. It writes metadata: GPS coordinates, direction, altitude and place names. Such data is often used as evidence of where and when a photo was taken. Once you change it, the file no longer shows what the camera or GPS device originally recorded."),
+    "warn_2_h": ("სამართლებრივი რისკები", "Legal risks"),
+    "warn_2_b": (
+        "თუ შეცვლილი ადგილმდებარეობის მქონე ფოტოს ნამდვილად წარადგენ, ეს შეიძლება დასჯადი იყოს. ეს ეხება სასამართლოს, დაზღვევის მოთხოვნას, ინსპექციის ან მიღება-ჩაბარების აქტს, შესრულებული სამუშაოს ანგარიშს და სახელმწიფო ორგანოსთვის წარდგენილ მასალას. იურისდიქციის მიხედვით ამას შეიძლება დოკუმენტის გაყალბება, თაღლითობა ან შეცდომაში შეყვანა ეწოდოს. შესაძლოა დაირღვეს ხელშეკრულება ან პროფესიული ეთიკა და სამუშაო ურთიერთობაც დაზარალდეს. შედეგი დამოკიდებულია ქვეყნის კანონებზე და კონკრეტულ გარემოებებზე.",
+        "Presenting a photo with a changed location as genuine can be a punishable act. This applies to courts, insurance claims, inspection or handover reports, reports of completed work and material given to public authorities. Depending on the jurisdiction it may be treated as forgery of documents, fraud or misleading. It can also breach a contract or professional ethics and harm your employment. The outcome depends on the national law and the circumstances."),
+    "warn_3_h": ("როდის არის გამოყენება მისაღები", "When use is legitimate"),
+    "warn_3_b": (
+        "მისაღებია, მაგალითად, როცა კამერას GPS არ ჰქონდა და ადგილი ტრეკიდან ან ხელით მიუთითე, როცა კოორდინატის აშკარა შეცდომა გაასწორე ან როცა შიდა არქივს აწესრიგებ. ასეთ შემთხვევაში მიუთითე, რომ მონაცემი მოგვიანებით დაემატა ან შეიცვალა. შეინახე ორიგინალი და ჩაწერე, რა წყარო გამოიყენე.",
+        "It is legitimate, for example, when the camera had no GPS and you gave the place from a track or by hand, when you corrected an obvious coordinate error or when you organise an internal archive. In such cases state that the data was added or changed later. Keep the original and record which source you used."),
+    "warn_4_h": ("სიზუსტე", "Accuracy"),
+    "warn_4_b": (
+        "კოორდინატი, რომელიც ტრეკიდან, CSV-დან, შრიდან ან გეოკოდირებით მიიღება, შეფასებაა და არა გაზომვა. შეცდომა შეიძლება გამოიწვიოს კამერის საათის უზუსტობამ, ტრეკის ინტერპოლაციამ ან GPS-ის ცდომილებამ. OpenStreetMap-ის სახელები შეიძლება მოძველებული ან არასწორი იყოს. შეამოწმე შედეგი, სანამ გამოიყენებ.",
+        "A coordinate taken from a track, a CSV, a layer or geocoding is an estimate and not a measurement. Errors can come from an inaccurate camera clock, track interpolation or GPS error. OpenStreetMap names may be outdated or wrong. Check the result before you rely on it."),
+    "warn_5_h": ("პირადი მონაცემები და უსაფრთხოება", "Personal data and security"),
+    "warn_5_b": (
+        "ფოტოს კოორდინატებმა შეიძლება გაამჟღავნოს სახლი, სამუშაო ადგილი ან მოძრაობის მარშრუტი. ბევრ ქვეყანაში მდებარეობა პირად მონაცემად ითვლება, ხოლო ადამიანების ფოტოზე საჭიროა თანხმობა ან სხვა კანონიერი საფუძველი. მნიშვნელოვანი ინფრასტრუქტურის ზუსტი კოორდინატების გავრცელებას, მაგალითად მილსადენის, სარქველის ან დაცული ობიექტის, შეიძლება კრძალავდეს შენი ორგანიზაციის უსაფრთხოების წესები. გაზიარებამდე შეამოწმე, რა მონაცემი ახლავს ფოტოს.",
+        "Photo coordinates can reveal a home, a workplace or a movement route. In many countries location counts as personal data, and photos of people need consent or another lawful basis. The exact coordinates of critical infrastructure, for example a pipeline, a valve or a protected site, may be restricted by your organisation's security rules. Check what data a photo carries before you share it."),
+    "warn_6_h": ("ორიგინალის ასლები", "Backup copies"),
+    "warn_6_b": (
+        "ფლაგინი ორიგინალს `_original` ასლად ინახავს და ამ ასლში ძველი კოორდინატებიც წერია. თუ საქაღალდეს სხვას გადასცემ, ასლებიც გადაეცემა. როცა „ასლის შენახვა“ გამორთულია, ცვლილების უკან დაბრუნება შეუძლებელია.",
+        "The plugin keeps the original as an `_original` copy and that copy still holds the old coordinates. If you hand the folder to someone, the copies go with it. With \"Keep a backup\" switched off a change cannot be undone."),
+    "warn_7_h": ("ციფრული ხელმოწერა", "Digital signatures"),
+    "warn_7_b": (
+        "ზოგი კამერა და ტელეფონი ფოტოს ხელმოწერით ამოწმებს, მაგალითად Content Credentials (C2PA) ან მწარმოებლის ორიგინალობის დადასტურებით. მეტამონაცემის შეცვლამ შეიძლება ეს ხელმოწერა გააუქმოს და ფოტო შეცვლილად მოინიშნოს.",
+        "Some cameras and phones sign their photos, for example with Content Credentials (C2PA) or a manufacturer's authenticity check. Changing metadata can invalidate such a signature and mark the photo as modified."),
+    "warn_8_h": ("მესამე მხარის მონაცემები და პასუხისმგებლობა", "Third-party data and responsibility"),
+    "warn_8_b": (
+        "OpenStreetMap-ის სახელები ODbL ლიცენზიით მოდის: გამოქვეყნებისას მიუთითე „© OpenStreetMap contributors“. ფლაგინი საჯარო Nominatim სერვერის წესს (წამში ერთი მოთხოვნა) იცავს, მაგრამ დიდი მოცულობისთვის საკუთარი სერვერი გამოიყენე. ფლაგინი გარანტიის გარეშე მუშაობს (GPL-3.0-or-later), ამიტომ მისი გამოყენების პასუხისმგებლობა შენზეა.",
+        "OpenStreetMap names come under the ODbL licence: when you publish, credit \"© OpenStreetMap contributors\". The plugin follows the public Nominatim rule (one request per second), but for large volumes use your own server. The plugin comes without warranty (GPL-3.0-or-later), so responsibility for its use is yours."),
+    "cli_notice": ("სრული გაფრთხილების ჩვენება", "show the full notice"),
+    "cli_note": ("შენიშვნა: ეს ხელსაწყო ფოტოს მეტამონაცემებს (ადგილმდებარეობას) ცვლის. შეინახე ორიგინალები, გამოიყენე კანონიერად და ნუ წარადგენ შეცვლილ მონაცემს როგორც ორიგინალურს. დეტალებისთვის: --notice",
+                 "Note: this tool changes photo metadata (location). Keep the originals, use it lawfully and do not present altered data as original. Details: --notice"),
     "formats_note": ("JPEG, TIFF და DNG ფაილში იწერება პირდაპირ. RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF და სხვა) და HEIC ფაილებისთვის იქმნება გვერდითა .xmp ფაილი.",
                      "JPEG, TIFF and DNG are written directly. For RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF and others) and HEIC a sidecar .xmp file is created."),
     "output": ("შედეგი", "Output"),

@@ -32,6 +32,7 @@ def _load_engine_settings():
 class _Base(QgsProcessingAlgorithm):
     ID = ""
     KEY = ""  # i18n key of the display name; the help text uses KEY + "_help"
+    WARN = False  # algorithms that change photo files carry the warning in their help
 
     def name(self):
         return self.ID
@@ -46,7 +47,8 @@ class _Base(QgsProcessingAlgorithm):
         return GROUP_ID
 
     def shortHelpString(self):
-        return _tr(self.KEY + "_help")
+        text = _tr(self.KEY + "_help")
+        return text + "\n\n" + _tr("warn_title") + ": " + _tr("warn_short") if self.WARN else text
 
     def createInstance(self):
         return type(self)()
@@ -142,6 +144,7 @@ class PhotosToPoints(_Base):
 
 
 class GeotagFromGpx(_Base):
+    WARN = True
     ID = "geotag_from_gpx"
     KEY = "alg_geotag_gpx"
 
@@ -172,6 +175,7 @@ class GeotagFromGpx(_Base):
 
 
 class GeotagFromCsv(_Base):
+    WARN = True
     ID = "geotag_from_csv"
     KEY = "alg_geotag_csv"
 
@@ -192,6 +196,7 @@ class GeotagFromCsv(_Base):
 
 
 class GeotagFromLayer(_Base):
+    WARN = True
     ID = "geotag_from_layer"
     KEY = "alg_geotag_layer"
 
@@ -300,6 +305,7 @@ def _tally(counts, status):
 
 
 class PlaceFromOsm(_Base):
+    WARN = True
     ID = "place_names_from_osm"
     KEY = "alg_place_osm"
 
@@ -337,6 +343,7 @@ class PlaceFromOsm(_Base):
 
 
 class PlaceFromLayer(_Base):
+    WARN = True
     ID = "place_names_from_layer"
     KEY = "alg_place_layer"
     FIELDS = (("COUNTRY", "p_country_field", "country"), ("REGION", "p_region_field", "region"),

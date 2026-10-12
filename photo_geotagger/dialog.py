@@ -4,14 +4,15 @@ from qgis.PyQt.QtCore import QMetaType
 from qgis.PyQt.QtWidgets import (
     QButtonGroup, QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFileDialog, QGridLayout,
     QGroupBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QMessageBox, QPlainTextEdit, QProgressBar,
-    QPushButton, QRadioButton, QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout)
+    QPushButton, QRadioButton, QScrollArea, QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
+    QVBoxLayout, QWidget)
 from qgis.core import (
     QgsApplication, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsFeature, QgsField,
     QgsGeometry, QgsMarkerSymbol, QgsPointXY, QgsProject, QgsProperty, QgsSettings, QgsTask, QgsVectorLayer,
     QgsWkbTypes)
 from qgis.gui import QgsMapToolEmitPoint
 
-from . import core, export, geocode, i18n
+from . import core, export, geocode, i18n, notice
 from .layer_places import LayerLookup
 
 t = i18n.t
@@ -61,6 +62,37 @@ class BatchTask(QgsTask):
         self.done(self.results, ok)
 
 
+class NoticeDialog(QDialog):
+    """The full warning. With require_ack the user must tick the box before Continue is enabled."""
+
+    def __init__(self, parent, require_ack=False):
+        super().__init__(parent)
+        self.setWindowTitle(t("warn_title"))
+        layout = QVBoxLayout(self)
+        view = QTextBrowser()
+        view.setHtml(notice.notice_html(i18n.LANG))
+        layout.addWidget(view)
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+        if require_ack:
+            self.ack = QCheckBox(t("warn_ack"))
+            layout.addWidget(self.ack)
+            self.ok = QPushButton(t("warn_continue"))
+            self.ok.setEnabled(False)
+            self.ack.toggled.connect(self.ok.setEnabled)
+            self.ok.clicked.connect(self.accept)
+            cancel = QPushButton(t("cancel"))
+            cancel.clicked.connect(self.reject)
+            buttons.addWidget(cancel)
+            buttons.addWidget(self.ok)
+        else:
+            close = QPushButton(t("close"))
+            close.clicked.connect(self.accept)
+            buttons.addWidget(close)
+        layout.addLayout(buttons)
+        self.resize(640, 640)
+
+
 class GeotagDialog(QDialog):
     def __init__(self, iface):
         super().__init__(iface.mainWindow())
@@ -75,7 +107,7 @@ class GeotagDialog(QDialog):
 
     # ------------------------------------------------------------------ UI
     def _build(self):
-        root = QVBoxLayout(self)
+        outer = root = QVBoxLayout(self)
 
         top = QHBoxLayout()
         self.lang_label = QLabel()
@@ -88,6 +120,24 @@ class GeotagDialog(QDialog):
         top.addWidget(self.lang)
         top.addStretch()
         root.addLayout(top)
+
+        warn = QHBoxLayout()
+        self.banner = QLabel()
+        self.banner.setWordWrap(True)
+        self.banner.setStyleSheet("background:#fff3cd;color:#664d03;border:1px solid #e0c36a;"
+                                  "border-radius:4px;padding:6px;")
+        self.btn_notice = QPushButton()
+        self.btn_notice.clicked.connect(lambda: NoticeDialog(self).exec())
+        warn.addWidget(self.banner, 1)
+        warn.addWidget(self.btn_notice)
+        root.addLayout(warn)
+
+        scroll = QScrollArea()  # the option groups scroll; buttons, progress and results stay in view
+        scroll.setWidgetResizable(True)
+        body = QWidget()
+        root = QVBoxLayout(body)
+        scroll.setWidget(body)
+        outer.addWidget(scroll, 1)
 
         self.photos_box = QGroupBox()
         pl = QGridLayout(self.photos_box)
@@ -276,6 +326,7 @@ class GeotagDialog(QDialog):
         ol.addWidget(self.out_base, row + 1, 1, 1, 2)
         root.addWidget(self.out_box)
 
+        root = outer
         btns = QHBoxLayout()
         self.btn_preview, self.btn_run = QPushButton(), QPushButton()
         self.btn_layer, self.btn_close = QPushButton(), QPushButton()
@@ -299,13 +350,16 @@ class GeotagDialog(QDialog):
         self.table = QTableWidget(0, 5)
         self.log = QPlainTextEdit()
         self.log.setReadOnly(True)
+        self.tabs.setMaximumHeight(240)
         self.tabs.addTab(self.table, "")
         self.tabs.addTab(self.log, "")
         root.addWidget(self.tabs)
-        self.resize(720, 860)
+        self.resize(760, 820)
 
     def retranslate(self):
         self.setWindowTitle(t("title"))
+        self.banner.setText(t("warn_title") + ": " + t("warn_short"))
+        self.btn_notice.setText(t("warn_more"))
         self.lang_label.setText(t("lang"))
         self.photos_box.setTitle(t("photos"))
         self.btn_files.setText(t("add_files"))
@@ -470,6 +524,16 @@ class GeotagDialog(QDialog):
                 self.log.appendPlainText(t("estimate_far", round(dist)))
         self.tabs.setCurrentIndex(1)
 
+    def _confirm_notice(self):
+        """Ask once (per notice version) before the first change to photo files."""
+        settings = QgsSettings()
+        if str(settings.value("photo_geotagger/notice_ack", "")) == notice.VERSION:
+            return True
+        if NoticeDialog(self, require_ack=True).exec():
+            settings.setValue("photo_geotagger/notice_ack", notice.VERSION)
+            return True
+        return False
+
     # -------------------------------------------------------- background work
     def _busy(self, on):
         for b in (self.btn_preview, self.btn_run, self.btn_layer, self.btn_restore, self.btn_wb, self.btn_place):
@@ -535,6 +599,8 @@ class GeotagDialog(QDialog):
         self.tabs.setCurrentIndex(0)
 
     def _run(self):
+        if not self._confirm_notice():
+            return
         prepared = self._prepare()
         if not prepared:
             return
@@ -608,6 +674,8 @@ class GeotagDialog(QDialog):
         super().showEvent(event)
 
     def _writeback(self):
+        if not self._confirm_notice():
+            return
         self.tabs.setCurrentIndex(1)
         layer = QgsProject.instance().mapLayer(self.wb_layer.currentData()) if self.wb_layer.currentData() else None
         if layer is None:
@@ -673,6 +741,8 @@ class GeotagDialog(QDialog):
             combo.setCurrentIndex(max(combo.findData(keep), 0))
 
     def _write_places(self):
+        if not self._confirm_notice():
+            return
         self.tabs.setCurrentIndex(1)
         photos = self._paths()
         if not photos:

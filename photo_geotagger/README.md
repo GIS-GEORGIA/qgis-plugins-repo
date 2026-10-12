@@ -6,6 +6,17 @@ standalone script with no dependencies. License: GPL-3.0-or-later (see `LICENSE`
 ფოტოებში GPS კოორდინატების ჩაწერა. ქართული და ინგლისური ინტერფეისი. მუშაობს QGIS დანამატადაც და
 დამოუკიდებელ სკრიპტადაც, დამატებითი ბიბლიოთეკების გარეშე.
 
+## Responsible use / გაფრთხილება
+
+Changing a photo's location changes the evidence the file carries. Do not present altered data as original
+(courts, insurance, inspection or handover reports, authorities): depending on the jurisdiction that can be
+forgery or fraud. Keep the `_original` backups (they still hold the old coordinates; do not share them by
+accident), state that location data was added or corrected, treat coordinates as personal data and as
+sensitive when they show critical infrastructure, credit OpenStreetMap when you publish its names, and expect
+signed photos (C2PA / Content Credentials) to be marked as modified. The dialog shows the full notice (ask once
+before the first write), the script prints it with `--notice`. This is not legal advice; the plugin comes
+without warranty (GPL-3.0-or-later).
+
 ## Formats
 
 | Format | How |

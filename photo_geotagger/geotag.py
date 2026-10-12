@@ -5,6 +5,7 @@
     python geotag.py --csv points.csv photos/
     python geotag.py --dry-run --gpx track.gpx photos/
     python geotag.py --place-names --place-lang ka photos/
+    python geotag.py --notice
     python geotag.py --restore photos/
     python geotag.py --engine exiftool --raw-embed --lat 41.7 --lon 44.8 raw_photos/
     python geotag.py --read photos/
@@ -16,13 +17,14 @@ import os
 import sys
 
 try:
-    from . import core, export, geocode, i18n
+    from . import core, export, geocode, i18n, notice
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import core
     import export
     import geocode
     import i18n
+    import notice
 
 t = i18n.t
 
@@ -47,7 +49,8 @@ def run_cli(argv):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     i18n.set_lang(_lang_from_argv(argv))
-    ap = argparse.ArgumentParser(description=t("cli_desc"))
+    ap = argparse.ArgumentParser(description=t("cli_desc"), epilog=t("cli_note"))
+    ap.add_argument("--notice", action="store_true", help=t("cli_notice"))
     ap.add_argument("paths", nargs="*", help=t("cli_paths"))
     ap.add_argument("--lang", choices=("ka", "en"), default=i18n.LANG)
     ap.add_argument("--lat", type=float, help=t("lat"))
@@ -79,6 +82,9 @@ def run_cli(argv):
     ap.add_argument("--gui", action="store_true", help=t("cli_gui"))
     args = ap.parse_args(argv)
 
+    if args.notice:
+        print(notice.notice_text(i18n.LANG))
+        return 0
     core.CONFIG.update({"engine": args.engine, "exiftool": args.exiftool, "raw_embed": args.raw_embed})
     if args.gui or not argv:
         return run_gui(args.lang)
@@ -86,6 +92,9 @@ def run_cli(argv):
     if not photos:
         print(t("no_files"))
         return 2
+
+    if not (args.read or args.dry_run):
+        print(t("cli_note"), file=sys.stderr)
 
     if args.restore:
         counts = {"restored": 0, "sidecar_removed": 0, "nothing": 0, "error": 0}
