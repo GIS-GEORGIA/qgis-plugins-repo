@@ -16,9 +16,20 @@ class CalculateGeometryPlugin:
     def __init__(self, iface):
         self.iface = iface
         self.action = None
+        self.provider = None
         self._dir = os.path.dirname(__file__)
 
+    def initProcessing(self):  # noqa: N802
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import CalculateGeometryProvider
+        self.provider = CalculateGeometryProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
     def initGui(self):  # noqa: N802 (QGIS-required name)
+        self.initProcessing()
         icon_path = os.path.join(self._dir, "icon.svg")
         self.action = QAction(
             QIcon(icon_path), "Calculate Geometry…", self.iface.mainWindow()
@@ -28,6 +39,10 @@ class CalculateGeometryPlugin:
         self.iface.addVectorToolBarIcon(self.action)
 
     def unload(self):
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self.action is not None:
             self.iface.removePluginVectorMenu("Calculate Geometry", self.action)
             self.iface.removeVectorToolBarIcon(self.action)
