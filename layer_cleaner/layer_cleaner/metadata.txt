@@ -4,7 +4,7 @@ qgisMinimumVersion=3.40
 qgisMaximumVersion=4.99
 supportsQt6=True
 description=Clean layers and add base layers (Google Satellite, OpenStreetMap)
-version=1.1
+version=1.2
 author=Giorgi Kapanadze
 email=aigroegsig@gmail.com
 
@@ -16,7 +16,8 @@ about=QGIS plugin that allows you to:
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 
-changelog=1.1 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
+changelog=1.2 - Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Remove layers from project, Add base layers.
+    1.1 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
     1.0 - Initial release
 
 tags=layers,cleanup,basemap,google,osm,satellite
@@ -24,5 +25,6 @@ tags=layers,cleanup,basemap,google,osm,satellite
 homepage=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 category=Raster
 icon=icons/icon.png
+hasProcessingProvider=yes
 experimental=False
 deprecated=False

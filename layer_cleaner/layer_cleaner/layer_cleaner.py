@@ -8,7 +8,9 @@ Layer Cleaner - Main Plugin Class
 import os
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import QgsProject, QgsRasterLayer
+from qgis.core import QgsApplication, QgsProject
+
+from . import cleaner_core
 
 
 class LayerCleanerPlugin:
@@ -26,10 +28,20 @@ class LayerCleanerPlugin:
         self.actions = []
         
         # Base layer names to keep
-        self.keep_names = ["Google Satellite Hybrid", "OpenStreetMap"]
+        self.keep_names = list(cleaner_core.KEEP_NAMES)
+        self.provider = None
+
+    def initProcessing(self):
+        """Register the Processing provider (also called headless by qgis_process)."""
+        if self.provider is not None:
+            return
+        from .processing_provider import LayerCleanerProvider
+        self.provider = LayerCleanerProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
         """Initialize the plugin GUI."""
+        self.initProcessing()
         # Create toolbar
         self.toolbar = self.iface.addToolBar("Layer Cleaner")
         self.toolbar.setObjectName("LayerCleanerToolbar")
@@ -56,6 +68,9 @@ class LayerCleanerPlugin:
 
     def unload(self):
         """Unload the plugin."""
+        if self.provider is not None:
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         # Remove menu items
         for action in self.actions:
             self.iface.removePluginMenu("Layer Cleaner", action)
@@ -68,11 +83,7 @@ class LayerCleanerPlugin:
     def clean_layers(self):
         """Remove all layers except base layers."""
         project = QgsProject.instance()
-        layers_to_remove = []
-        
-        for layer in project.mapLayers().values():
-            if layer.name() not in self.keep_names:
-                layers_to_remove.append(layer.id())
+        layers_to_remove = cleaner_core.layers_to_remove(project, self.keep_names)
         
         if not layers_to_remove:
             QMessageBox.information(
@@ -104,28 +115,7 @@ class LayerCleanerPlugin:
 
     def add_base_layers(self):
         """Add Google Satellite Hybrid and OpenStreetMap layers."""
-        project = QgsProject.instance()
-        added = []
-        
-        # Check if layer already exists
-        def layer_exists(name):
-            return any(lyr.name() == name for lyr in project.mapLayers().values())
-        
-        # Add Google Satellite Hybrid
-        if not layer_exists("Google Satellite Hybrid"):
-            url = "type=xyz&url=https://mt1.google.com/vt/lyrs=y%26x={x}%26y={y}%26z={z}"
-            layer = QgsRasterLayer(url, "Google Satellite Hybrid", "wms")
-            if layer.isValid():
-                project.addMapLayer(layer)
-                added.append("Google Satellite Hybrid")
-        
-        # Add OpenStreetMap
-        if not layer_exists("OpenStreetMap"):
-            url = "type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-            layer = QgsRasterLayer(url, "OpenStreetMap", "wms")
-            if layer.isValid():
-                project.addMapLayer(layer)
-                added.append("OpenStreetMap")
+        added = cleaner_core.add_base_layers()
         
         # Show result
         if added:

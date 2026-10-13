@@ -28,9 +28,20 @@ class GeorgianCadastrePlugin:
         self.iface = iface
         self.action = None
         self.dlg = None
+        self.provider = None
         self._dir = os.path.dirname(__file__)
 
+    def initProcessing(self):  # noqa: N802
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import GeorgianCadastreProvider
+        self.provider = GeorgianCadastreProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
     def initGui(self):  # noqa: N802 (QGIS-required name)
+        self.initProcessing()
         icon_path = os.path.join(self._dir, "icon.svg")
         self.action = QAction(
             QIcon(icon_path), MENU + u"…", self.iface.mainWindow()
@@ -40,6 +51,10 @@ class GeorgianCadastrePlugin:
         self.iface.addWebToolBarIcon(self.action)
 
     def unload(self):
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self.action is not None:
             self.iface.removePluginWebMenu(MENU, self.action)
             self.iface.removeWebToolBarIcon(self.action)

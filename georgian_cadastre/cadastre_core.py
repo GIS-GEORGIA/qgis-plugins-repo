@@ -52,24 +52,28 @@ def _crs(epsg):
     return QgsCoordinateReferenceSystem("EPSG:{}".format(int(epsg)))
 
 
-def _transform(geom_wgs84, target_epsg):
-    """Return a copy of the geometry transformed from WGS84 to target_epsg."""
+def _transform(geom_wgs84, target_epsg, transform_context=None):
+    """Return a copy of the geometry transformed from WGS84 to target_epsg.
+
+    ``transform_context`` lets worker threads (Processing) avoid touching the
+    project instance; the default keeps the previous behaviour."""
     if int(target_epsg) == 4326:
         return QgsGeometry(geom_wgs84)
-    tr = QgsCoordinateTransform(WGS84, _crs(target_epsg), QgsProject.instance())
+    tr = QgsCoordinateTransform(
+        WGS84, _crs(target_epsg), transform_context or QgsProject.instance())
     g = QgsGeometry(geom_wgs84)
     g.transform(tr)
     return g
 
 
-def true_area_perimeter(geom_wgs84):
+def true_area_perimeter(geom_wgs84, transform_context=None):
     """True ground area (m²) and perimeter (m), independent of the output CRS.
 
     Always measured in the parcel's UTM zone, so ``area_m2`` stays correct even
     when the layer is exported in WGS84 or Web Mercator (where planar area is
     distorted)."""
     zone = auto_zone_epsg(geom_wgs84)
-    g = _transform(geom_wgs84, zone)
+    g = _transform(geom_wgs84, zone, transform_context)
     return g.area(), g.length()
 
 
@@ -86,27 +90,19 @@ def _fields():
     return f
 
 
-def build_layer(features, code, address, target_epsg, info=None):
-    """Create an in-memory MultiPolygon layer in the target CRS.
+def make_features(features, code, address, target_epsg, fields, info=None,
+                  transform_context=None, extra=None):
+    """QgsFeature list (in ``target_epsg``) for the rows of napr_client.fetch_features.
 
-    ``features`` is the list returned by napr_client.fetch_features (each has
-    ``wkt`` in EPSG:4326). ``info`` is the optional non-personal attribute dict
-    from napr_client.fetch_info.
-    """
+    ``fields`` must start with the ``_fields()`` schema; ``extra`` is an optional
+    list of values appended after it (e.g. a distance column)."""
     info = info or {}
-    crs = _crs(target_epsg)
-    layer = QgsVectorLayer(
-        "MultiPolygon?crs={}".format(crs.authid()), code or "parcel", "memory"
-    )
-    dp = layer.dataProvider()
-    dp.addAttributes(_fields().toList())
-    layer.updateFields()
-
+    out = []
     for feat_row in features:
         geom4326 = geometry_from_wkt(feat_row["wkt"])
-        geom = _transform(geom4326, target_epsg)
-        area, perim = true_area_perimeter(geom4326)
-        f = QgsFeature(layer.fields())
+        geom = _transform(geom4326, target_epsg, transform_context)
+        area, perim = true_area_perimeter(geom4326, transform_context)
+        f = QgsFeature(fields)
         f.setGeometry(geom)
         f.setAttributes([
             feat_row.get("code") or code,
@@ -117,9 +113,28 @@ def build_layer(features, code, address, target_epsg, info=None):
             info.get("parcel_type", ""),
             info.get("status", ""),
             "public cadastre service",
-        ])
-        dp.addFeature(f)
+        ] + list(extra or []))
+        out.append(f)
+    return out
 
+
+def build_layer(features, code, address, target_epsg, info=None):
+    """Create an in-memory MultiPolygon layer in the target CRS.
+
+    ``features`` is the list returned by napr_client.fetch_features (each has
+    ``wkt`` in EPSG:4326). ``info`` is the optional non-personal attribute dict
+    from napr_client.fetch_info.
+    """
+    crs = _crs(target_epsg)
+    layer = QgsVectorLayer(
+        "MultiPolygon?crs={}".format(crs.authid()), code or "parcel", "memory"
+    )
+    dp = layer.dataProvider()
+    dp.addAttributes(_fields().toList())
+    layer.updateFields()
+
+    dp.addFeatures(make_features(features, code, address, target_epsg,
+                                 layer.fields(), info))
     layer.updateExtents()
     return layer
 
