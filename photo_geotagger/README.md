@@ -61,7 +61,22 @@ Group *Photo Geotagger* in the Processing Toolbox (also usable in Model Builder 
 `Restore photo originals`, `Estimate camera clock offset`. Names and help follow the QGIS language
 (Georgian or English). The tagging algorithms report counts and an optional report layer.
 
-## Standalone
+## Standalone program (no QGIS)
+
+```bash
+python app.py            # the full window; `python geotag.py` with no arguments opens the same
+```
+
+Needs only Python 3 with Tk (included with the python.org installers). Photo table with capture time,
+existing and planned coordinates, place names and status; coordinates from a fixed point, the map, a GPX
+track (with clock-offset estimate) or a CSV table; preview before writing; place names from OpenStreetMap or
+a GeoJSON / GPKG / Shapefile polygon file; a map (OpenStreetMap tiles, cached) where you click to pick
+coordinates or drag points to correct them and write them back; export to CSV / GeoJSON / KML / GPX (and
+GPKG, Shapefile ... when GDAL is installed); restore originals; Georgian / English; settings in
+`%APPDATA%/PhotoGeotagger`. The map sends tile requests to OpenStreetMap; switch the background off in the
+Map tab to stay offline.
+
+## Command line
 
 ```bash
 python geotag.py --lang en --lat 41.7151 --lon 44.8271 -r photos/

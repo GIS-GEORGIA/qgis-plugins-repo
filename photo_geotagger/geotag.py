@@ -10,7 +10,7 @@
     python geotag.py --engine exiftool --raw-embed --lat 41.7 --lon 44.8 raw_photos/
     python geotag.py --read photos/
     python geotag.py --lat 41.7 --lon 44.8 photos/ --export gpkg,shp,geojson,csv --export-dir out/
-    python geotag.py            (no arguments: opens a small window)
+    python geotag.py            (no arguments: opens the full window; same as python app.py)
 """
 import argparse
 import os
@@ -212,79 +212,11 @@ def _export(photos, formats, args):
 
 
 def run_gui(lang="ka"):
-    import tkinter as tk
-    from tkinter import filedialog, ttk
-
-    i18n.set_lang(lang)
-    root = tk.Tk()
-    files, widgets = [], {}
-    var = {k: tk.StringVar() for k in ("lat", "lon", "alt", "lang")}
-    var["lang"].set(i18n.LANG)
-    backup = tk.BooleanVar(value=True)
-    overwrite = tk.BooleanVar(value=False)
-    log = tk.Text(root, height=10, width=70)
-
-    def add():
-        files.extend(filedialog.askopenfilenames(filetypes=[(t("photo_filter"), " ".join("*" + e for e in core.PHOTO_EXT))]))
-        listing.configure(text="\n".join(os.path.basename(f) for f in files[-6:]))
-
-    def folder():
-        d = filedialog.askdirectory()
-        if d:
-            files.extend(core.collect_photos([d]))
-            listing.configure(text="%d" % len(files))
-
-    def write():
-        try:
-            src = core.load_source("fixed", lat=float(var["lat"].get().replace(",", ".")),
-                                   lon=float(var["lon"].get().replace(",", ".")),
-                                   alt=float(var["alt"].get().replace(",", ".")) if var["alt"].get() else None)
-        except ValueError:
-            log.insert("end", t("bad_coords") + "\n")
-            return
-        if not files:
-            log.insert("end", t("no_files") + "\n")
-            return
-        ok = 0
-        for p in files:
-            status, pos, detail = core.tag_photo(p, src, backup=backup.get(), overwrite=overwrite.get())
-            ok += status in ("ok", "ok_xmp")
-            log.insert("end", "%s: %s %s\n" % (os.path.basename(p), t("res_" + status), detail))
-        log.insert("end", t("summary", ok=ok, skip=0, err=len(files) - ok) + "\n")
-
-    def retitle(*_):
-        i18n.set_lang(var["lang"].get())
-        root.title(t("title"))
-        for key, w in widgets.items():
-            w.configure(text=t(key))
-
-    frm = ttk.Frame(root, padding=8)
-    frm.pack(fill="both", expand=True)
-    widgets["lang"] = ttk.Label(frm)
-    widgets["lang"].grid(row=0, column=0, sticky="w")
-    ttk.Combobox(frm, textvariable=var["lang"], values=("ka", "en"), width=5, state="readonly"
-                 ).grid(row=0, column=1, sticky="w")
-    widgets["add_files"] = ttk.Button(frm, command=add)
-    widgets["add_files"].grid(row=1, column=0, sticky="we")
-    widgets["add_folder"] = ttk.Button(frm, command=folder)
-    widgets["add_folder"].grid(row=1, column=1, sticky="we")
-    listing = ttk.Label(frm, justify="left")
-    listing.grid(row=2, column=0, columnspan=2, sticky="w")
-    for r, key in enumerate(("lat", "lon", "alt"), start=3):
-        widgets[key] = ttk.Label(frm)
-        widgets[key].grid(row=r, column=0, sticky="w")
-        ttk.Entry(frm, textvariable=var[key]).grid(row=r, column=1, sticky="we")
-    widgets["backup"] = ttk.Checkbutton(frm, variable=backup)
-    widgets["backup"].grid(row=6, column=0, columnspan=2, sticky="w")
-    widgets["overwrite"] = ttk.Checkbutton(frm, variable=overwrite)
-    widgets["overwrite"].grid(row=7, column=0, columnspan=2, sticky="w")
-    widgets["run"] = ttk.Button(frm, command=write)
-    widgets["run"].grid(row=8, column=0, columnspan=2, sticky="we")
-    log.pack(fill="both", expand=True, padx=8, pady=8)
-    var["lang"].trace_add("write", retitle)
-    retitle()
-    root.mainloop()
-    return 0
+    try:
+        from . import app
+    except ImportError:
+        import app
+    return app.main(lang)
 
 
 if __name__ == "__main__":
