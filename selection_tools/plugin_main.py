@@ -55,9 +55,20 @@ class SelectionToolsPlugin:
         self.root_action = None   # QAction, რომელსაც ეს menu ეკიდება
         self._added_to_layer_menu = False
         self._icon = QIcon(os.path.join(_DIR, "icon.svg"))
+        self.provider = None
+
+    def initProcessing(self):
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import SelectionToolsProvider
+        self.provider = SelectionToolsProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     # ---- lifecycle -------------------------------------------------------
     def initGui(self):
+        self.initProcessing()
         self.lang = i18n.resolve_lang()
 
         # ArcGIS Pro-ს "Selection"-ის თანმიმდევრობა; None = გამყოფი
@@ -111,6 +122,10 @@ class SelectionToolsPlugin:
             self._added_to_layer_menu = False
 
     def unload(self):
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self.root_action is not None:
             try:
                 self.iface.removeCustomActionForLayerType(self.root_action)

@@ -6,31 +6,7 @@ from qgis.core import QgsProject, QgsVectorLayer, QgsField, edit
 from qgis.PyQt.QtCore import QMetaType
 from qgis.utils import iface
 
-
-# ქართული → ლათინური
-def georgian_to_latin(text):
-    transliteration_map = {
-        'ა': 'a', 'ბ': 'b', 'გ': 'g', 'დ': 'd', 'ე': 'e', 'ვ': 'v', 'ზ': 'z',
-        'თ': 'T', 'ი': 'i', 'კ': 'k', 'ლ': 'l', 'მ': 'm', 'ნ': 'n', 'ო': 'o',
-        'პ': 'p', 'ჟ': 'J', 'რ': 'r', 'ს': 's', 'ტ': 't', 'უ': 'u',
-        'ფ': 'f', 'ქ': 'q', 'ღ': 'R', 'ყ': 'y', 'შ': 'S', 'ჩ': 'C',
-        'ც': 'c', 'ძ': 'Z', 'წ': 'w', 'ჭ': 'W', 'ხ': 'x', 'ჯ': 'j',
-        'ჰ': 'h'
-    }
-    return ''.join(transliteration_map.get(char, char) for char in text)
-
-
-# ლათინური → ქართული (რევერსი)
-def latin_to_georgian(text):
-    transliteration_map = {
-        'a': 'ა', 'b': 'ბ', 'g': 'გ', 'd': 'დ', 'e': 'ე', 'v': 'ვ', 'z': 'ზ',
-        'T': 'თ', 'i': 'ი', 'k': 'კ', 'l': 'ლ', 'm': 'მ', 'n': 'ნ', 'o': 'ო',
-        'p': 'პ', 'J': 'ჟ', 'r': 'რ', 's': 'ს', 't': 'ტ', 'u': 'უ',
-        'f': 'ფ', 'q': 'ქ', 'R': 'ღ', 'y': 'ყ', 'S': 'შ', 'C': 'ჩ',
-        'c': 'ც', 'Z': 'ძ', 'w': 'წ', 'W': 'ჭ', 'x': 'ხ', 'j': 'ჯ',
-        'h': 'ჰ'
-    }
-    return ''.join(transliteration_map.get(char, char) for char in text)
+from .translit_core import georgian_to_latin, latin_to_georgian
 
 
 class TransliteratorDialog(QDialog):
@@ -135,14 +111,29 @@ class TransliteratorDialog(QDialog):
 class TransliteratorPlugin:
     def __init__(self, iface):
         self.iface = iface
+        self.provider = None
+
+    def initProcessing(self):
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import TransliteratorProvider
+        self.provider = TransliteratorProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
+        self.initProcessing()
         self.action = QAction("Transliterate", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu("Transliterator", self.action)
 
     def unload(self):
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         self.iface.removePluginMenu("Transliterator", self.action)
         self.iface.removeToolBarIcon(self.action)
 

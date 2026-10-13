@@ -22,8 +22,19 @@ class TransliterateDataPlugin:
         self.iface = iface
         self.lang = i18n.DEFAULT_LANG
         self.action = None
+        self.provider = None
+
+    def initProcessing(self):
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import TransliterateDataProvider
+        self.provider = TransliterateDataProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
+        self.initProcessing()
         self.lang = i18n.DEFAULT_LANG   # ინგლისური default; ენა დიალოგში იცვლება
         icon = QIcon(os.path.join(_DIR, "icon.svg"))
         self.action = QAction(icon, i18n.t("title", self.lang), self.iface.mainWindow())
@@ -32,6 +43,10 @@ class TransliterateDataPlugin:
         self.iface.addToolBarIcon(self.action)
 
     def unload(self):
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self.action:
             self.iface.removePluginMenu(i18n.t("menu", self.lang), self.action)
             self.iface.removeToolBarIcon(self.action)
