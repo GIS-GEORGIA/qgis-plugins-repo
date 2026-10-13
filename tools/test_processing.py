@@ -47,6 +47,7 @@ from selection_tools.processing_provider import SelectionToolsProvider  # noqa: 
 from transliterate_data.processing_provider import TransliterateDataProvider  # noqa: E402
 from transliterator.processing_provider import TransliteratorProvider  # noqa: E402
 from basemap_loader.processing_provider import BasemapLoaderProvider  # noqa: E402
+from owners_analyzer.processing_provider import OwnersAnalyzerProvider  # noqa: E402
 from georgian_cadastre.processing_provider import GeorgianCadastreProvider  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, "layer_cleaner"))  # nested package dir
 from layer_cleaner.processing_provider import LayerCleanerProvider  # noqa: E402
@@ -54,7 +55,7 @@ from layer_cleaner.processing_provider import LayerCleanerProvider  # noqa: E402
 PROVIDERS = [TransliteratorProvider(), CalculateGeometryProvider(),
              TransliterateDataProvider(), SelectionToolsProvider(),
              BasemapLoaderProvider(), GeorgianCadastreProvider(),
-             LayerCleanerProvider()]  # keep Python refs alive
+             LayerCleanerProvider(), OwnersAnalyzerProvider()]  # keep Python refs alive
 for prov in PROVIDERS:
     assert QgsApplication.processingRegistry().addProvider(prov), prov.id()
 
@@ -391,7 +392,42 @@ def test_basemap_and_cleaner():
     project.clear()
 
 
-TESTS = (test_model, test_cadastre, test_basemap_and_cleaner, test_transliterator, test_calc_geometry, test_transliterate_data, test_selection_tools)
+def test_owners():
+    section("owners_analyzer")
+    lyr = memlayer("Point", "field=owner:string&field=n:integer", [
+        ("POINT(1 1)", ["გიორგი", 1]), ("POINT(2 1)", ["ანა", 2]), ("POINT(3 1)", ["ანა ", 3]),
+        ("POINT(4 1)", ["ბექა", 4]), ("POINT(5 1)", [None, 5]), ("POINT(6 1)", ["", 6]),
+        ("POINT(7 1)", ["ბექა ანა", 7])])
+    QgsProject.instance().addMapLayer(lyr)
+    txt = os.path.join(TMP, "owners.txt")
+    res = run("owners_analyzer:count_unique_values", {
+        "INPUT": lyr, "FIELD": "owner", "SORT": 0, "OUTPUT": "memory:", "OUTPUT_TXT": txt})
+    rows = [(f["value"], f["count"]) for f in res["OUTPUT"].getFeatures()]
+    check("values trimmed, empty skipped, Georgian order",
+          rows == [("ანა", 2), ("ბექა", 1), ("ბექა ანა", 1), ("გიორგი", 1)], rows)
+    check("unique count output", res["UNIQUE"] == 4, res)
+    check("txt report written", open(txt, encoding="utf-8").read().splitlines()[0] == "ანა | 2")
+    res = run("owners_analyzer:count_unique_values", {
+        "INPUT": lyr, "FIELD": "owner", "SORT": 1, "OUTPUT": "memory:"})
+    rows = [(f["value"], f["count"]) for f in res["OUTPUT"].getFeatures()]
+    check("sort by count descending", rows[0] == ("ანა", 2), rows)
+
+    res = run("owners_analyzer:extract_by_keywords", {
+        "INPUT": lyr, "FIELD": "owner", "KEYWORDS": "ბექ\n\nგიორ", "OUTPUT": "memory:"})
+    check("extract by keywords", res["COUNT"] == 3 and res["OUTPUT"].featureCount() == 3, res)
+    e = run("owners_analyzer:extract_by_keywords", {
+        "INPUT": lyr, "FIELD": "owner", "KEYWORDS": " \n ", "OUTPUT": "memory:"},
+        expect_error=True)
+    check("empty keywords rejected", "keyword" in str(e), e)
+
+    res = run("owners_analyzer:select_by_keywords", {
+        "INPUT": lyr, "FIELD": "owner", "KEYWORDS": "ანა"})
+    check("select by keywords selects on the layer",
+          res["COUNT"] == 3 and lyr.selectedFeatureCount() == 3, (res, lyr.selectedFeatureCount()))
+    QgsProject.instance().removeMapLayer(lyr.id())
+
+
+TESTS = (test_owners, test_model, test_cadastre, test_basemap_and_cleaner, test_transliterator, test_calc_geometry, test_transliterate_data, test_selection_tools)
 print("QGIS", Qgis.version())
 for t in TESTS:
     try:

@@ -6,7 +6,6 @@
 """
 
 import os
-from collections import defaultdict
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import (
@@ -18,13 +17,8 @@ from qgis.PyQt.QtCore import Qt
 from qgis.core import QgsProject
 
 
-# ქართული ანბანი სორტირებისთვის
-GEO_ALPHABET = 'აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ'
-
-
-def geo_sort_key(text):
-    """ქართული ანბანით სორტირების ფუნქცია."""
-    return [GEO_ALPHABET.find(c) if c in GEO_ALPHABET else ord(c) for c in text.lower()]
+from . import analysis_core as core
+from .analysis_core import geo_sort_key  # noqa: F401  (kept for importers)
 
 
 class OwnersAnalyzerDialog(QDialog):
@@ -248,13 +242,7 @@ class OwnersAnalyzerDialog(QDialog):
             return
         
         # დათვლა
-        counts = defaultdict(int)
-        for feature in layer.getFeatures():
-            value = feature[field_name]
-            if value is not None:
-                value = str(value).strip()
-                if value != '':
-                    counts[value] += 1
+        counts = core.count_values(layer.getFeatures(), field_name)
         
         if not counts:
             QMessageBox.information(self, 'შედეგი', 'მონაცემები არ მოიძებნა!')
@@ -266,9 +254,7 @@ class OwnersAnalyzerDialog(QDialog):
         output_path = os.path.join(output_dir, f'{layer_name}_{timestamp}.txt')
         
         # ჩაწერა
-        with open(output_path, 'w', encoding='utf-8') as f:
-            for owner, count in sorted(counts.items(), key=lambda x: geo_sort_key(x[0])):
-                f.write(f'{owner} | {count}\n')
+        core.write_txt(output_path, counts)
         
         # შედეგის ჩვენება
         result_text = f'''შრე: {layer_name}
@@ -309,27 +295,14 @@ class OwnersAnalyzerDialog(QDialog):
             return
         
         # საკვანძო სიტყვების დამუშავება
-        search_terms = [t.strip() for t in search_text.split('\n') if t.strip()]
+        search_terms = core.parse_terms(search_text)
         
         if not search_terms:
             QMessageBox.warning(self, 'შეცდომა', 'შეიყვანეთ საკვანძო სიტყვები!')
             return
         
         # ძებნა
-        ids = []
-        matches = defaultdict(int)
-        
-        for f in layer.getFeatures():
-            val = f[field_name]
-            if val is None:
-                continue
-            val = str(val)
-            
-            for term in search_terms:
-                if term in val:
-                    ids.append(f.id())
-                    matches[term] += 1
-                    break
+        ids, matches = core.find_matches(layer.getFeatures(), field_name, search_terms)
         
         # მონიშვნა
         layer.selectByIds(ids)
