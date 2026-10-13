@@ -212,4 +212,4 @@ git add --renormalize .            # stages the LF-normalized content (matches w
 ## 📞 Contact / კონტაქტი
 
 - **GitHub**: [GIS-GEORGIA](https://github.com/GIS-GEORGIA)
-- **Email**: aigroegsig@gmail.com
+- **Email**: aigroegsig@gmail.com, kapan.gio777@gmail.com
