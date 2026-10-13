@@ -4,9 +4,9 @@ qgisMinimumVersion=3.40
 qgisMaximumVersion=4.99
 supportsQt6=True
 description=შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია
-version=1.3
-author=Kapo
-email=your.email@example.com
+version=1.3.1
+author=GIS GEORGIA | Giorgi Kapanadze
+email=kapan.gio777@gmail.com
 
 about=QGIS დანამატი რომელიც საშუალებას გაძლევთ:
     - ამოიღოთ უნიკალური მფლობელები შრიდან
@@ -17,7 +17,8 @@ about=QGIS დანამატი რომელიც საშუალე�
 tracker=https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues
 repository=https://github.com/GIS-GEORGIA/qgis-plugins-repo
 
-changelog=1.3 - Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Count unique values, Extract features by keywords, Select features by keywords. Counting/search logic moved to analysis_core.py. Repository links point to GIS-GEORGIA/qgis-plugins-repo.
+changelog=1.3.1 - Author and contact e-mail set (were placeholders).
+    1.3 - Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Count unique values, Extract features by keywords, Select features by keywords. Counting/search logic moved to analysis_core.py. Repository links point to GIS-GEORGIA/qgis-plugins-repo.
     1.2 - Plugin Manager description now says "დანამატი" instead of "პლაგინი".
     1.1 - Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR.
     1.0 - პირველი ვერსია

@@ -142,18 +142,18 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="მფლობელების ანალიზატორი" version="1.3">
+  <pyqgis_plugin name="მფლობელების ანალიზატორი" version="1.3.1">
     <description>შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია</description>
     <about>QGIS დანამატი რომელიც საშუალებას გაძლევთ:</about>
-    <version>1.3</version>
+    <version>1.3.1</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>owners_analyzer.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.3</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.3.1</download_url>
     <icon>https://plugins.qgis.ge/owners_analyzer/icon.png</icon>
-    <author_name>Kapo</author_name>
-    <email>your.email@example.com</email>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>kapan.gio777@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
     <tags>analysis,owners,statistics,georgia,filter</tags>
