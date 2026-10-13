@@ -46,9 +46,15 @@ from calculate_geometry.processing_provider import CalculateGeometryProvider  # 
 from selection_tools.processing_provider import SelectionToolsProvider  # noqa: E402
 from transliterate_data.processing_provider import TransliterateDataProvider  # noqa: E402
 from transliterator.processing_provider import TransliteratorProvider  # noqa: E402
+from basemap_loader.processing_provider import BasemapLoaderProvider  # noqa: E402
+from georgian_cadastre.processing_provider import GeorgianCadastreProvider  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "layer_cleaner"))  # nested package dir
+from layer_cleaner.processing_provider import LayerCleanerProvider  # noqa: E402
 
 PROVIDERS = [TransliteratorProvider(), CalculateGeometryProvider(),
-             TransliterateDataProvider(), SelectionToolsProvider()]  # keep Python refs alive
+             TransliterateDataProvider(), SelectionToolsProvider(),
+             BasemapLoaderProvider(), GeorgianCadastreProvider(),
+             LayerCleanerProvider()]  # keep Python refs alive
 for prov in PROVIDERS:
     assert QgsApplication.processingRegistry().addProvider(prov), prov.id()
 
@@ -290,7 +296,102 @@ def context_layer(ref):
     return QgsProject.instance().mapLayer(ref)
 
 
-TESTS = (test_model, test_transliterator, test_calc_geometry, test_transliterate_data, test_selection_tools)
+def _fake_cadastre_fetch(url, data, headers, timeout):
+    """Offline stand-in for the cadastre service (see napr_client for the formats)."""
+    import json
+    wkt = ("POLYGON((44.800 41.700, 44.801 41.700, 44.801 41.701, "
+           "44.800 41.701, 44.800 41.700))")
+    if "portal/search" in url:
+        kw = data.decode("utf-8")
+        if "11.22.33.44" in kw:
+            return json.dumps({"result": [{
+                "name": "11.22.33.44", "descript": "Test street 1",
+                "resultlink": "x?lbl=lr_parcels:1&y"}]})
+        return json.dumps({"result": []})
+    if "getinfo2" in url:
+        return ('[{"id": 1, "name": "11.22.33.44", "descript": "Test street 1", '
+                '"distance": 12.5, "link": "x?lbl=lr_parcels:1"}]')
+    if "res=shp" in url:
+        return json.dumps({"data": [{"id": 1, "name": "11.22.33.44", "shape": wkt,
+                                     "proj": "EPSG:4326"}]})
+    return "<html><body>ფართობი 9 999.5 კვ.მ ნაკვეთის ტიპი სახნავი მისამართი x</body></html>"
+
+
+def test_cadastre():
+    section("georgian_cadastre (offline, fake service)")
+    from georgian_cadastre import napr_client, processing_algorithms as pa
+    napr_client.clear_cache()
+    pa.FETCH = _fake_cadastre_fetch
+    try:
+        res = run("georgian_cadastre:fetch_parcels", {
+            "CODES": "11.22.33.44, 99.99.99.99", "CRS": 0, "WITH_INFO": True,
+            "OUTPUT": "memory:"})
+        out = res["OUTPUT"]
+        check("one parcel fetched, one failed", out.featureCount() == 1 and res["FAILED"] == 1,
+              (out.featureCount(), res["FAILED"]))
+        check("auto CRS = UTM 38N", out.crs().authid() == "EPSG:32638", out.crs().authid())
+        f = next(out.getFeatures())
+        check("true area of 0.001 deg square at 41.7N (~9238 m2)", 9200 < f["area_m2"] < 9280,
+              f["area_m2"])
+        check("official area parsed", f["area_off"] == 9999.5, f["area_off"])
+        check("geometry is multipolygon", out.wkbType() in (
+            Qgis.WkbType.MultiPolygon, Qgis.WkbType.MultiPolygonZ) or "Multi" in
+            Qgis.WkbType(out.wkbType()).name, out.wkbType())
+
+        tbl = memlayer("None", "field=kod:string",
+                       [(None, ["11.22.33.44"]), (None, ["11.22.33.44"]), (None, [None])])
+        res = run("georgian_cadastre:fetch_parcels", {
+            "TABLE": tbl, "CODE_FIELD": "kod", "CRS": 3, "OUTPUT": "memory:"})
+        check("table codes (duplicates collapsed), WGS84 output",
+              res["OUTPUT"].featureCount() == 1 and res["OUTPUT"].crs().authid() == "EPSG:4326")
+
+        e = run("georgian_cadastre:fetch_parcels", {"OUTPUT": "memory:"}, expect_error=True)
+        check("no codes is rejected", "No cadastral codes" in str(e), e)
+
+        res = run("georgian_cadastre:parcels_near_point", {
+            "POINT": "44.8005,41.7005 [EPSG:4326]", "RADIUS": 50, "LIMIT": 5, "CRS": 1,
+            "OUTPUT": "memory:"})
+        out = res["OUTPUT"]
+        f = next(out.getFeatures())
+        check("near point: parcel with distance_m", out.featureCount() == 1 and f["distance_m"] == 12.5,
+              (out.featureCount(), f.attributes()))
+    finally:
+        pa.FETCH = None
+
+
+def test_basemap_and_cleaner():
+    section("basemap_loader + layer_cleaner (project)")
+    project = QgsProject.instance()
+    project.clear()
+    res = run("basemap_loader:add_basemap", {"BASEMAP": 0})
+    lyr = project.mapLayer(res["OUTPUT"])
+    check("OSM basemap added and valid", lyr is not None and lyr.isValid())
+    root = project.layerTreeRoot()
+    check("basemap is at the bottom", root.children()[-1].layerId() == lyr.id())
+    res2 = run("basemap_loader:add_basemap", {"BASEMAP": 0})
+    check("second run reuses the layer", res2["OUTPUT"] == lyr.id() and len(project.mapLayers()) == 1)
+    e = run("basemap_loader:add_basemap", {"BASEMAP": 2, "URL": "http://x/none.png"},
+            expect_error=True)
+    check("custom URL without {x}{y}{z} is rejected", "must contain" in str(e), e)
+    res3 = run("basemap_loader:add_basemap", {"BASEMAP": 2, "NAME": "mine",
+                                              "URL": "https://t.example/{z}/{x}/{y}.png"})
+    check("custom XYZ added", project.mapLayer(res3["OUTPUT"]).name() == "mine")
+
+    project.clear()
+    for n in ("Google Satellite Hybrid", "OpenStreetMap", "work1", "work2"):
+        project.addMapLayer(memlayer("Point", "field=a:integer", [("POINT(1 1)", [1])]).__class__(
+            "Point?crs=EPSG:4326", n, "memory"))
+    keep = [l for l in project.mapLayers().values() if l.name() == "work2"]
+    res = run("layer_cleaner:remove_layers", {"KEEP_LAYERS": keep})
+    names = sorted(l.name() for l in project.mapLayers().values())
+    check("removed work1 only", res["REMOVED"] == 1 and names == [
+        "Google Satellite Hybrid", "OpenStreetMap", "work2"], names)
+    res = run("layer_cleaner:add_base_layers", {})
+    check("base layers already present: nothing added", res["ADDED"] == "", res)
+    project.clear()
+
+
+TESTS = (test_model, test_cadastre, test_basemap_and_cleaner, test_transliterator, test_calc_geometry, test_transliterate_data, test_selection_tools)
 print("QGIS", Qgis.version())
 for t in TESTS:
     try:
