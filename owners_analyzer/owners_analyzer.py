@@ -26,9 +26,18 @@ class OwnersAnalyzerPlugin:
         self.plugin_dir = os.path.dirname(__file__)
         self.actions = []
         self.menu = 'მფლობელების ანალიზატორი'
-        self.toolbar = self.iface.addToolBar('მფლობელების ანალიზატორი')
-        self.toolbar.setObjectName('OwnersAnalyzerToolbar')
+        self.toolbar = None
         self.dialog = None
+        self.provider = None
+
+    def initProcessing(self):
+        """Register the Processing provider (also called headless by qgis_process)."""
+        if self.provider is not None:
+            return
+        from qgis.core import QgsApplication
+        from .processing_provider import OwnersAnalyzerProvider
+        self.provider = OwnersAnalyzerProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def add_action(
         self,
@@ -65,6 +74,9 @@ class OwnersAnalyzerPlugin:
 
     def initGui(self):
         """დანამატის ინტერფეისის ინიციალიზაცია."""
+        self.initProcessing()
+        self.toolbar = self.iface.addToolBar('მფლობელების ანალიზატორი')
+        self.toolbar.setObjectName('OwnersAnalyzerToolbar')
         icon_path = os.path.join(self.plugin_dir, 'icon.png')
         
         self.add_action(
@@ -77,10 +89,16 @@ class OwnersAnalyzerPlugin:
 
     def unload(self):
         """დანამატის გამორთვა."""
+        if self.provider is not None:
+            from qgis.core import QgsApplication
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         for action in self.actions:
             self.iface.removePluginMenu('მფლობელების ანალიზატორი', action)
             self.iface.removeToolBarIcon(action)
-        del self.toolbar
+        if self.toolbar is not None:
+            del self.toolbar
+            self.toolbar = None
 
     def run(self):
         """დანამატის გაშვება."""
