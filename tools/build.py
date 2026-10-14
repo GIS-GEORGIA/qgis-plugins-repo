@@ -9,6 +9,9 @@ already drifted apart:
   index.html           the plugin cards on https://plugins.qgis.ge
   catalog.json         the catalog read by the GIS Georgia Hub plugin (checksums, texts,
                        changelog, Processing algorithms, where to find each plugin)
+  catalog.json.sig     its Ed25519 signature (the Hub rejects a catalog that does not
+                       verify); written here when the private key is on this machine,
+                       otherwise run tools/sign_catalog.py
 
 Versions, names, descriptions and the QGIS compatibility range always come from each
 plugin's own metadata.txt. tools/plugins.json only carries what metadata.txt has no
@@ -493,6 +496,24 @@ def write_if_changed(path: str, data, check: bool, changed: list[str]) -> None:
         fh.write(data)
 
 
+def ensure_signature(check: bool) -> bool:
+    """Keep catalog.json.sig valid. True when it is out of date (check mode, or no key here)."""
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import sign_catalog
+
+    if check:
+        return sign_catalog.signature_state() != "ok"
+    if sign_catalog.signature_state() == "ok":
+        return False
+    seed = sign_catalog.load_seed()
+    if seed is None:
+        print("WARNING: catalog.json.sig is out of date and no signing key was found; "
+              "the Hub will reject the catalog until it is signed (tools/sign_catalog.py).")
+        return True
+    sign_catalog.sign(seed)
+    return False
+
+
 def main() -> int:
     # Plugin names/descriptions are UTF-8 (Georgian text, en dashes); a plain
     # Windows console (cp1252) would otherwise crash mid-run on the summary
@@ -548,6 +569,9 @@ def main() -> int:
     write_if_changed(INDEX_HTML, replace_site_block(html, render_site_block(entries)), args.check, changed)
 
     write_if_changed(CATALOG_JSON, build_catalog(entries, repo), args.check, changed)
+    sign_state = ensure_signature(args.check)
+    if sign_state:
+        changed.append("catalog.json.sig")
 
     for e in entries:
         md = e["metadata"]

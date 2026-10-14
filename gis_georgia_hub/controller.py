@@ -15,7 +15,7 @@ from qgis.core import Qgis, QgsApplication, QgsSettings, QgsTask
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 from qgis.PyQt.QtGui import QIcon
 
-from . import catalog, installer_core
+from . import catalog, installer_core, signing
 
 CATALOG_URL = "https://plugins.qgis.ge/catalog.json"
 REPO_NAME = "GIS GEORGIA"
@@ -53,18 +53,22 @@ class HubController(QObject):
     iconsChanged = pyqtSignal()
     progress = pyqtSignal(str, int, int)  # plugin name, index, total
 
-    def __init__(self, parent=None, fetch=None, catalog_url=None, cache_path=None):
+    def __init__(self, parent=None, fetch=None, catalog_url=None, cache_path=None, trusted_keys=None):
         super().__init__(parent)
+        self._trusted = trusted_keys
         self._fetch = fetch or installer_core.download
         self.catalog_url = (catalog_url or QgsSettings().value(S + "catalog_url", "", str)
                             or CATALOG_URL)
         self.cache_path = cache_path or os.path.join(
             QgsApplication.qgisSettingsDirPath(), "gis_georgia_hub", "catalog.json")
-        self.catalog = catalog.load_cache(self.cache_path)
+        self.catalog = catalog.load_cache(self.cache_path, self._verify)
         self.icon_dir = os.path.join(os.path.dirname(self.cache_path), "icons")
         self._icons_pending = False
         self._tasks = []
         self._busy = 0
+
+    def _verify(self, data: bytes, sig_text) -> None:
+        signing.verify_catalog(data, sig_text, self._trusted)
 
     # ---- state ------------------------------------------------------------
     @property
@@ -112,16 +116,17 @@ class HubController(QObject):
     # ---- catalog ----------------------------------------------------------
     def refresh(self, done=None):
         def work():
-            return self._fetch(self.catalog_url).decode("utf-8")
+            return catalog.fetch_verified(self._fetch, self.catalog_url, self._verify)
 
-        def finished(text, error):
+        def finished(result, error):
             if error is None:
+                text, sig_text = result
                 try:
                     doc = catalog.parse_catalog(text)
                 except catalog.CatalogError as exc:
                     error = exc
                 else:
-                    catalog.save_cache(self.cache_path, text)
+                    catalog.save_cache(self.cache_path, text, sig_text)
                     self.catalog = doc
                     QgsSettings().setValue(S + "last_catalog", int(time.time()))
                     self.catalogChanged.emit()
@@ -132,7 +137,6 @@ class HubController(QObject):
                 done(error is None)
 
         self._run("GIS Georgia Hub: catalog", work, finished)
-
 
     # ---- icons ------------------------------------------------------------
     def _icon_file(self, entry: dict):

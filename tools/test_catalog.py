@@ -83,6 +83,14 @@ class CatalogFile(unittest.TestCase):
             self.assertTrue(p["changelog"], p["id"])
             self.assertEqual(p["changelog"][0]["version"], p["version"], p["id"])
 
+    def test_catalog_signature_is_valid(self):
+        sys.path.insert(0, ROOT)
+        from gis_georgia_hub import signing
+        with open(os.path.join(ROOT, "catalog.json"), "rb") as fh:
+            raw = fh.read()
+        with open(os.path.join(ROOT, "catalog.json.sig"), encoding="utf-8") as fh:
+            signing.verify_catalog(raw, fh.read())
+
     def test_processing_ids_are_provider_prefixed(self):
         total = 0
         for p in CATALOG["plugins"]:

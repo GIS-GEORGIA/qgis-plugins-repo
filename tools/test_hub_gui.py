@@ -50,8 +50,8 @@ def local_fetch(url):
     """Serve our own catalog.json and zips instead of plugins.qgis.ge."""
     installer_core.check_url(url)  # same https + host rules as production
     clean = url.split("?")[0].split("://", 1)[1].split("/", 1)[1]  # path on the host
-    if clean == "catalog.json":
-        path = os.path.join(ROOT, "catalog.json")
+    if clean in ("catalog.json", "catalog.json.sig"):
+        path = os.path.join(ROOT, clean)
     elif clean.startswith("plugins/"):
         path = os.path.join(ROOT, clean)
     else:  # icons are served from the plugin source folders
@@ -266,6 +266,45 @@ def run():
     ctl2.refresh()
     check("failed refresh reports the error and keeps the copy",
           pump(lambda: bool(errs)) and errs[0][1] is True and len(ctl2.plugins) == n, errs)
+
+    # --- signature ------------------------------------------------------------
+    def tampered(url):
+        data = local_fetch(url)
+        return data.replace(b"GIS", b"gis", 1) if url.endswith("catalog.json") else data
+
+    def unsigned(url):
+        if url.endswith(".sig"):
+            raise installer_core.InstallError("404")
+        return local_fetch(url)
+
+    def other_key(url):
+        data = local_fetch(url)
+        if url.endswith(".sig"):
+            doc = json.loads(data)
+            doc["key_id"] = "deadbeef"
+            return json.dumps(doc).encode()
+        return data
+
+    before = open(cache, "rb").read()
+    for label, fetcher, needle in (("altered catalog", tampered, "does not match"),
+                                   ("unsigned catalog", unsigned, "404"),
+                                   ("unknown signing key", other_key, "unknown key")):
+        c3 = ctl_mod.HubController(fetch=fetcher, cache_path=cache)
+        errs = []
+        c3.catalogError.connect(lambda e, have, errs=errs: errs.append((e, have)))
+        c3.refresh()
+        check("refuses an " + label if label != "unsigned catalog" else "refuses an unsigned catalog",
+              pump(lambda errs=errs: bool(errs)) and needle in errs[0][0] and errs[0][1] is True, errs)
+    check("a refused catalog never replaces the cache", open(cache, "rb").read() == before)
+
+    with open(cache, "a", encoding="utf-8") as fh:  # tamper with the offline copy
+        fh.write(" ")
+    c4 = ctl_mod.HubController(fetch=broken, cache_path=cache)
+    check("an edited offline copy is not trusted", c4.catalog is None)
+    with open(cache, "wb") as fh:
+        fh.write(before)
+    check("the intact offline copy is trusted again",
+          ctl_mod.HubController(fetch=broken, cache_path=cache).catalog is not None)
 
     # --- repository registration --------------------------------------------
     s = QgsSettings()

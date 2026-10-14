@@ -48,21 +48,49 @@ def parse_catalog(text: str) -> dict:
 
 # --------------------------------------------------------------------------- cache
 
-def save_cache(path: str, text: str) -> None:
+def save_cache(path: str, text: str, sig_text=None) -> None:
+    """Write the catalog (and its signature next to it as <path>.sig)."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8", newline="") as fh:
-        fh.write(text)
-    os.replace(tmp, path)
+    for target, content in ((path, text), (path + ".sig", sig_text)):
+        if content is None:
+            continue
+        tmp = target + ".tmp"
+        with open(tmp, "w", encoding="utf-8", newline="") as fh:
+            fh.write(content)
+        os.replace(tmp, target)
 
 
-def load_cache(path: str):
-    """The cached catalog dict, or None when missing or unreadable."""
+def load_cache(path: str, verifier=None):
+    """The cached catalog dict, or None when missing, unreadable or (with a ``verifier``)
+    not matching its cached signature. ``verifier(bytes, sig_text)`` raises on failure."""
     try:
-        with open(path, encoding="utf-8") as fh:
-            return parse_catalog(fh.read())
-    except (OSError, CatalogError):
+        with open(path, "rb") as fh:
+            raw = fh.read()
+        if verifier is not None:
+            try:
+                with open(path + ".sig", encoding="utf-8") as fh:
+                    sig_text = fh.read()
+            except OSError:
+                return None
+            verifier(raw, sig_text)
+        return parse_catalog(raw.decode("utf-8"))
+    except (OSError, CatalogError, UnicodeDecodeError, ValueError):
         return None
+    except Exception:  # noqa: BLE001 - e.g. a SignatureError: treat the cache as unusable
+        return None
+
+
+def fetch_verified(fetch, url: str, verifier=None):
+    """Download ``url`` and ``url + '.sig'``; verify; return (text, sig_text).
+
+    Raises whatever ``verifier`` raises (the caller shows the message) or CatalogError."""
+    raw = fetch(url)
+    sig_text = fetch(url + ".sig").decode("utf-8", "replace") if verifier is not None else None
+    if verifier is not None:
+        verifier(raw, sig_text)
+    text = raw.decode("utf-8")
+    parse_catalog(text)  # fail early on a broken document
+    return text, sig_text
 
 
 # --------------------------------------------------------------------------- versions
