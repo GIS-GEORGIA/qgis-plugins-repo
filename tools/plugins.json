@@ -7,6 +7,38 @@
   },
   "plugins": [
     {
+      "id": "gis-georgia-hub",
+      "source": "gis_georgia_hub",
+      "folder": "gis_georgia_hub",
+      "zip": "gis_georgia_hub.zip",
+      "site": {
+        "emoji": "🧭",
+        "ka_name": "GIS Georgia — დანამატების ცენტრი",
+        "status": "new",
+        "featured": true,
+        "bilingual": true,
+        "en": "The catalog of the GIS GEORGIA plugins inside QGIS: search, read what each plugin does and where to find it, open its Processing algorithms, and install, update or remove it with a click. Checksum-verified downloads; update notice at start-up.",
+        "ka": "GIS GEORGIA-ს დანამატების კატალოგი QGIS-ში: მოძებნე, ნახე რას აკეთებს თითოეული და სად მოიძებნება, გახსენი მისი Processing-ის ალგორითმები და დააყენე, განაახლე ან წაშალე ერთი დაჭერით. ჩამოწერა ჰეშის შემოწმებით; განახლებაზე შეტყობინება QGIS-ის გაშვებისას.",
+        "tags": [
+          "catalog",
+          "install",
+          "update",
+          "plugins",
+          "hub"
+        ]
+      },
+      "usage": {
+        "en": "Plugins menu (GIS Georgia) and the toolbar button.",
+        "ka": "მენიუ „დანამატები“ (GIS Georgia) და ხელსაწყოთა პანელის ღილაკი."
+      },
+      "requires": [
+        {
+          "en": "Internet access to load the catalog and download plugins.",
+          "ka": "ინტერნეტი კატალოგის ჩასატვირთად და დანამატების ჩამოსაწერად."
+        }
+      ]
+    },
+    {
       "id": "plugin-downloader",
       "source": "plugin_downloader",
       "folder": "plugin_downloader",
