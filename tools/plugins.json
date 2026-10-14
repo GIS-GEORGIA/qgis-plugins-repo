@@ -26,7 +26,17 @@
           "batch",
           "mirror"
         ]
-      }
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button.",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი."
+      },
+      "requires": [
+        {
+          "en": "Internet access.",
+          "ka": "ინტერნეტი."
+        }
+      ]
     },
     {
       "id": "transliterate-data",
@@ -49,6 +59,10 @@
           "geopackage",
           "filegdb"
         ]
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
       }
     },
     {
@@ -72,6 +86,10 @@
           "postgis",
           "filegdb"
         ]
+      },
+      "usage": {
+        "en": "Right-click a vector layer in the Layers panel, then Selection; Vector menu; Processing Toolbox.",
+        "ka": "ფენების პანელში ვექტორულ ფენაზე მარჯვენა კლიკი, შემდეგ „მონიშვნა“; მენიუ „ვექტორი“; Processing Toolbox."
       }
     },
     {
@@ -99,7 +117,17 @@
           "layout",
           "wms"
         ]
-      }
+      },
+      "usage": {
+        "en": "Web menu and the Web toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „ვები“ და ვების პანელის ღილაკი; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "Internet access (public cadastre service).",
+          "ka": "ინტერნეტი (საჯარო საკადასტრო სერვისი)."
+        }
+      ]
     },
     {
       "id": "postgis-manager",
@@ -123,7 +151,25 @@
           "pgrouting",
           "wfs"
         ]
-      }
+      },
+      "usage": {
+        "en": "Toolbar button and Plugins menu; Processing Toolbox.",
+        "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "A PostgreSQL / PostGIS server and psycopg2 (included with QGIS).",
+          "ka": "PostgreSQL / PostGIS სერვერი და psycopg2 (მოყვება QGIS-ს)."
+        },
+        {
+          "en": "pg_dump, pg_restore and psql for backup and restore (included in the Windows QGIS installer).",
+          "ka": "pg_dump, pg_restore და psql ასლისა და აღდგენისთვის (Windows-ის QGIS-ის ინსტალერში შედის)."
+        },
+        {
+          "en": "geopandas and shapely for the import algorithm (optional).",
+          "ka": "geopandas და shapely იმპორტის ალგორითმისთვის (არასავალდებულო)."
+        }
+      ]
     },
     {
       "id": "devbridge",
@@ -147,6 +193,10 @@
           "pycharm",
           "development"
         ]
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button (control panel).",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი (მართვის პანელი)."
       }
     },
     {
@@ -170,7 +220,21 @@
           "saga",
           "grass"
         ]
-      }
+      },
+      "usage": {
+        "en": "Toolbar button and Plugins menu; Processing Toolbox.",
+        "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "SAGA and GRASS Processing providers (included in the QGIS installer).",
+          "ka": "SAGA და GRASS Processing-ის მოდულები (QGIS-ის ინსტალერში შედის)."
+        },
+        {
+          "en": "WindNinja for wind downscaling (optional).",
+          "ka": "WindNinja ქარის ველის დეტალიზაციისთვის (არასავალდებულო)."
+        }
+      ]
     },
     {
       "id": "calculate-geometry",
@@ -191,6 +255,10 @@
           "perimeter",
           "coordinates"
         ]
+      },
+      "usage": {
+        "en": "Vector menu and the Vector toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „ვექტორი“ და ვექტორის პანელის ღილაკი; Processing Toolbox."
       }
     },
     {
@@ -211,6 +279,10 @@
           "statistics",
           "filter"
         ]
+      },
+      "usage": {
+        "en": "Plugins menu and its own toolbar; Processing Toolbox.",
+        "ka": "მენიუ „დანამატები“ და საკუთარი ხელსაწყოთა პანელი; Processing Toolbox."
       }
     },
     {
@@ -231,7 +303,17 @@
           "basemap",
           "cleanup"
         ]
-      }
+      },
+      "usage": {
+        "en": "Its own toolbar and the Plugins menu; Processing Toolbox.",
+        "ka": "საკუთარი ხელსაწყოთა პანელი და მენიუ „დანამატები“; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "Internet access for the base layers.",
+          "ka": "ინტერნეტი საბაზო ფენებისთვის."
+        }
+      ]
     },
     {
       "id": "basemap-loader",
@@ -251,7 +333,17 @@
           "osm",
           "crs"
         ]
-      }
+      },
+      "usage": {
+        "en": "Toolbar button; Processing Toolbox.",
+        "ka": "ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "Internet access for the tiles.",
+          "ka": "ინტერნეტი ფილების ჩასატვირთად."
+        }
+      ]
     },
     {
       "id": "save-attributes",
@@ -271,6 +363,10 @@
           "csv",
           "export"
         ]
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
       }
     },
     {
@@ -291,6 +387,10 @@
           "georgian",
           "latin"
         ]
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
       }
     },
     {
@@ -316,7 +416,17 @@
           "raw",
           "geopackage"
         ]
-      }
+      },
+      "usage": {
+        "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+        "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+      },
+      "requires": [
+        {
+          "en": "ExifTool for RAW and HEIC files (optional; a built-in writer is used otherwise).",
+          "ka": "ExifTool RAW და HEIC ფაილებისთვის (არასავალდებულო; მის გარეშე ჩაშენებული მეთოდი გამოიყენება)."
+        }
+      ]
     }
   ]
 }

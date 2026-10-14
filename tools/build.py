@@ -7,6 +7,8 @@ already drifted apart:
   plugins/<name>.zip   built from the plugin's source directory
   plugins.xml          the QGIS custom-repository feed
   index.html           the plugin cards on https://plugins.qgis.ge
+  catalog.json         the catalog read by the GIS Georgia Hub plugin (checksums, texts,
+                       changelog, Processing algorithms, where to find each plugin)
 
 Versions, names, descriptions and the QGIS compatibility range always come from each
 plugin's own metadata.txt. tools/plugins.json only carries what metadata.txt has no
@@ -19,8 +21,10 @@ place for: the source directory, the ZIP name, and the presentation copy for the
 from __future__ import annotations
 
 import argparse
+import ast
 import configparser
 import fnmatch
+import hashlib
 import io
 import json
 import os
@@ -34,6 +38,8 @@ MANIFEST = os.path.join(ROOT, "tools", "plugins.json")
 PLUGINS_DIR = os.path.join(ROOT, "plugins")
 PLUGINS_XML = os.path.join(ROOT, "plugins.xml")
 INDEX_HTML = os.path.join(ROOT, "index.html")
+CATALOG_JSON = os.path.join(ROOT, "catalog.json")
+CATALOG_SCHEMA = 1
 
 SKIP_DIRS = {"__pycache__", ".git", ".venv", "venv", "node_modules", ".pytest_cache"}
 SKIP_EXTS = {".pyc", ".pyo", ".pyd"}
@@ -221,6 +227,226 @@ def replace_site_block(html: str, block: str) -> str:
     return legacy.sub(lambda _m: block, html)
 
 
+# --------------------------------------------------------------------------- catalog
+
+_VERSION_START = re.compile(r"^\s*v?(\d+(?:\.\d+)+)\b")
+
+
+def parse_changelog(value: str) -> list[dict]:
+    """[{version, text}] from a metadata.txt changelog (one entry per version line)."""
+    entries: list[dict] = []
+    for raw in value.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        m = _VERSION_START.match(line)
+        if m:
+            text = line[m.end():].lstrip(" -\u2013\u2014:").strip()
+            entries.append({"version": m.group(1), "text": text})
+        elif entries:
+            bullet = line.lstrip("-\u2022 ").strip()
+            entries[-1]["text"] = (entries[-1]["text"] + " " + bullet).strip()
+    return entries
+
+
+def _const_str(node, consts: dict):
+    """A string for a literal, a ``self.ATTR`` / module constant, or the first argument of
+    a call such as ``self.tr('x')`` / ``_tr('key')``."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.Call) and node.args:
+        return _const_str(node.args[0], consts)
+    if isinstance(node, ast.Name):
+        return consts.get(node.id)
+    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in ("self", "cls"):
+        return consts.get(node.attr)
+    return None
+
+
+def _returned(method: ast.FunctionDef, consts: dict):
+    for node in ast.walk(method):
+        if isinstance(node, ast.Return) and node.value is not None:
+            val = _const_str(node.value, consts)
+            if val is not None:
+                return val
+    return None
+
+
+def _string_assigns(body) -> dict:
+    out = {}
+    for n in body:
+        if isinstance(n, ast.Assign) and isinstance(n.value, ast.Constant) \
+                and isinstance(n.value.value, str):
+            for t in n.targets:
+                if isinstance(t, ast.Name):
+                    out[t.id] = n.value.value
+    return out
+
+
+def _i18n_english(trees) -> dict:
+    """{key: english text} from dict literals like {"key": ("ka text", "English text")}."""
+    out = {}
+    for tree in trees:
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Dict):
+                continue
+            for k, v in zip(node.keys, node.values):
+                if isinstance(k, ast.Constant) and isinstance(k.value, str) \
+                        and isinstance(v, (ast.Tuple, ast.List)):
+                    texts = [e.value for e in v.elts
+                             if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+                    ascii_texts = [t for t in texts if t and t.isascii()]
+                    if ascii_texts:
+                        out[k.value] = ascii_texts[0]
+    return out
+
+
+def scan_processing(sources: list[tuple[str, str]]) -> dict | None:
+    """Find the Processing provider and its algorithms by reading the plugin's code.
+
+    Static (nothing is imported or run): a class with ``id()`` and ``loadAlgorithms()`` is
+    the provider; a class with ``name()``, ``displayName()`` and ``createInstance()`` -
+    its own or inherited from a class in the same file - is an algorithm. Constants,
+    class attributes and the plugin's i18n tables are resolved so that titles come out
+    as English text. Returns None when the plugin has no provider."""
+    trees = []
+    for rel, text in sources:
+        parts = rel.replace("\\", "/").split("/")
+        if "tests" in parts or "test" in parts:
+            continue
+        try:
+            trees.append(ast.parse(text))
+        except SyntaxError:
+            continue
+    english = _i18n_english(trees)
+
+    def human(value):
+        return english.get(value, value) if value is not None else None
+
+    providers: list[tuple[str, str]] = []
+    algs: list[dict] = []
+    for tree in trees:
+        module_consts = _string_assigns(tree.body)
+        classes = {n.name: n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)}
+
+        def lineage(cls):
+            """(methods, consts) of the class merged over its same-file base classes."""
+            methods, consts = {}, dict(module_consts)
+            for base in cls.bases:
+                bname = base.id if isinstance(base, ast.Name) else None
+                if bname in classes and classes[bname] is not cls:
+                    bm, bc = lineage(classes[bname])
+                    methods.update(bm)
+                    consts.update(bc)
+            methods.update({n.name: n for n in cls.body if isinstance(n, ast.FunctionDef)})
+            consts.update(_string_assigns(cls.body))
+            return methods, consts
+
+        for cls in classes.values():
+            methods, consts = lineage(cls)
+            if "id" in methods and "loadAlgorithms" in methods:
+                pid = _returned(methods["id"], consts)
+                if pid:
+                    pname = human(_returned(methods["name"], consts)) if "name" in methods else None
+                    providers.append((pid, pname or pid))
+            elif {"name", "displayName", "createInstance"} <= methods.keys():
+                name = _returned(methods["name"], consts)
+                title = human(_returned(methods["displayName"], consts))
+                if name:
+                    algs.append({"name": name, "title": title or name})
+    if not providers:
+        return None
+    pid, pname = providers[0]
+    seen, out = set(), []
+    for a in sorted(algs, key=lambda a: a["name"]):
+        if a["name"] in seen:
+            continue
+        seen.add(a["name"])
+        out.append({"id": f"{pid}:{a['name']}", "title": a["title"]})
+    return {"provider": pid, "provider_name": pname, "algorithms": out}
+
+
+def plugin_sources(plugin: dict) -> list[tuple[str, str]]:
+    """(relative path, text) of the plugin's Python files, from source or from its zip."""
+    out = []
+    if plugin.get("source"):
+        source_dir = os.path.join(ROOT, plugin["source"])
+        for abs_path, rel in collect_files(source_dir, plugin.get("exclude", [])):
+            if rel.endswith(".py"):
+                with open(abs_path, encoding="utf-8", errors="replace") as fh:
+                    out.append((rel, fh.read()))
+    else:
+        zip_path = os.path.join(PLUGINS_DIR, plugin["zip"])
+        with zipfile.ZipFile(zip_path) as zf:
+            for name in zf.namelist():
+                if name.endswith(".py"):
+                    out.append((name.split("/", 1)[1] if "/" in name else name,
+                                zf.read(name).decode("utf-8", errors="replace")))
+    return out
+
+
+def bool_meta(value: str) -> bool:
+    return str(value).strip().lower() in ("1", "true", "yes")
+
+
+def build_catalog(entries: list[dict], repo: dict) -> str:
+    base_url = repo["base_url"].rstrip("/")
+    plugins = []
+    for e in entries:
+        plugin, md, site = e["plugin"], e["metadata"], e["plugin"]["site"]
+        zip_path = os.path.join(PLUGINS_DIR, plugin["zip"])
+        with open(zip_path, "rb") as fh:
+            blob = fh.read()
+        item = {
+            "id": plugin["folder"],
+            "catalog_id": plugin["id"],
+            "name": md["name"],
+            "name_ka": site["ka_name"],
+            "version": md["version"],
+            "summary": first_line(md.get("description", "")),
+            "description": {"en": site["en"], "ka": site["ka"]},
+            "status": site["status"],
+            "featured": site["featured"],
+            "bilingual": site.get("bilingual", False),
+            "emoji": site["emoji"],
+            "category": md.get("category", ""),
+            "tags": site["tags"],
+            "author": md.get("author", ""),
+            "qgis_min": md.get("qgisMinimumVersion", ""),
+            "qgis_max": md.get("qgisMaximumVersion", ""),
+            "qt6": bool_meta(md.get("supportsQt6", "")),
+            "homepage": md.get("homepage", repo["homepage"]),
+            "repository": md.get("repository", repo["homepage"]),
+            "tracker": md.get("tracker", ""),
+            "icon_url": e.get("icon_url"),
+            "vendored": bool(plugin.get("vendored")),
+            "download": {
+                "url": e["download_url"],
+                "file": plugin["zip"],
+                "sha256": hashlib.sha256(blob).hexdigest(),
+                "size": len(blob),
+            },
+            "changelog": parse_changelog(md.get("changelog", "")),
+            "usage": plugin.get("usage", {"en": "", "ka": ""}),
+            "requires": plugin.get("requires", []),
+            "processing": scan_processing(plugin_sources(plugin)),
+        }
+        plugins.append(item)
+    doc = {
+        "schema": CATALOG_SCHEMA,
+        "generator": "tools/build.py",
+        "repository": {
+            "name": repo["name"],
+            "base_url": base_url,
+            "homepage": repo["homepage"],
+            "plugins_xml": f"{base_url}/plugins.xml",
+            "catalog": f"{base_url}/catalog.json",
+        },
+        "plugins": plugins,
+    }
+    return json.dumps(doc, ensure_ascii=False, indent=1) + "\n"
+
+
 # --------------------------------------------------------------------------- driver
 
 
@@ -319,6 +545,8 @@ def main() -> int:
     with open(INDEX_HTML, encoding="utf-8", newline="") as fh:
         html = fh.read()
     write_if_changed(INDEX_HTML, replace_site_block(html, render_site_block(entries)), args.check, changed)
+
+    write_if_changed(CATALOG_JSON, build_catalog(entries, repo), args.check, changed)
 
     for e in entries:
         md = e["metadata"]
