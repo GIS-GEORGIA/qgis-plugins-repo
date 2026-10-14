@@ -39,6 +39,39 @@
       ]
     },
     {
+      "id": "qgis-environment-manager",
+      "source": "qgis_environment_manager",
+      "folder": "qgis_environment_manager",
+      "zip": "qgis_environment_manager.zip",
+      "site": {
+        "emoji": "🩺",
+        "ka_name": "QGIS-ის გარემო",
+        "status": "new",
+        "featured": true,
+        "bilingual": true,
+        "en": "What this QGIS is and how it was installed, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (PostgreSQL client tools, ExifTool, SAGA, GRASS) - with a reviewed one-step install on Linux. Copyable report for support.",
+        "ka": "რა QGIS გაქვთ და როგორ არის დაყენებული; თქვენი დანამატებიდან რომელი აცხადებს QGIS 4-ის მხარდაჭერას; რა სჭირდება GIS GEORGIA-ს დანამატებს სისტემიდან (PostgreSQL-ის კლიენტი, ExifTool, SAGA, GRASS). Linux-ზე რაც აკლია, იმის დაყენება ბრძანებების გადახედვის შემდეგ. ანგარიში მხარდაჭერისთვის კოპირდება.",
+        "tags": [
+          "qgis",
+          "environment",
+          "diagnostics",
+          "qgis4",
+          "compatibility",
+          "requirements"
+        ]
+      },
+      "usage": {
+        "en": "Plugins menu (QGIS Environment Manager) and the toolbar button.",
+        "ka": "მენიუ „დანამატები“ (QGIS Environment Manager) და ხელსაწყოთა პანელის ღილაკი."
+      },
+      "requires": [
+        {
+          "en": "Diagnostics and the plugin table work on every system; installing system packages works on Linux with a system (not Flatpak or Snap) QGIS.",
+          "ka": "დიაგნოსტიკა და დანამატების ცხრილი ყველა სისტემაზე მუშაობს. სისტემური პაკეტების დაყენება მუშაობს Linux-ზე, სისტემური QGIS-ით (არა Flatpak ან Snap)."
+        }
+      ]
+    },
+    {
       "id": "plugin-downloader",
       "source": "plugin_downloader",
       "folder": "plugin_downloader",
