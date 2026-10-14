@@ -1,0 +1,1238 @@
+{
+ "schema": 1,
+ "generator": "tools/build.py",
+ "repository": {
+  "name": "GIS GEORGIA",
+  "base_url": "https://plugins.qgis.ge",
+  "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+  "plugins_xml": "https://plugins.qgis.ge/plugins.xml",
+  "catalog": "https://plugins.qgis.ge/catalog.json"
+ },
+ "plugins": [
+  {
+   "id": "plugin_downloader",
+   "catalog_id": "plugin-downloader",
+   "name": "Plugin Downloader",
+   "name_ka": "დანამატების ჩამომტვირთავი",
+   "version": "1.0.3",
+   "summary": "Download all QGIS plugins into one folder, with progress and pause/resume.",
+   "description": {
+    "en": "Download every QGIS plugin into one folder from the official repository — with overall and per-file progress and pause / resume / stop. Runs as a QGIS plugin and as a standalone PyQt app. Bilingual EN/KA.",
+    "ka": "ჩამოწერე ყველა QGIS დანამატი ერთ საქაღალდეში ოფიციალური რეპოზიტორიიდან — საერთო და თითო ფაილის პროგრესით და pause / resume / stop-ით. მუშაობს QGIS დანამატადაც და ცალკე PyQt პროგრამადაც. ორენოვანი EN/KA."
+   },
+   "status": "new",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "📥",
+   "category": "Plugins",
+   "tags": [
+    "download",
+    "plugins",
+    "repository",
+    "batch",
+    "mirror"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.0",
+   "qgis_max": "4.99",
+   "qt6": false,
+   "homepage": "https://gis-georgia.github.io/qgis-plugin-downloader/",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugin-downloader",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugin-downloader/issues",
+   "icon_url": "https://plugins.qgis.ge/plugin_downloader/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/plugin_downloader.zip?v=1.0.3",
+    "file": "plugin_downloader.zip",
+    "sha256": "6c51e1eb438f6e9652febbe497e99d6867b81551ac94c80c00875bd4a3b6e325",
+    "size": 11851
+   },
+   "changelog": [
+    {
+     "version": "1.0.3",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.0.2",
+     "text": "Georgian UI now says \"დანამატი\" instead of \"ფლაგინი\". The toolbar button and menu entry were hardcoded in Georgian and ignored the language setting; they and the dialog title now go through the translation table, so an English UI stays English."
+    },
+    {
+     "version": "1.0.1",
+     "text": "Inside QGIS, Qt now comes from qgis.PyQt rather than importing PyQt6/PyQt5 directly, so the plugin always uses exactly the Qt that QGIS itself was built against. Standalone use is unchanged (PyQt6, falling back to PyQt5)."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button.",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი."
+   },
+   "requires": [
+    {
+     "en": "Internet access.",
+     "ka": "ინტერნეტი."
+    }
+   ],
+   "processing": null
+  },
+  {
+   "id": "transliterate_data",
+   "catalog_id": "transliterate-data",
+   "name": "Transliterate Data",
+   "name_ka": "სახელების ტრანსლიტერაცია",
+   "version": "0.3.1",
+   "summary": "Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become \"_\". Preview first, then apply in place or on a copy.",
+   "description": {
+    "en": "Batch-transliterate Georgian names to clean Latin across a folder: shapefiles (+sidecars), database files (gpkg/sqlite/gdb), and inside them layers/feature classes and field names. Non-letter symbols become “_”. Preview first, then apply in place or on a copy.",
+    "ka": "ქართული სახელების მასობრივი ტრანსლიტერაცია სუფთა ლათინურზე მთელ საქაღალდეში: shapefile-ები (+sidecar), ბაზის ფაილები (gpkg/sqlite/gdb) და მათ შიგნით შრეები/feature class-ები და ველები. სხვა სიმბოლოები → „_“. ჯერ გადახედვა, მერე ადგილზე ან ასლზე."
+   },
+   "status": "experimental",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "🔡",
+   "category": "Vector",
+   "tags": [
+    "transliteration",
+    "georgian",
+    "rename",
+    "batch",
+    "geopackage",
+    "filegdb"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/transliterate_data/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/transliterate_data.zip?v=0.3.1",
+    "file": "transliterate_data.zip",
+    "sha256": "d34fe964f1077755176c859c53ef58a689d0a03b526b85c876afed290f1c44ba",
+    "size": 22620
+   },
+   "changelog": [
+    {
+     "version": "0.3.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Processing algorithm \"Transliterate data folder\" (Toolbox, Model Builder, qgis_process, Python): preview, copy or in-place rename."
+    },
+    {
+     "version": "0.2.1",
+     "text": "Wording only: \"პლაგინი\" is now \"დანამატი\" in the bundled README."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "0.1.0",
+     "text": "First release. Directory scan; shapefiles (+sidecars), gpkg/sqlite/gdb files, and their layers/feature classes and field names; Georgian national transliteration with symbol→\"_\" and collision handling; preview table; in-place or copy mode; bilingual ka/en."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "transliterate_data",
+    "provider_name": "Transliterate Data",
+    "algorithms": [
+     {
+      "id": "transliterate_data:transliterate_folder",
+      "title": "Transliterate data folder"
+     }
+    ]
+   }
+  },
+  {
+   "id": "selection_tools",
+   "catalog_id": "selection-tools",
+   "name": "Selection Tools",
+   "name_ka": "მონიშვნის ხელსაწყოები",
+   "version": "0.3.1",
+   "summary": "ArcGIS Pro-style \"Selection\" submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
+   "description": {
+    "en": "ArcGIS Pro-style “Selection” submenu on the layer context menu. Star tool: Make Layer From Selected Features — a new layer on the SAME source (no file written), saved with the project. Robust across GeoPackage, PostGIS, Shapefile and FileGDB.",
+    "ka": "ArcGIS Pro-ს „Selection“ ქვემენიუს ანალოგი შრის მარჯვენა-კლიკის მენიუში. მთავარი: შრის შექმნა მონიშნულებიდან — ახალი შრე იმავე პირველწყაროთი (ფაილი არ იქმნება), ინახება პროექტში. მუშაობს GeoPackage, PostGIS, Shapefile და FileGDB-ზე."
+   },
+   "status": "experimental",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "🎯",
+   "category": "Vector",
+   "tags": [
+    "selection",
+    "definition query",
+    "subset",
+    "arcgis",
+    "postgis",
+    "filegdb"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/selection_tools/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/selection_tools.zip?v=0.3.1",
+    "file": "selection_tools.zip",
+    "sha256": "1f0ac0ebbb7b0995997bc8313ab00ea13165c6be3167ee4e79f78f69d4dfd99b",
+    "size": 20617
+   },
+   "changelog": [
+    {
+     "version": "0.3.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Make layer from selected features, Definition query from selection, Add auto-increment key."
+    },
+    {
+     "version": "0.2.1",
+     "text": "Wording only: \"პლაგინი\" is now \"დანამატი\" in the bundled README, NOTICE and comments."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "0.1.0",
+     "text": "First release. ArcGIS-style Selection submenu; Make Layer From Selected Features on the same source (no file written), saved with the project. Self-verifying key selection: real PK (GeoPackage fid / PostGIS gid / FileGDB OBJECTID) -> unique attribute field -> OGR FID -> $id/\"fid\", each probe-verified so no empty layer is ever created silently. When a shapefile has no usable key, offers to add an auto-increment field (sel_uid). Bilingual ka/en."
+    }
+   ],
+   "usage": {
+    "en": "Right-click a vector layer in the Layers panel, then Selection; Vector menu; Processing Toolbox.",
+    "ka": "ფენების პანელში ვექტორულ ფენაზე მარჯვენა კლიკი, შემდეგ „მონიშვნა“; მენიუ „ვექტორი“; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "selection_tools",
+    "provider_name": "Selection Tools",
+    "algorithms": [
+     {
+      "id": "selection_tools:add_autoincrement_key",
+      "title": "Add auto-increment key to source"
+     },
+     {
+      "id": "selection_tools:definition_query_from_selection",
+      "title": "Definition query from selection"
+     },
+     {
+      "id": "selection_tools:layer_from_selection",
+      "title": "Make layer from selected features"
+     }
+    ]
+   }
+  },
+  {
+   "id": "georgian_cadastre",
+   "catalog_id": "georgian-cadastre",
+   "name": "Georgian Cadastre",
+   "name_ka": "ქართული კადასტრი",
+   "version": "0.5.1",
+   "summary": "Georgian cadastre toolkit for QGIS: fetch parcels by code from the public cadastre service, and prepare full cadastral survey drawings — UTM 37N/38N templates, WMS/WMTS services, name-based styles, Georgian fonts, an A4 layout with dynamic fields, an Excel attachment and a one-click packaged export.",
+   "description": {
+    "en": "Fetch cadastral parcels by code from the public cadastre service — single, batch and map-click lookup — and prepare the full survey drawing: UTM 37N/38N templates, WMS/WMTS services, name-based styles, A4 layout, Excel attachment and one-click packaged export.",
+    "ka": "ნაკვეთის ჩამოწერა საკადასტრო კოდით საჯარო საკადასტრო სერვისიდან — ერთი, სია (batch) და რუკიდან — და საკადასტრო აგეგმვითი/აზომვითი ნახაზის სრული მომზადება: UTM 37N/38N შაბლონები, WMS/WMTS სერვისები, სტილები, A4 layout, ექსელის დანართი და ერთ-ღილაკიანი შეფუთული ექსპორტი."
+   },
+   "status": "experimental",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "🗺️",
+   "category": "Web",
+   "tags": [
+    "cadastre",
+    "parcel",
+    "utm",
+    "survey",
+    "layout",
+    "wms"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/georgian_cadastre/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/georgian_cadastre.zip?v=0.5.1",
+    "file": "georgian_cadastre.zip",
+    "sha256": "b1c71e5bd56db84a481d1443c2c8190e9d13b64e95f06838e8528f4c27d5c7c1",
+    "size": 96557
+   },
+   "changelog": [
+    {
+     "version": "0.5.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.5.0",
+     "text": "Processing algorithms (Toolbox, Model Builder, qgis_process, Python): \"Fetch parcels by cadastral code\" (codes from text or a table) and \"Fetch parcels near a point\"."
+    },
+    {
+     "version": "0.4.1",
+     "text": "Clearer fetch errors: when the cadastre service returns an \"Access Denied\"/HTML page or is down, fetch-by-code and batch now show a plain \"service unavailable / try later\" message (KA/EN) instead of a confusing \"Invalid response\". Area/radius search is unaffected. (The service itself has been unreliable lately — this is upstream, not the plugin.)"
+    },
+    {
+     "version": "0.4.0",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "0.3.4",
+     "text": "Neutral naming: the data-source brand is no longer shown in the UI (hints, labels, layer names) — the bulk layer is now \"cadastre_parcels\" and gets the cadastre outline+area style."
+    },
+    {
+     "version": "0.3.3",
+     "text": "Fully merged the cadastre-fetch window into the Fetch-by-code tab: single, batch (list / from file, with progress + cancel) and SHP/DXF/CSV export now live inside the central window — no separate dialog opens anymore."
+    },
+    {
+     "version": "0.3.2",
+     "text": "Area (bulk) download in the fetch tab: grab every parcel within a radius of a cadastral code, or across the current map extent, into a separate parcels layer. Runs as a background task with a live progress bar and pause / resume / cancel — the UI never freezes."
+    },
+    {
+     "version": "0.3.1",
+     "text": "Unified into a single window: cadastre fetch-by-code (and map-click reverse) is now a tab inside the central dialog, dropping parcels straight into the nakveti layer; a 'batch / export' button still opens the full fetch dialog. One toolbar button instead of two."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Added the Cadastral Drawing toolkit (CRS 37/38 templates, WMS/WMTS services, name-based styles, Georgian fonts, A4 layout with dynamic fields, Excel attachment, packaged export) alongside the cadastre fetcher."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Cadastre code→parcel fetch: single & batch, reverse lookup, SHP/DXF/CSV export."
+    }
+   ],
+   "usage": {
+    "en": "Web menu and the Web toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „ვები“ და ვების პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "Internet access (public cadastre service).",
+     "ka": "ინტერნეტი (საჯარო საკადასტრო სერვისი)."
+    }
+   ],
+   "processing": {
+    "provider": "georgian_cadastre",
+    "provider_name": "Georgian Cadastre",
+    "algorithms": [
+     {
+      "id": "georgian_cadastre:fetch_parcels",
+      "title": "Fetch parcels by cadastral code"
+     },
+     {
+      "id": "georgian_cadastre:parcels_near_point",
+      "title": "Fetch parcels near a point"
+     }
+    ]
+   }
+  },
+  {
+   "id": "postgis_manager",
+   "catalog_id": "postgis-manager",
+   "name": "PostGIS Manager",
+   "name_ka": "PostGIS მენეჯერი",
+   "version": "1.3.1",
+   "summary": "Unique spatial-database GIS toolkit for PostGIS — geometry editor on canvas, CRS audit, spatial join GUI, data-quality scoring, pgRouting network wizard, WFS, GPX import, thematic classification and snapshot diff. Not a pgAdmin clone.",
+   "description": {
+    "en": "Spatial-database toolkit for PostGIS: geometry editor, CRS audit, spatial-join GUI, data-quality scoring, pgRouting network wizard, WFS connector and GPX import.",
+    "ka": "სივრცული მონაცემთა ბაზის ხელსაწყოები PostGIS-ისთვის: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხის შეფასება, pgRouting ოსტატი, WFS და GPX იმპორტი."
+   },
+   "status": "stable",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "🐘",
+   "category": "",
+   "tags": [
+    "postgis",
+    "postgresql",
+    "database",
+    "pgrouting",
+    "wfs"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://pg.qgis.ge",
+   "repository": "https://github.com/GIS-GEORGIA/postgis-manager",
+   "tracker": "https://github.com/GIS-GEORGIA/postgis-manager/issues",
+   "icon_url": null,
+   "vendored": true,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/postgis_manager.zip?v=1.3.1",
+    "file": "postgis_manager.zip",
+    "sha256": "ae95d5da008dde2accd298a76083e807131d19ad36745d2e19739604b0bf9ecb",
+    "size": 362668
+   },
+   "changelog": [
+    {
+     "version": "1.3.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.3.0",
+     "text": "Processing: new algorithms Backup database (pg_dump), Restore database (pg_restore / psql, needs an explicit confirmation) and CRS audit (declared vs. actual SRID, optional fix). Passwords are passed through PGPASSWORD, a saved QGIS login (authentication configuration) can be used instead Backup and CRS Audit panels share their logic with the algorithms (utils/pg_tools.py); the CRS audit SQL now uses quoted identifiers and bound parameters"
+    },
+    {
+     "version": "1.2.1",
+     "text": "(2026-09-10) Georgian UI: \"ფლაგინი\" is now \"დანამატი\", matching the wording used across GIS GEORGIA's plugins and plugins.qgis.ge"
+    },
+    {
+     "version": "1.2.0",
+     "text": "(2026-09-10) Runs on QGIS 3.40+ (Qt5) as well as QGIS 4.x (Qt6), from the same build Qt is now imported through postgis_manager.qtcompat, which resolves qgis.PyQt inside QGIS and falls back to PyQt6/PyQt5 for the standalone app Classes Qt moved between QtWidgets and QtGui (QAction, QShortcut, ...) are exported from both, so imports no longer depend on the Qt version"
+    },
+    {
+     "version": "1.1.0",
+     "text": "(2026-06-18) Strategic refocus: unique GIS tools, not a generic pgAdmin clone New: Map Viewer + Geometry Editor (draw geometry into the table) New: CRS Browser & Reproject, CRS Audit (SRID mismatch detection) New: Spatial Join GUI (7 predicates + KNN), no SQL required New: Spatial Data Quality Dashboard (7 checks, 0–100 score, auto-fix) New: pgRouting Network Wizard (topology + drive-time isochrones) New: WFS Connector, GPX/KML Importer, Thematic Style Generator New: Layer Snapshot + spatial Change Diff Removed: generic DB-admin panels that duplicated pgAdmin Fixes: map pan, KeyError on WFS layers, Instance Manager layout"
+    },
+    {
+     "version": "1.0.0",
+     "text": "(2026-06-15) First stable release; 21 panels, sidebar navigation QGIS Processing Provider; full EN + KA translations; light/dark themes"
+    },
+    {
+     "version": "0.1.0",
+     "text": "(2026-05-01) Initial release targeting QGIS 3.34+ / Qt6"
+    }
+   ],
+   "usage": {
+    "en": "Toolbar button and Plugins menu; Processing Toolbox.",
+    "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "A PostgreSQL / PostGIS server and psycopg2 (included with QGIS).",
+     "ka": "PostgreSQL / PostGIS სერვერი და psycopg2 (მოყვება QGIS-ს)."
+    },
+    {
+     "en": "pg_dump, pg_restore and psql for backup and restore (included in the Windows QGIS installer).",
+     "ka": "pg_dump, pg_restore და psql ასლისა და აღდგენისთვის (Windows-ის QGIS-ის ინსტალერში შედის)."
+    },
+    {
+     "en": "geopandas and shapely for the import algorithm (optional).",
+     "ka": "geopandas და shapely იმპორტის ალგორითმისთვის (არასავალდებულო)."
+    }
+   ],
+   "processing": {
+    "provider": "postgis_manager",
+    "provider_name": "PostGIS Manager",
+    "algorithms": [
+     {
+      "id": "postgis_manager:backupdatabase",
+      "title": "Backup database (pg_dump)"
+     },
+     {
+      "id": "postgis_manager:crsaudit",
+      "title": "CRS audit (declared vs. actual SRID)"
+     },
+     {
+      "id": "postgis_manager:exportlayer",
+      "title": "Export PostGIS layer"
+     },
+     {
+      "id": "postgis_manager:fixinvalidgeom",
+      "title": "Fix invalid geometries (ST_MakeValid)"
+     },
+     {
+      "id": "postgis_manager:geoprocess",
+      "title": "PostGIS Geoprocessing"
+     },
+     {
+      "id": "postgis_manager:importvector",
+      "title": "Import vector layer to PostGIS"
+     },
+     {
+      "id": "postgis_manager:networkscan",
+      "title": "Scan network for PostgreSQL instances"
+     },
+     {
+      "id": "postgis_manager:restoredatabase",
+      "title": "Restore database (pg_restore / psql)"
+     },
+     {
+      "id": "postgis_manager:validategeometry",
+      "title": "Validate PostGIS geometry"
+     }
+    ]
+   }
+  },
+  {
+   "id": "DevBridge",
+   "catalog_id": "devbridge",
+   "name": "DevBridge",
+   "name_ka": "DevBridge — PyQGIS დებაგერი",
+   "version": "0.2.13",
+   "summary": "Live PyQGIS debugging from QGIS: control panel with buttons for the VS Code (debugpy) and PyCharm bridges, one-click \"prepare my plugin for debugging\", and a bundled standalone desktop tool. Bilingual EN/KA.",
+   "description": {
+    "en": "Debug your own PyQGIS plugins live from VS Code or PyCharm. A control panel with buttons (EN/KA): start/stop the debug bridges, pick a plugin from your profile and prepare it (venv, debugpy, VS Code config) — plus a bundled standalone desktop tool that does the same without QGIS running.",
+    "ka": "გამართე შენი PyQGIS დანამატები ცოცხლად VS Code-იდან ან PyCharm-იდან. მართვის პანელი ღილაკებით (EN/KA): დებაგ ხიდების გაშვება/გაჩერება, პროფილიდან დანამატის არჩევა და მომზადება (venv, debugpy, VS Code-ის კონფიგურაცია) — და ჩაშენებული დამოუკიდებელი დესკტოპ ხელსაწყო, რომელიც იგივეს QGIS-ის გაშვების გარეშე აკეთებს."
+   },
+   "status": "experimental",
+   "featured": false,
+   "bilingual": true,
+   "emoji": "🐞",
+   "category": "Plugins",
+   "tags": [
+    "debug",
+    "pyqgis",
+    "vscode",
+    "pycharm",
+    "development"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/pyqgis-devbridge",
+   "repository": "https://github.com/GIS-GEORGIA/pyqgis-devbridge",
+   "tracker": "https://github.com/GIS-GEORGIA/pyqgis-devbridge/issues",
+   "icon_url": null,
+   "vendored": true,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/DevBridge.zip?v=0.2.13",
+    "file": "DevBridge.zip",
+    "sha256": "4a5237923ca41e8a97f20f55506c77f116f30e7b5caacf5cf9ab63b5dea1d450",
+    "size": 103691
+   },
+   "changelog": [
+    {
+     "version": "0.2.13",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.2.12",
+     "text": "Bundled desktop tool (tool/devbridge) updated: 'devbridge launch' (VS Code's F5 \"Launch QGIS + attach\", the desktop tool's \"Launch QGIS (debug)\") no longer opens a redundant second QGIS when one with the bridge already listening is still open - it reuses it instead ('--force-new' to opt out). No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.11",
+     "text": "Bundled desktop tool (tool/devbridge) updated: new 'devbridge doctor --fix' retries what's safe automatically (plugin install/enable, debugpy, rerunning setup) and re-checks; a \"Fix what's safe\" button was added next to \"Run diagnostics\". No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.10",
+     "text": "Bundled desktop tool (tool/devbridge) updated: 'devbridge setup' now also writes PyCharm's \"Python Debug Server\" run configuration (.idea/runConfigurations/), the last fully-manual PyCharm step. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.9",
+     "text": "Control Panel tabs now follow the order you actually use them in: \"Prepare a plugin\" moved before \"VS Code\" (used to come after PyCharm, contradicting the guide's own numbered steps). \"How to use\" now opens with a one-line tab roadmap."
+    },
+    {
+     "version": "0.2.8",
+     "text": "Bundled desktop tool (tool/devbridge) updated: new 'devbridge new-script' command scaffolds a starter standalone PyQGIS script ready for headless debugging. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.7",
+     "text": "Bundled desktop tool (tool/devbridge) updated: 'devbridge setup' now also writes a \"PyQGIS: Debug current file (no QGIS)\" VS Code launch config, for debugging a standalone script (QgsApplication, no running QGIS) directly. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.6",
+     "text": "Bundled desktop tool (tool/devbridge) updated: warns when --host isn't local (debugpy/pydevd have no authentication of their own), and 'devbridge setup' now keeps .venv/__pycache__/.pycharm-debug out of git via .gitignore. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.5",
+     "text": "Bundled desktop tool (tool/devbridge) updated: 'devbridge link-plugin' and 'devbridge uninstall' commands, automatic port-conflict handling in 'setup'/'launch', and an automated GitHub Release workflow for this repo. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.4",
+     "text": "Bundled desktop tool (tool/devbridge) updated: 'devbridge doctor' (checks QGIS/debugpy/plugin/port/.vscode end to end) and a QGIS-installation picker for machines with several QGIS installs side by side. No change to the plugin's own code."
+    },
+    {
+     "version": "0.2.3",
+     "text": "Built-in \"Reload plugin\" picker at the top of the Control Panel (visible on every tab): pick a plugin already enabled in this QGIS session and reload its code (qgis.utils.reloadPlugin) without a QGIS restart or the separate Plugin Reloader plugin."
+    },
+    {
+     "version": "0.2.2",
+     "text": "Critical fix: the VS Code debug bridge never told debugpy which Python to use, so debugpy.listen() tried to launch its adapter through the QGIS program itself and failed after ~20-30s with \"timed out waiting for adapter to connect\" - confirmed with a real QGIS 3.44.5, every time. debugpy is now configured with the interpreter QGIS embeds before listen(); also treats a second listen() (plugin reload) as already-running instead of raising."
+    },
+    {
+     "version": "0.2.1",
+     "text": "PyCharm: pydevd-pycharm is now installed into DevBridge's own folder with QGIS's real Python (it used to call the QGIS program itself), in a background thread with a live log; refuses to connect unless PyCharm is listening (a failed connect could crash QGIS); one debugger per QGIS session (VS Code or PyCharm) with a clear message. New \"How to use\" tab with step-by-step instructions (EN/KA), also in the desktop tool. \"Prepare a plugin\" now starts with a choice: improve an existing plugin (list over every QGIS profile, nothing pre-selected), start a NEW plugin (writes working starter files) or any folder."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Control Panel with tabs for VS Code, PyCharm, plugin preparation and the desktop tool; language switch EN/KA; standalone desktop tool bundled in the plugin (tool/), launchable from the panel; shared settings file; universal build for QGIS 3.40+ (Qt5) and QGIS 4 (Qt6)."
+    },
+    {
+     "version": "0.1.0",
+     "text": "First version: debugpy bridge menu and PyCharm auto-configuration."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button (control panel).",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი (მართვის პანელი)."
+   },
+   "requires": [],
+   "processing": null
+  },
+  {
+   "id": "geoeco",
+   "catalog_id": "geoeco",
+   "name": "GeoEco",
+   "name_ka": "GeoEco",
+   "version": "0.4.2",
+   "summary": "Bilingual (ka/en) environmental toolkit — the \"last mile\" on top of SAGA/GRASS: solar PV energy & economics, wind resource & yield.",
+   "description": {
+    "en": "Renewable-energy “last mile” on SAGA/GRASS: solar radiation → PV energy (kWh), revenue (GEL), payback and optimal tilt; wind resource, Weibull and annual energy (AEP).",
+    "ka": "განახლებადი ენერგიის „ბოლო მილი“ SAGA/GRASS-ზე: მზის რადიაცია → PV გამომუშავება (კვტ·სთ), შემოსავალი (₾), უკუგება და ოპტიმალური დახრა; ქარის რესურსი, Weibull და წლიური ენერგია (AEP)."
+   },
+   "status": "experimental",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "⚡",
+   "category": "Analysis",
+   "tags": [
+    "solar",
+    "wind",
+    "renewable",
+    "energy",
+    "saga",
+    "grass"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/geoeco/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/geoeco.zip?v=0.4.2",
+    "file": "geoeco.zip",
+    "sha256": "946073b1a1b2330af2b4237b8c98cfa05be9769c237725bbabc066633fc31d9f",
+    "size": 28442
+   },
+   "changelog": [
+    {
+     "version": "0.4.2",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.4.1",
+     "text": "Wording only: \"პლაგინი/ფლაგინი\" is now \"დანამატი\" in the bundled comments and docs."
+    },
+    {
+     "version": "0.4.0",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "0.3.1",
+     "text": "Fix: no longer shadows QGIS's built-in Processing plugin. The bundled dir is now appended to sys.path (was inserted at 0), so the geoeco/processing/ subpackage stops breaking `import processing` at QGIS startup."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Solar (energy & revenue), Wind resource & yield (points), Wind resource map (IDW rasters)."
+    }
+   ],
+   "usage": {
+    "en": "Toolbar button and Plugins menu; Processing Toolbox.",
+    "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "SAGA and GRASS Processing providers (included in the QGIS installer).",
+     "ka": "SAGA და GRASS Processing-ის მოდულები (QGIS-ის ინსტალერში შედის)."
+    },
+    {
+     "en": "WindNinja for wind downscaling (optional).",
+     "ka": "WindNinja ქარის ველის დეტალიზაციისთვის (არასავალდებულო)."
+    }
+   ],
+   "processing": {
+    "provider": "geoeco",
+    "provider_name": "GeoEco",
+    "algorithms": [
+     {
+      "id": "geoeco:solar_economics",
+      "title": "Solar: energy & revenue / მზე: ენერგია და შემოსავალი"
+     },
+     {
+      "id": "geoeco:wind_raster",
+      "title": "Wind: resource map (IDW) / ქარი: რესურსის რუკა (IDW)"
+     },
+     {
+      "id": "geoeco:wind_resource",
+      "title": "Wind: resource & yield / ქარი: რესურსი და გამომუშავება"
+     }
+    ]
+   }
+  },
+  {
+   "id": "calculate_geometry",
+   "catalog_id": "calculate-geometry",
+   "name": "Calculate Geometry",
+   "name_ka": "გეომეტრიის კალკულატორი",
+   "version": "0.3.1",
+   "summary": "Guided dialog to populate one or more fields with geometry properties (coordinates, area, perimeter, length) — no expressions required.",
+   "description": {
+    "en": "Guided dialog to write geometry properties (area, perimeter, length, coordinates) into fields — no expressions required.",
+    "ka": "გეომეტრიის თვისებების (ფართობი, პერიმეტრი, სიგრძე, კოორდინატები) ველებში ჩაწერა ფანჯრიდან, expression-ის გარეშე."
+   },
+   "status": "experimental",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "📐",
+   "category": "Vector",
+   "tags": [
+    "geometry",
+    "area",
+    "perimeter",
+    "coordinates"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/calculate_geometry/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/calculate_geometry.zip?v=0.3.1",
+    "file": "calculate_geometry.zip",
+    "sha256": "5b63e9ca56bcfc399cf68b92f58bc6f4690a94f5097ad242e9e3ad25f9248211",
+    "size": 14336
+   },
+   "changelog": [
+    {
+     "version": "0.3.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Processing algorithm \"Calculate geometry\" (Toolbox, Model Builder, qgis_process, Python): one property into one field, with method, CRS and unit options."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    }
+   ],
+   "usage": {
+    "en": "Vector menu and the Vector toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „ვექტორი“ და ვექტორის პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "calculate_geometry",
+    "provider_name": "Calculate Geometry",
+    "algorithms": [
+     {
+      "id": "calculate_geometry:calculate_geometry",
+      "title": "Calculate geometry"
+     }
+    ]
+   }
+  },
+  {
+   "id": "owners_analyzer",
+   "catalog_id": "owners-analyzer",
+   "name": "მფლობელების ანალიზატორი",
+   "name_ka": "მფლობელების ანალიზატორი",
+   "version": "1.3.1",
+   "summary": "შრეების მფლობელების ანალიზი, სტატისტიკა და ფილტრაცია",
+   "description": {
+    "en": "Analyzes attribute tables — counts unique values, sorts in Georgian, filters by keyword and exports the results.",
+    "ka": "ატრიბუტების ანალიზი — უნიკალური მნიშვნელობების დათვლა, ქართული სორტირება, საკვანძო სიტყვით ფილტრი და ექსპორტი."
+   },
+   "status": "new",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "📊",
+   "category": "Analysis",
+   "tags": [
+    "attributes",
+    "statistics",
+    "filter"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/owners_analyzer/icon.png",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/owners_analyzer.zip?v=1.3.1",
+    "file": "owners_analyzer.zip",
+    "sha256": "8e8d4592a54a96487e5b92fffffbcdc132b714efa6149d7f3b645fe954be7e4b",
+    "size": 10586
+   },
+   "changelog": [
+    {
+     "version": "1.3.1",
+     "text": "Author and contact e-mail set (were placeholders): GIS GEORGIA | Giorgi Kapanadze, aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.3",
+     "text": "Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Count unique values, Extract features by keywords, Select features by keywords. Counting/search logic moved to analysis_core.py. Repository links point to GIS-GEORGIA/qgis-plugins-repo."
+    },
+    {
+     "version": "1.2",
+     "text": "Plugin Manager description now says \"დანამატი\" instead of \"პლაგინი\"."
+    },
+    {
+     "version": "1.1",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "1.0",
+     "text": "პირველი ვერსია"
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and its own toolbar; Processing Toolbox.",
+    "ka": "მენიუ „დანამატები“ და საკუთარი ხელსაწყოთა პანელი; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "owners_analyzer",
+    "provider_name": "Owners Analyzer",
+    "algorithms": [
+     {
+      "id": "owners_analyzer:count_unique_values",
+      "title": "Count unique values (owners)"
+     },
+     {
+      "id": "owners_analyzer:extract_by_keywords",
+      "title": "Extract features by keywords"
+     },
+     {
+      "id": "owners_analyzer:select_by_keywords",
+      "title": "Select features by keywords"
+     }
+    ]
+   }
+  },
+  {
+   "id": "layer_cleaner",
+   "catalog_id": "layer-cleaner",
+   "name": "Layer Cleaner",
+   "name_ka": "შრეების გამწმენდი",
+   "version": "1.2",
+   "summary": "Clean layers and add base layers (Google Satellite, OpenStreetMap)",
+   "description": {
+    "en": "Removes all layers except base maps and adds Google Satellite Hybrid and OpenStreetMap in one click.",
+    "ka": "ყველა შრის წაშლა საბაზო ფენების გარდა და Google Satellite Hybrid-ისა და OpenStreetMap-ის დამატება ერთი დაჭერით."
+   },
+   "status": "new",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "🧹",
+   "category": "Raster",
+   "tags": [
+    "layers",
+    "basemap",
+    "cleanup"
+   ],
+   "author": "Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/layer_cleaner/layer_cleaner/icons/icon.png",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/layer_cleaner.zip?v=1.2",
+    "file": "layer_cleaner.zip",
+    "sha256": "07c32a28e4f63f611f5a4fda24c57031a257b1e60c348e4c6d3604c7345042b1",
+    "size": 6247
+   },
+   "changelog": [
+    {
+     "version": "1.2",
+     "text": "Processing algorithms (Toolbox, Model Builder, qgis_process, Python): Remove layers from project, Add base layers."
+    },
+    {
+     "version": "1.1",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    },
+    {
+     "version": "1.0",
+     "text": "Initial release"
+    }
+   ],
+   "usage": {
+    "en": "Its own toolbar and the Plugins menu; Processing Toolbox.",
+    "ka": "საკუთარი ხელსაწყოთა პანელი და მენიუ „დანამატები“; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "Internet access for the base layers.",
+     "ka": "ინტერნეტი საბაზო ფენებისთვის."
+    }
+   ],
+   "processing": {
+    "provider": "layer_cleaner",
+    "provider_name": "Layer Cleaner",
+    "algorithms": [
+     {
+      "id": "layer_cleaner:add_base_layers",
+      "title": "Add base layers (Google Satellite Hybrid, OpenStreetMap)"
+     },
+     {
+      "id": "layer_cleaner:remove_layers",
+      "title": "Remove layers from project (keep base layers)"
+     }
+    ]
+   }
+  },
+  {
+   "id": "basemap_loader",
+   "catalog_id": "basemap-loader",
+   "name": "Basemap Loader",
+   "name_ka": "ბაზის რუკის ჩამტვირთავი",
+   "version": "1.3.1",
+   "summary": "This plugin adds a basemap layer to QGIS.",
+   "description": {
+    "en": "Adds an OpenStreetMap basemap layer to QGIS and sets the coordinate reference system.",
+    "ka": "OpenStreetMap ბაზის რუკის ფენის დამატება QGIS-ში და საკოორდინატო სისტემის დაყენება."
+   },
+   "status": "stable",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "🌐",
+   "category": "",
+   "tags": [
+    "basemap",
+    "osm",
+    "crs"
+   ],
+   "author": "Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "",
+   "icon_url": "https://plugins.qgis.ge/basemap_loader/logo.png",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/basemap_loader.zip?v=1.3.1",
+    "file": "basemap_loader.zip",
+    "sha256": "a7c06256e7f66be46536a801175898d60863e2b4906704aeb7e3547e028b98f3",
+    "size": 19296
+   },
+   "changelog": [
+    {
+     "version": "1.3.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.3",
+     "text": "Processing algorithm \"Add basemap\" (OSM, Google Satellite Hybrid or custom XYZ URL). Fixed a typo in the tile URI ($crs -> &crs)."
+    },
+    {
+     "version": "1.2",
+     "text": "The plugin folder is now basemap_loader (it used to contain a space), so QGIS can finally match the installed copy to this repository and offer updates. If you installed an earlier version, it is still on disk as \"Basemap Loader\" and will never update — uninstall that one after installing this."
+    },
+    {
+     "version": "1.1",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    }
+   ],
+   "usage": {
+    "en": "Toolbar button; Processing Toolbox.",
+    "ka": "ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "Internet access for the tiles.",
+     "ka": "ინტერნეტი ფილების ჩასატვირთად."
+    }
+   ],
+   "processing": {
+    "provider": "basemap_loader",
+    "provider_name": "Basemap Loader",
+    "algorithms": [
+     {
+      "id": "basemap_loader:add_basemap",
+      "title": "Add basemap"
+     }
+    ]
+   }
+  },
+  {
+   "id": "save_attributes",
+   "catalog_id": "save-attributes",
+   "name": "Save Attributes",
+   "name_ka": "ატრიბუტების შენახვა",
+   "version": "1.1.1",
+   "summary": "This plugin saves the attributes of the selected vector layer as a CSV file",
+   "description": {
+    "en": "Saves a vector layer's attribute table to a CSV file.",
+    "ka": "ვექტორული ფენის ატრიბუტების ცხრილის CSV ფაილში შენახვა."
+   },
+   "status": "beta",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "💾",
+   "category": "",
+   "tags": [
+    "attributes",
+    "csv",
+    "export"
+   ],
+   "author": "Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "",
+   "icon_url": "https://plugins.qgis.ge/save_attributes/logo.png",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/save_attributes.zip?v=1.1.1",
+    "file": "save_attributes.zip",
+    "sha256": "9909790ab0b36399306c236e7eb707d90e8e68e87381f62a472fed53f20edaf7",
+    "size": 18088
+   },
+   "changelog": [
+    {
+     "version": "1.1.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.1",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "save_attributes",
+    "provider_name": "Save Attributes",
+    "algorithms": [
+     {
+      "id": "save_attributes:save_attributes",
+      "title": "Save Attributes As CSV"
+     }
+    ]
+   }
+  },
+  {
+   "id": "transliterator",
+   "catalog_id": "transliterator",
+   "name": "Transliterator",
+   "name_ka": "ტრანსლიტერატორი",
+   "version": "1.2.1",
+   "summary": "A plugin to transliterate Georgian script to Latin.",
+   "description": {
+    "en": "Transliterates Georgian script into Latin characters.",
+    "ka": "ქართული ტექსტის ლათინურ ასოებად ტრანსლიტერაცია."
+   },
+   "status": "beta",
+   "featured": false,
+   "bilingual": false,
+   "emoji": "🔤",
+   "category": "",
+   "tags": [
+    "transliteration",
+    "georgian",
+    "latin"
+   ],
+   "author": "Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "",
+   "icon_url": "https://plugins.qgis.ge/transliterator/icon.png",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/transliterator.zip?v=1.2.1",
+    "file": "transliterator.zip",
+    "sha256": "6e1ee384e284127465407f5c137a1129b52463458592fe6f5bc9c29619e4e884",
+    "size": 5444
+   },
+   "changelog": [
+    {
+     "version": "1.2.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "1.2",
+     "text": "Processing algorithm \"Transliterate field\" (Toolbox, Model Builder, qgis_process, Python); transliteration map moved to translit_core.py."
+    },
+    {
+     "version": "1.1",
+     "text": "Runs on QGIS 4 (Qt6) and QGIS 3.40+ (Qt5) from the same build: scoped Qt enums, exec() instead of exec_(), QMetaType instead of QVariant field types, and Qt imported through qgis.PyQt. Minimum QGIS is now 3.40 LTR."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [],
+   "processing": {
+    "provider": "transliterator",
+    "provider_name": "Transliterator",
+    "algorithms": [
+     {
+      "id": "transliterator:transliterate_field",
+      "title": "Transliterate field"
+     }
+    ]
+   }
+  },
+  {
+   "id": "photo_geotagger",
+   "catalog_id": "photo-geotagger",
+   "name": "Photo Geotagger",
+   "name_ka": "ფოტოს გეოტეგირება",
+   "version": "0.8.0",
+   "summary": "Writes GPS coordinates into photos (JPEG, TIFF, DNG; XMP sidecar for RAW and HEIC) from fixed or map-picked coordinates, a GPX track or a CSV table. Bilingual KA/EN; also runs as a standalone script.",
+   "description": {
+    "en": "Write GPS coordinates into camera photos (JPEG, TIFF, DNG; XMP sidecar for RAW and HEIC) from fixed or map-picked coordinates, a GPX track by capture time, or a CSV table. Output as a project layer or GPKG, Shapefile, GeoJSON, CSV, KML, GPX and more. Also runs as a standalone script. Bilingual KA/EN.",
+    "ka": "კამერის ფოტოებში (JPEG, TIFF, DNG; RAW და HEIC-ისთვის XMP გვერდითა ფაილი) GPS კოორდინატების ჩაწერა: ერთი წერტილიდან, რუკიდან, GPX ტრეკიდან გადაღების დროით ან CSV ცხრილიდან. შედეგი: შრე პროექტში ან GPKG, Shapefile, GeoJSON, CSV, KML, GPX და სხვა ფორმატი. მუშაობს დამოუკიდებელ სკრიპტადაც. ორენოვანია (KA/EN)."
+   },
+   "status": "new",
+   "featured": false,
+   "bilingual": true,
+   "emoji": "📷",
+   "category": "Plugins",
+   "tags": [
+    "geotag",
+    "exif",
+    "gps",
+    "gpx",
+    "photo",
+    "csv",
+    "raw",
+    "geopackage"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/photo_geotagger/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/photo_geotagger.zip?v=0.8.0",
+    "file": "photo_geotagger.zip",
+    "sha256": "540658238706622faeb2f7ac0df400cea899ae10a00b6d310a1b4e720820c60b",
+    "size": 89071
+   },
+   "changelog": [
+    {
+     "version": "0.8.0",
+     "text": "Full standalone program (python app.py): photo table, GPX / CSV / fixed coordinates, clock-offset estimate, preview, place names (OpenStreetMap or GeoJSON/GPKG/SHP polygons), map with OpenStreetMap tiles to pick coordinates and move points, export, undo, settings, warning notice, Georgian/English."
+    },
+    {
+     "version": "0.7.1",
+     "text": "Contact e-mail is now aigroegsig@gmail.com."
+    },
+    {
+     "version": "0.7.0",
+     "text": "Warning notice (legal, accuracy, privacy, backups, signatures, OSM licence): banner and full notice in the dialog, acknowledged once before the first write; shown in Processing help and with --notice."
+    },
+    {
+     "version": "0.6.0",
+     "text": "Place names (country, region, city, street) written into photos as XMP (and IPTC with ExifTool): from OpenStreetMap Nominatim or from a polygon/point layer; dialog group, --place-names, two Processing algorithms; place names are included in the point layer and exports."
+    },
+    {
+     "version": "0.5.0",
+     "text": "Processing algorithms (Toolbox, Model Builder, qgis_process): Photos to points, Geotag from GPX / CSV / point layer, Restore originals, Estimate clock offset."
+    },
+    {
+     "version": "0.4.1",
+     "text": "ExifTool engine verified against ExifTool 13.59 (Georgian file names, backups, restore, TIFF, --out copies, RAW read fallback); it is now used automatically when found, otherwise the built-in writer."
+    },
+    {
+     "version": "0.4.0",
+     "text": "Layer to photos: move points in a layer and write the new coordinates back into the photos. Restore originals (undo) from the _original backups. Optional ExifTool engine (off by default: Writing engine setting / --engine) with RAW/HEIC embedding."
+    },
+    {
+     "version": "0.3.1",
+     "text": "GPL-3.0-or-later LICENSE and README added; package checked against plugins.qgis.org upload rules."
+    },
+    {
+     "version": "0.3.0",
+     "text": "Preview table before writing; clock-offset estimate from one photo of known position; existing coordinates are kept unless Overwrite is ticked; direction (GPSImgDirection) with arrow symbol and photo map tip on the layer; work runs as a background task with progress and Cancel; --dry-run in the script; large RAW files are read through mmap; unit tests."
+    },
+    {
+     "version": "0.2.0",
+     "text": "Camera formats: JPEG, TIFF, DNG written directly; RAW (NEF, CR2, CR3, ARW, ORF, RW2, RAF ...) and HEIC via XMP sidecar. Output: project layer and GPKG, Shapefile, GeoJSON, CSV, KML, GPX, FlatGeobuf, GML, MapInfo, SpatiaLite files."
+    },
+    {
+     "version": "0.1.0",
+     "text": "First release."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu and the toolbar button; Processing Toolbox.",
+    "ka": "მენიუ „დანამატები“ და ხელსაწყოთა პანელის ღილაკი; Processing Toolbox."
+   },
+   "requires": [
+    {
+     "en": "ExifTool for RAW and HEIC files (optional; a built-in writer is used otherwise).",
+     "ka": "ExifTool RAW და HEIC ფაილებისთვის (არასავალდებულო; მის გარეშე ჩაშენებული მეთოდი გამოიყენება)."
+    }
+   ],
+   "processing": {
+    "provider": "photo_geotagger",
+    "provider_name": "Photo Geotagger",
+    "algorithms": [
+     {
+      "id": "photo_geotagger:estimate_clock_offset",
+      "title": "Estimate camera clock offset"
+     },
+     {
+      "id": "photo_geotagger:geotag_from_csv",
+      "title": "Geotag photos from a CSV table"
+     },
+     {
+      "id": "photo_geotagger:geotag_from_gpx",
+      "title": "Geotag photos from a GPX track"
+     },
+     {
+      "id": "photo_geotagger:geotag_from_layer",
+      "title": "Geotag photos from a point layer"
+     },
+     {
+      "id": "photo_geotagger:photos_to_points",
+      "title": "Photos to points"
+     },
+     {
+      "id": "photo_geotagger:place_names_from_layer",
+      "title": "Add place names from a layer"
+     },
+     {
+      "id": "photo_geotagger:place_names_from_osm",
+      "title": "Add place names from OpenStreetMap"
+     },
+     {
+      "id": "photo_geotagger:restore_originals",
+      "title": "Restore photo originals"
+     }
+    ]
+   }
+  }
+ ]
+}

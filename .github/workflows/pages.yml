@@ -48,6 +48,8 @@ jobs:
         run: xvfb-run -a python -m unittest discover -s photo_geotagger/tests -t photo_geotagger
       - name: Generated files are up to date
         run: python tools/build.py --check
+      - name: Catalog (catalog.json) is consistent with the zips and plugins.xml
+        run: python tools/test_catalog.py
       - name: Photo Geotagger is ready for plugins.qgis.org
         run: python tools/check_upload_ready.py photo_geotagger
       - name: build.py survives a restrictive console encoding
