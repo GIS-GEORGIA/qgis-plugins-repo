@@ -92,10 +92,12 @@ class GisGeorgiaHubPlugin:
         if not ok or self.ctl is None:
             return
         pending = self.ctl.pending_updates()
-        if not pending:
+        hub = self.ctl.hub_update()
+        if not pending and hub is None:
             return
         lang = self._lang()
-        names = ", ".join(catalog.display_name(p, lang) for p in pending)
+        names = ", ".join([catalog.display_name(p, lang) for p in pending]
+                          + (["GIS Georgia Hub"] if hub is not None else []))
         bar = self.iface.messageBar()
         item = bar.createMessage("GIS Georgia", i18n.t("updates_msg", lang, names=names))
         button = QPushButton(i18n.t("open_hub", lang))

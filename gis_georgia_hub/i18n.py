@@ -56,6 +56,14 @@ _S = {
     "d_links": {"ka": "ბმულები", "en": "Links"},
     "d_repo": {"ka": "კოდი", "en": "Source"},
     "d_tracker": {"ka": "შეცდომის შეტყობინება", "en": "Report an issue"},
+    "btn_update_all": {"ka": "განახლება ყველასთვის ({n})", "en": "Update all ({n})"},
+    "confirm_update_all": {
+        "ka": "განახლდება {n} დანამატი:\n{names}\n\nფაილები ჩამოიწერება {host}-დან და შემოწმდება ჰეშით. გავაგრძელო?",
+        "en": "Update {n} plugin(s):\n{names}\n\nThe files are downloaded from {host} and checked against their checksums. Continue?"},
+    "updating": {"ka": "ახლდება: {name} ({i}/{n})", "en": "Updating: {name} ({i}/{n})"},
+    "self_update": {
+        "ka": "ახალი ვერსია {v} ხელმისაწვდომია. განაახლე დანამატების მენეჯერით.",
+        "en": "Version {v} is available. Update it with the Plugin Manager."},
     "updates_msg": {"ka": "GIS GEORGIA-ს დანამატებს განახლება აქვს: {names}",
                     "en": "Updates available for GIS GEORGIA plugins: {names}"},
     "open_hub": {"ka": "გახსნა", "en": "Open"},

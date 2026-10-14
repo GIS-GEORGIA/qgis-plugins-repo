@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import os
 import time
+from urllib.parse import urlparse
 
 from qgis import utils
 from qgis.core import Qgis, QgsApplication, QgsSettings, QgsTask
 from qgis.PyQt.QtCore import QObject, pyqtSignal
+from qgis.PyQt.QtGui import QIcon
 
 from . import catalog, installer_core
 
@@ -48,6 +50,8 @@ class HubController(QObject):
     busyChanged = pyqtSignal(bool)
     message = pyqtSignal(str, int)  # text, Qgis.MessageLevel as int
     catalogError = pyqtSignal(str, bool)  # error text, True when an older copy is shown
+    iconsChanged = pyqtSignal()
+    progress = pyqtSignal(str, int, int)  # plugin name, index, total
 
     def __init__(self, parent=None, fetch=None, catalog_url=None, cache_path=None):
         super().__init__(parent)
@@ -57,6 +61,8 @@ class HubController(QObject):
         self.cache_path = cache_path or os.path.join(
             QgsApplication.qgisSettingsDirPath(), "gis_georgia_hub", "catalog.json")
         self.catalog = catalog.load_cache(self.cache_path)
+        self.icon_dir = os.path.join(os.path.dirname(self.cache_path), "icons")
+        self._icons_pending = False
         self._tasks = []
         self._busy = 0
 
@@ -119,12 +125,88 @@ class HubController(QObject):
                     self.catalog = doc
                     QgsSettings().setValue(S + "last_catalog", int(time.time()))
                     self.catalogChanged.emit()
+                    self.fetch_icons()
             if error is not None:
                 self.catalogError.emit(str(error), self.catalog is not None)
             if done:
                 done(error is None)
 
         self._run("GIS Georgia Hub: catalog", work, finished)
+
+
+    # ---- icons ------------------------------------------------------------
+    def _icon_file(self, entry: dict):
+        url = entry.get("icon_url")
+        if not url:
+            return None
+        ext = os.path.splitext(urlparse(url).path)[1] or ".png"
+        return os.path.join(self.icon_dir, "{}-{}{}".format(entry["id"], entry["version"], ext))
+
+    def icon_for(self, entry: dict):
+        """A QIcon from the cache, or None (the list then shows the emoji)."""
+        path = self._icon_file(entry)
+        if path and os.path.isfile(path):
+            icon = QIcon(path)
+            return icon if not icon.isNull() else None
+        return None
+
+    def fetch_icons(self):
+        """Download the icons that are not cached yet (background, best effort)."""
+        todo = [(p, self._icon_file(p)) for p in self.plugins
+                if p.get("icon_url") and self._icon_file(p) and not os.path.isfile(self._icon_file(p))]
+        if not todo or self._icons_pending:
+            return
+
+        def work():
+            os.makedirs(self.icon_dir, exist_ok=True)
+            got = 0
+            for entry, path in todo:
+                try:
+                    data = self._fetch(entry["icon_url"])
+                except Exception:  # noqa: BLE001 - an icon is never worth an error
+                    continue
+                if data[:5] == b"<html" or len(data) < 20:
+                    continue
+                with open(path, "wb") as fh:
+                    fh.write(data)
+                got += 1
+            return got
+
+        def finished(got, _error):
+            self._icons_pending = False
+            if got:
+                self.iconsChanged.emit()
+
+        self._icons_pending = True
+        self._run("GIS Georgia Hub: icons", work, finished)
+
+    # ---- update all -------------------------------------------------------
+    def update_all(self, done=None):
+        """Update every plugin that has a newer catalog version, one after the other."""
+        queue = list(self.pending_updates())
+        total = len(queue)
+        results = []
+
+        def step(_ok=None):
+            if _ok is not None:
+                results.append(_ok)
+            if not queue:
+                if done:
+                    done(results)
+                return
+            entry = queue.pop(0)
+            self.progress.emit(entry["name"], total - len(queue), total)
+            self.install(entry, done=step)
+
+        step()
+
+    def hub_update(self):
+        """The catalog entry of the Hub when a newer version than the installed one exists."""
+        entry = next((p for p in self.plugins if p["id"] == catalog.SELF_ID), None)
+        have = installer_core.installed_version(catalog.SELF_ID)
+        if entry and have and catalog.compare_versions(entry["version"], have) > 0:
+            return entry
+        return None
 
     # ---- install / update -------------------------------------------------
     def install(self, entry: dict, done=None):

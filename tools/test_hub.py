@@ -125,6 +125,13 @@ class Texts(unittest.TestCase):
             self.assertTrue(val.get("ka") and val.get("en"), key)
             self.assertNotIn(", და", val["ka"], key)
 
+    def test_self_update_note(self):
+        me = next(p for p in PLUGINS if p["id"] == catalog.SELF_ID)
+        old = catalog.details_html(me, "en", catalog.SELF, "0.0.1")
+        self.assertIn("Plugin Manager", old)
+        same = catalog.details_html(me, "en", catalog.SELF, me["version"])
+        self.assertNotIn("is available", same)
+
     def test_human_size(self):
         self.assertTrue(catalog.human_size(500, "en").startswith("1 "))
         self.assertIn("MB", catalog.human_size(3 * 1024 * 1024, "en"))

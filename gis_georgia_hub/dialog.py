@@ -30,24 +30,34 @@ def _short(text: str, limit: int = 56) -> str:
 
 
 class Card(QWidget):
-    """Two-line list entry: name + version, then state and summary."""
+    """List entry: icon (or emoji), name + version, then state and summary."""
 
-    def __init__(self, entry, lang, state, parent=None):
+    def __init__(self, entry, lang, state, icon=None, parent=None):
         super().__init__(parent)
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(8, 5, 8, 5)
+        outer = QHBoxLayout(self)
+        outer.setContentsMargins(8, 5, 8, 5)
+        pic = QLabel()
+        pic.setFixedSize(36, 36)
+        pic.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        if icon is not None:
+            pic.setPixmap(icon.pixmap(32, 32))
+        else:
+            pic.setText("<span style='font-size:20pt'>{}</span>".format(entry.get("emoji", "")))
+            pic.setTextFormat(Qt.TextFormat.RichText)
+        outer.addWidget(pic)
+        lay = QVBoxLayout()
         lay.setSpacing(1)
-        title = QLabel("<b>{} {}</b> &nbsp;<span style='color:gray'>v{}</span>".format(
-            entry.get("emoji", ""), catalog.escape(catalog.display_name(entry, lang)),
-            catalog.escape(entry["version"])))
+        title = QLabel("<b>{}</b> &nbsp;<span style='color:gray'>v{}</span>".format(
+            catalog.escape(catalog.display_name(entry, lang)), catalog.escape(entry["version"])))
         title.setTextFormat(Qt.TextFormat.RichText)
         sub = QLabel("<span style='color:{}'>● {}</span> &nbsp;{}".format(
             _BADGE.get(state, "gray"), catalog.escape(catalog.state_label(state, lang)),
             catalog.escape(_short(catalog.localized(entry, "description", lang)
-                                 or entry.get("summary", "")))))
+                                  or entry.get("summary", "")))))
         sub.setTextFormat(Qt.TextFormat.RichText)
         lay.addWidget(title)
         lay.addWidget(sub)
+        outer.addLayout(lay, 1)
 
 
 class HubDialog(QDialog):
@@ -66,6 +76,8 @@ class HubDialog(QDialog):
         self.resize(1040, 680)
         self._build()
         self.ctl.catalogChanged.connect(self.reload)
+        self.ctl.iconsChanged.connect(self.reload)
+        self.ctl.progress.connect(self._on_progress)
         self.ctl.busyChanged.connect(self._on_busy)
         self.ctl.message.connect(self._on_message)
         self.ctl.catalogError.connect(self._on_catalog_error)
@@ -120,6 +132,8 @@ class HubDialog(QDialog):
         root.addWidget(split, 1)
 
         bottom = QHBoxLayout()
+        self.btn_update_all = QPushButton()
+        bottom.addWidget(self.btn_update_all)
         self.chk_updates = QCheckBox()
         self.chk_updates.setChecked(QgsSettings().value(S + "check_updates", True, bool))
         bottom.addWidget(self.chk_updates)
@@ -136,6 +150,7 @@ class HubDialog(QDialog):
         self.btn_install.clicked.connect(self._install)
         self.btn_uninstall.clicked.connect(self._uninstall)
         self.btn_toggle.clicked.connect(self._toggle)
+        self.btn_update_all.clicked.connect(self._update_all)
         self.chk_updates.toggled.connect(
             lambda on: QgsSettings().setValue(S + "check_updates", bool(on)))
 
@@ -184,14 +199,16 @@ class HubDialog(QDialog):
         for i, entry in enumerate(shown):
             item = QListWidgetItem()
             item.setData(Qt.ItemDataRole.UserRole, entry["id"])
-            card = Card(entry, self.lang, catalog.plugin_state(entry, installed.get(entry["id"]), qv))
+            card = Card(entry, self.lang, catalog.plugin_state(entry, installed.get(entry["id"]), qv),
+                        self.ctl.icon_for(entry))
             item.setSizeHint(card.sizeHint())
             self.list.addItem(item)
             self.list.setItemWidget(item, card)
             if entry["id"] == keep:
                 row_to_select = i
         self.list.blockSignals(False)
-        self.status.setText(i18n.t("count", self.lang, shown=len(shown), n=len(self.ctl.plugins)))
+        self._shown = len(shown)
+        self._update_status()
         if shown:
             self.list.setCurrentRow(row_to_select)
             self._on_select(self.list.currentItem(), None)
@@ -199,6 +216,13 @@ class HubDialog(QDialog):
             self._current = None
             self.details.clear()
             self._update_buttons()
+
+    def _update_status(self):
+        if self.ctl.is_busy():
+            self.status.setText(i18n.t("busy", self.lang))
+        else:
+            self.status.setText(i18n.t("count", self.lang, shown=getattr(self, "_shown", 0),
+                                       n=len(self.ctl.plugins)))
 
     def _on_select(self, item, _prev):
         if item is None:
@@ -220,6 +244,9 @@ class HubDialog(QDialog):
     def _update_buttons(self):
         t = lambda k: i18n.t(k, self.lang)  # noqa: E731
         busy = self.ctl.is_busy()
+        pending = self.ctl.pending_updates()
+        self.btn_update_all.setText(t("btn_update_all").format(n=len(pending)))
+        self.btn_update_all.setEnabled(not busy and bool(pending))
         e = self._current
         if e is None:
             for b in (self.btn_install, self.btn_uninstall, self.btn_toggle):
@@ -263,6 +290,22 @@ class HubDialog(QDialog):
             return
         self.ctl.uninstall(e)
 
+    def _update_all(self):
+        pending = self.ctl.pending_updates()
+        if not pending:
+            return
+        host = urlparse(pending[0]["download"]["url"]).hostname or ""
+        names = "\n".join("• {} {} → {}".format(catalog.display_name(p, self.lang),
+                                                  self._installed_version(p) or "?", p["version"])
+                          for p in pending)
+        if not self._confirm(i18n.t("confirm_title", self.lang),
+                             i18n.t("confirm_update_all", self.lang, n=len(pending), names=names, host=host)):
+            return
+        self.ctl.update_all()
+
+    def _on_progress(self, name: str, i: int, n: int):
+        self.status.setText(i18n.t("updating", self.lang, name=name, i=i, n=n))
+
     def _toggle(self):
         e = self._current
         if e is not None:
@@ -295,8 +338,7 @@ class HubDialog(QDialog):
     # ---- feedback ----------------------------------------------------------
     def _on_busy(self, busy: bool):
         self.btn_refresh.setEnabled(not busy)
-        if busy:
-            self.status.setText(i18n.t("busy", self.lang))
+        self._update_status()
         self._update_buttons()
 
     def _on_message(self, text: str, level: int):

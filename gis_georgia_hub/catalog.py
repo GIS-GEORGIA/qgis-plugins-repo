@@ -202,8 +202,10 @@ def details_html(entry: dict, lang: str, state: str, installed_version=None) -> 
     meta = ["v{}".format(e(entry["version"])), e(status_label(entry.get("status", ""), lang)),
             e(state_label(state, lang))]
     h.append("<p><b>{}</b></p>".format(" · ".join(m for m in meta if m)))
-    if installed_version and state in (INSTALLED, UPDATE):
+    if installed_version and state in (INSTALLED, UPDATE, SELF):
         h.append("<p>{}</p>".format(e(i18n.t("d_installed_ver", lang, v=installed_version))))
+    if state == SELF and installed_version and compare_versions(entry["version"], installed_version) > 0:
+        h.append("<p><b>{}</b></p>".format(e(i18n.t("self_update", lang, v=entry["version"]))))
     desc = localized(entry, "description", lang) or entry.get("summary", "")
     h.append("<p>{}</p>".format(e(desc)))
 

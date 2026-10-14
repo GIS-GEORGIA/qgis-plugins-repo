@@ -234,7 +234,6 @@
     <homepage>https://github.com/GIS-GEORGIA/qgis-plugins-repo</homepage>
     <file_name>transliterator.zip</file_name>
     <download_url>https://plugins.qgis.ge/plugins/transliterator.zip?v=1.2.1</download_url>
-    <icon>https://plugins.qgis.ge/transliterator/icon.png</icon>
     <author_name>Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
     <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>

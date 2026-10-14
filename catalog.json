@@ -44,8 +44,8 @@
    "download": {
     "url": "https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.1.0",
     "file": "gis_georgia_hub.zip",
-    "sha256": "3ef190dd3837c72ed9db92a6214a02bd6fe4014b77becee6f702815f5ecfc477",
-    "size": 18275
+    "sha256": "dc9824360f6e5a6c03ff213ff2d6afa34c2c15a7da43a97af2b8b8f473e8a6d6",
+    "size": 19789
    },
    "changelog": [
     {
@@ -1116,7 +1116,7 @@
    "homepage": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
    "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
    "tracker": "",
-   "icon_url": "https://plugins.qgis.ge/transliterator/icon.png",
+   "icon_url": null,
    "vendored": false,
    "download": {
     "url": "https://plugins.qgis.ge/plugins/transliterator.zip?v=1.2.1",
