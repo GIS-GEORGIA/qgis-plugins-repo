@@ -207,6 +207,26 @@ git add --renormalize .            # stages the LF-normalized content (matches w
 `build.py` still disagrees afterwards, the working-tree bytes themselves need rewriting, e.g. `sed -i 's/\r$//'
 <file>`, then re-run `git ls-files --eol` to confirm it's clean.
 
+### Catalog signature (GIS Georgia Hub)
+
+`catalog.json` is what the GIS Georgia Hub plugin reads. It is signed with Ed25519 (`catalog.json.sig`) and the
+Hub refuses a catalog that is unsigned, altered or signed by an unknown key - also when it reads its offline copy.
+The public key is in `gis_georgia_hub/signing.py` (`TRUSTED_KEYS`); the **private key never goes in this
+repository**. It is a one-line hex file at `~/.gis_georgia/catalog_signing.key` (or the path in
+`GIS_GEORGIA_SIGNING_KEY`), kept and backed up by the maintainer.
+
+```bash
+python tools/build.py                 # signs automatically when the key is on this machine
+python tools/sign_catalog.py          # sign (or re-sign) catalog.json by hand
+python tools/sign_catalog.py --verify # check the current signature
+python tools/test_catalog.py          # also checks the signature
+```
+
+CI only *verifies*: a change that touches a plugin changes `catalog.json`, so it must be re-signed before it is
+pushed or `build.py --check` fails. Rotating the key: `python tools/sign_catalog.py --new-key` (with
+`GIS_GEORGIA_SIGNING_KEY` pointing at a new path), add its public key to `TRUSTED_KEYS` next to the old one,
+release a Hub that trusts both, sign with the new key, and only later remove the old key.
+
 ---
 
 ## 📞 Contact / კონტაქტი

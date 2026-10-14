@@ -14,7 +14,7 @@
    "catalog_id": "gis-georgia-hub",
    "name": "GIS Georgia Hub",
    "name_ka": "GIS Georgia — დანამატების ცენტრი",
-   "version": "0.2.0",
+   "version": "0.3.0",
    "summary": "One place in QGIS to browse, install and update the GIS GEORGIA plugins (catalog in Georgian and English).",
    "description": {
     "en": "The catalog of the GIS GEORGIA plugins inside QGIS: search, read what each plugin does and where to find it, open its Processing algorithms, and install, update or remove it with a click. Checksum-verified downloads; update notice at start-up.",
@@ -42,12 +42,16 @@
    "icon_url": "https://plugins.qgis.ge/gis_georgia_hub/icon.svg",
    "vendored": false,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.2.0",
+    "url": "https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.3.0",
     "file": "gis_georgia_hub.zip",
-    "sha256": "7118c525cca6ef626c5ae170543aa83047b50d4fdab6821eea9c76da5b507fb9",
-    "size": 19838
+    "sha256": "21a5cedde2fcd57e64c8112a0e30df94433a05bce89f2aff371aad0664d6189a",
+    "size": 27556
    },
    "changelog": [
+    {
+     "version": "0.3.0",
+     "text": "The catalog is signed (Ed25519): the Hub refuses a catalog that is unsigned, altered or signed by an unknown key, also when reading its offline copy. Processing algorithms for automation: Install / update / uninstall a GIS GEORGIA plugin, Update all GIS GEORGIA plugins, List the catalog (Toolbox, Model Builder, qgis_process, Python)."
+    },
     {
      "version": "0.2.0",
      "text": "Update all, plugin icons, a note when a newer Hub exists, status line fixes."
@@ -67,7 +71,24 @@
      "ka": "ინტერნეტი კატალოგის ჩასატვირთად და დანამატების ჩამოსაწერად."
     }
    ],
-   "processing": null
+   "processing": {
+    "provider": "gis_georgia_hub",
+    "provider_name": "GIS Georgia Hub",
+    "algorithms": [
+     {
+      "id": "gis_georgia_hub:install_plugin",
+      "title": "Install, update or uninstall a GIS GEORGIA plugin"
+     },
+     {
+      "id": "gis_georgia_hub:list_catalog",
+      "title": "List the GIS GEORGIA plugin catalog"
+     },
+     {
+      "id": "gis_georgia_hub:update_plugins",
+      "title": "Update all installed GIS GEORGIA plugins"
+     }
+    ]
+   }
   },
   {
    "id": "plugin_downloader",

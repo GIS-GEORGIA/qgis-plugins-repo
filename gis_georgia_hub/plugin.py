@@ -24,11 +24,21 @@ class GisGeorgiaHubPlugin:
         self.ctl = None
         self._dir = os.path.dirname(os.path.abspath(__file__))
         self._timer = None
+        self.provider = None
 
     def _lang(self):
         return i18n.resolve_lang(QgsApplication.locale(), QgsSettings().value(S + "lang", "", str))
 
+    def initProcessing(self):
+        # also called headless by qgis_process (hasProcessingProvider=yes)
+        if self.provider is not None:
+            return
+        from .processing_provider import HubProvider
+        self.provider = HubProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
     def initGui(self):
+        self.initProcessing()
         self.ctl = HubController()
         self.ctl.lang = self._lang()
         label = i18n.t("title", self.ctl.lang)
@@ -44,6 +54,9 @@ class GisGeorgiaHubPlugin:
         self._timer.start(6000)
 
     def unload(self):
+        if self.provider is not None:
+            QgsApplication.processingRegistry().removeProvider(self.provider)
+            self.provider = None
         if self._timer is not None:
             self._timer.stop()
             self._timer = None
