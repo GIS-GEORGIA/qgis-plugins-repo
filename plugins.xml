@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
+  <pyqgis_plugin name="GIS Georgia Hub" version="0.1.0">
+    <description>One place in QGIS to browse, install and update the GIS GEORGIA plugins (catalog in Georgian and English).</description>
+    <about>GIS Georgia Hub is the catalog of the GIS GEORGIA plugins inside QGIS. Search the plugins, read what each one does and where to find it in QGIS, see its Processing algorithms and open them straight from the list, and install, update, disable or remove them with a click. Downloads come only from plugins.qgis.ge over HTTPS and are checked against a SHA-256 checksum before anything is installed. On start-up the Hub can tell you when an update is available (it never updates by itself); it can also add the GIS GEORGIA repository to the QGIS Plugin Manager, but only if you say yes. Bilingual (ka/en). / GIS GEORGIA-ს დანამატების კატალოგი QGIS-ში: მოძებნე, ნახე რას აკეთებს და სად არის, გახსენი Processing-ის ალგორითმები, დააყენე ან განაახლე ერთი დაჭერით.</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.40</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://plugins.qgis.ge</homepage>
+    <file_name>gis_georgia_hub.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.1.0</download_url>
+    <icon>https://plugins.qgis.ge/gis_georgia_hub/icon.svg</icon>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/qgis-plugins-repo</repository>
+    <tags>catalog,plugins,install,update,repository,georgia,georgian,gis georgia,hub</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
   <pyqgis_plugin name="Plugin Downloader" version="1.0.3">
     <description>Download all QGIS plugins into one folder, with progress and pause/resume.</description>
     <about>Fetches the full plugin list from the official QGIS repository and downloads each plugin's latest stable ZIP into a folder you choose. Shows overall and per-file progress and supports pause / resume / stop. Bilingual EN/KA. The same code also runs as a standalone PyQt program.</about>
