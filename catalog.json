@@ -91,6 +91,63 @@
    }
   },
   {
+   "id": "qgis_environment_manager",
+   "catalog_id": "qgis-environment-manager",
+   "name": "QGIS Environment Manager",
+   "name_ka": "QGIS-ის გარემო",
+   "version": "0.1.0",
+   "summary": "What this QGIS is, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (Georgian and English).",
+   "description": {
+    "en": "What this QGIS is and how it was installed, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (PostgreSQL client tools, ExifTool, SAGA, GRASS) - with a reviewed one-step install on Linux. Copyable report for support.",
+    "ka": "რა QGIS გაქვთ და როგორ არის დაყენებული; თქვენი დანამატებიდან რომელი აცხადებს QGIS 4-ის მხარდაჭერას; რა სჭირდება GIS GEORGIA-ს დანამატებს სისტემიდან (PostgreSQL-ის კლიენტი, ExifTool, SAGA, GRASS). Linux-ზე რაც აკლია, იმის დაყენება ბრძანებების გადახედვის შემდეგ. ანგარიში მხარდაჭერისთვის კოპირდება."
+   },
+   "status": "new",
+   "featured": true,
+   "bilingual": true,
+   "emoji": "🩺",
+   "category": "Plugins",
+   "tags": [
+    "qgis",
+    "environment",
+    "diagnostics",
+    "qgis4",
+    "compatibility",
+    "requirements"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.40",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://plugins.qgis.ge",
+   "repository": "https://github.com/GIS-GEORGIA/qgis-plugins-repo",
+   "tracker": "https://github.com/GIS-GEORGIA/qgis-plugins-repo/issues",
+   "icon_url": "https://plugins.qgis.ge/qgis_environment_manager/icon.svg",
+   "vendored": false,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.1.0",
+    "file": "qgis_environment_manager.zip",
+    "sha256": "5c7b6adbc689132e4974b542fb0b8243f56d4651670b7b34155ace7aa69159fa",
+    "size": 30600
+   },
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "text": "First release: diagnostics with a copyable report, a table of what each installed plugin declares for QGIS 3 and QGIS 4, and the system requirements of the GIS GEORGIA plugins with a reviewed one-step install on Linux."
+    }
+   ],
+   "usage": {
+    "en": "Plugins menu (QGIS Environment Manager) and the toolbar button.",
+    "ka": "მენიუ „დანამატები“ (QGIS Environment Manager) და ხელსაწყოთა პანელის ღილაკი."
+   },
+   "requires": [
+    {
+     "en": "Diagnostics and the plugin table work on every system; installing system packages works on Linux with a system (not Flatpak or Snap) QGIS.",
+     "ka": "დიაგნოსტიკა და დანამატების ცხრილი ყველა სისტემაზე მუშაობს. სისტემური პაკეტების დაყენება მუშაობს Linux-ზე, სისტემური QGIS-ით (არა Flatpak ან Snap)."
+    }
+   ],
+   "processing": null
+  },
+  {
    "id": "plugin_downloader",
    "catalog_id": "plugin-downloader",
    "name": "Plugin Downloader",

@@ -1,0 +1,113 @@
+# -*- coding: utf-8 -*-
+"""ka/en texts of QGIS Environment Manager (same light pattern as the other plugins)."""
+from __future__ import annotations
+
+DEFAULT_LANG = "ka"
+
+S = {
+    "title": {"ka": "QGIS Environment Manager — QGIS-ის გარემო", "en": "QGIS Environment Manager"},
+    "menu": {"ka": "QGIS Environment Manager", "en": "QGIS Environment Manager"},
+    "tab_diag": {"ka": "დიაგნოსტიკა", "en": "Diagnostics"},
+    "tab_plugins": {"ka": "დანამატები და QGIS 4", "en": "Plugins and QGIS 4"},
+    "tab_req": {"ka": "მოთხოვნები", "en": "Requirements"},
+    "lang_btn": {"ka": "EN", "en": "KA"},
+    "copy": {"ka": "ანგარიშის კოპირება", "en": "Copy report"},
+    "copied": {"ka": "ანგარიში დაკოპირდა", "en": "Report copied"},
+    "refresh": {"ka": "განახლება", "en": "Refresh"},
+    # diagnostics
+    "h_facts": {"ka": "ეს QGIS", "en": "This QGIS"},
+    "f_version": {"ka": "ვერსია", "en": "Version"},
+    "f_python": {"ka": "Python", "en": "Python"},
+    "f_qt": {"ka": "Qt", "en": "Qt"},
+    "f_gdal": {"ka": "GDAL", "en": "GDAL"},
+    "f_os": {"ka": "სისტემა", "en": "System"},
+    "f_runtime": {"ka": "გაშვების სახე", "en": "Run mode"},
+    "f_prefix": {"ka": "QGIS-ის საქაღალდე", "en": "QGIS folder"},
+    "f_profile": {"ka": "პროფილი", "en": "Profile"},
+    "rt_native": {"ka": "სისტემური (QGIS სისტემის Python-ს იყენებს)", "en": "system (QGIS uses the system Python)"},
+    "rt_flatpak": {"ka": "Flatpak (იზოლირებული)", "en": "Flatpak (sandboxed)"},
+    "rt_snap": {"ka": "Snap (იზოლირებული)", "en": "Snap (sandboxed)"},
+    "h_findings": {"ka": "რა ჩანს", "en": "What it means"},
+    "fi_none": {"ka": "შენიშვნები არ არის.", "en": "Nothing to note."},
+    "fi_ltr": {"ka": "ეს არის გრძელვადიანი (LTR) ხაზი {v}: სამუშაოსთვის ყველაზე სტაბილური.",
+               "en": "This is the long-term (LTR) line {v}: the most stable for work."},
+    "fi_latest": {"ka": "ეს არის უახლესი ხაზი {v}.", "en": "This is the latest line {v}."},
+    "fi_older": {"ka": "ეს ვერსია ({v}) LTR-ზე {ltr} ძველია. განახლება გირჩევნიათ.",
+                 "en": "This version ({v}) is older than the current LTR {ltr}. Updating is advised."},
+    "fi_has4": {"ka": "QGIS 4 ({latest}) უკვე არსებობს. ჯერ „დანამატები და QGIS 4“ ჩანართი ნახეთ.",
+                "en": "QGIS 4 ({latest}) is available. Check the “Plugins and QGIS 4” tab first."},
+    "fi_flatpak": {"ka": "QGIS Flatpak-ში მუშაობს: სისტემური პაკეტები მისთვის ხილული არ არის.",
+                   "en": "QGIS runs in Flatpak: system packages are not visible to it."},
+    "fi_snap": {"ka": "QGIS Snap-ში მუშაობს: სისტემური პაკეტები მისთვის ხილული არ არის.",
+                "en": "QGIS runs in Snap: system packages are not visible to it."},
+    "fi_key_soon": {"ka": "QGIS-ის რეპოზიტორიის გასაღები {date}-ს იწურება. გაითვალისწინეთ განახლებისას.",
+                    "en": "The QGIS repository signing key expires on {date}. Keep it in mind when updating."},
+    "fi_key_expired": {"ka": "QGIS-ის რეპოზიტორიის გასაღები {date}-ს ამოიწურა: განახლებები შეიძლება ვერ მოვიდეს.",
+                       "en": "The QGIS repository signing key expired on {date}: updates may fail."},
+    "h_installs": {"ka": "დაყენებულია", "en": "Installed"},
+    "installs_loading": {"ka": "მოწმდება…", "en": "Checking…"},
+    "installs_none": {"ka": "ამ კომპიუტერზე QGIS-ის დაყენების კვალი ვერ მოიძებნა (ეს ნორმალურია ზოგ სისტემაზე).",
+                      "en": "No trace of a QGIS installation was found (normal on some systems)."},
+    "installs_off": {"ka": "ეს სისტემა Linux არ არის: დაყენების წყაროს ძებნა მხოლოდ Linux-ზე მუშაობს.",
+                     "en": "This is not Linux: finding the install source only works on Linux."},
+    # plugins tab
+    "pl_head": {"ka": "ეს ცხრილი ამბობს, რას აცხადებს დანამატი თავის metadata.txt-ში. არ ამოწმებს, მართლა იმუშავებს თუ არა კოდი.",
+                "en": "This table shows what each plugin declares in its metadata.txt. It does not test whether the code really works."},
+    "pl_cols": {"ka": ["დანამატი", "ვერსია", "QGIS (დეკლარ.)", "Qt 6", "QGIS 3", "QGIS 4"],
+                "en": ["Plugin", "Version", "QGIS (declared)", "Qt 6", "QGIS 3", "QGIS 4"]},
+    "pl_summary": {"ka": "QGIS 4-ზე: {ok} დეკლარირებულია, {check} არ აცხადებს Qt 6-ს, {no} QGIS 3-ითაა შეზღუდული.",
+                   "en": "For QGIS 4: {ok} declare support, {check} do not declare Qt 6, {no} are limited to QGIS 3."},
+    "pl_none": {"ka": "მომხმარებლის პროფილში დანამატი არ არის.", "en": "No plugins in your profile."},
+    "pl_only": {"ka": "მხოლოდ პრობლემურები QGIS 4-ზე", "en": "Only the ones with a problem on QGIS 4"},
+    "v_ok": {"ka": "✔ დეკლარირებულია", "en": "✔ declared"},
+    "v_check": {"ka": "? Qt 6 არ არის მითითებული", "en": "? Qt 6 not declared"},
+    "v_no": {"ka": "✖ არა", "en": "✖ no"},
+    "v_fit3": {"ka": "✔", "en": "✔"},
+    "qt_yes": {"ka": "დიახ", "en": "yes"},
+    "qt_no": {"ka": "არა", "en": "no"},
+    "why_max_below": {"ka": "დანამატი მხოლოდ QGIS {max}-მდე არის გამიზნული", "en": "the plugin is limited to QGIS {max}"},
+    "why_min_above": {"ka": "დანამატს QGIS {min} ან უფრო ახალი სჭირდება", "en": "the plugin needs QGIS {min} or newer"},
+    "why_no_qt6": {"ka": "supportsQt6=True მითითებული არ არის: QGIS 4 შეიძლება არ ჩატვირთოს",
+                   "en": "supportsQt6=True is not set: QGIS 4 may not load it"},
+    "why_declared": {"ka": "დეკლარირებულია", "en": "declared"},
+    "why_unreadable": {"ka": "metadata.txt ვერ იკითხება", "en": "metadata.txt could not be read"},
+    # requirements tab
+    "rq_head": {"ka": "რა სჭირდება თქვენს დაყენებულ GIS GEORGIA-ს დანამატებს ოპერაციული სისტემიდან.",
+                "en": "What your installed GIS GEORGIA plugins need from the operating system."},
+    "rq_none": {"ka": "GIS GEORGIA-ს დანამატებიდან სისტემის დამატებითი ხელსაწყოები არცერთს არ სჭირდება ან დაყენებული არ არის.",
+                "en": "None of the installed GIS GEORGIA plugins needs extra system tools (or none is installed)."},
+    "rq_present": {"ka": "დაყენებულია", "en": "installed"},
+    "rq_missing": {"ka": "აკლია", "en": "missing"},
+    "rq_optional": {"ka": "არასავალდებულო", "en": "optional"},
+    "rq_manual": {"ka": "ამ სისტემისთვის პაკეტი არ არის: ხელით დააყენეთ", "en": "no package for this system: install it by hand"},
+    "rq_with_optional": {"ka": "არასავალდებულოებიც", "en": "Include the optional ones"},
+    "rq_install": {"ka": "რაც აკლია, იმის დაყენება…", "en": "Install what is missing…"},
+    "rq_confirm_title": {"ka": "ბრძანებების გადახედვა", "en": "Review the commands"},
+    "rq_confirm": {"ka": "ეს ბრძანებები ადმინისტრატორის უფლებით გაეშვება:\n\n{text}\n\nგავაგრძელო?",
+                   "en": "These commands will run with administrator rights:\n\n{text}\n\nContinue?"},
+    "rq_running": {"ka": "მიმდინარეობს…", "en": "Running…"},
+    "rq_done": {"ka": "დასრულდა. QGIS-ის გადატვირთვა შეიძლება დაგჭირდეთ.", "en": "Finished. You may need to restart QGIS."},
+    "rq_failed": {"ka": "ნაბიჯი ჩავარდა (კოდი {rc}).", "en": "A step failed (exit code {rc})."},
+    "rq_all_ok": {"ka": "ყველაფერი საჭირო უკვე დაყენებულია.", "en": "Everything needed is already installed."},
+    "rq_no_linux": {"ka": "პაკეტების დაყენება აქედან მხოლოდ Linux-ზე მუშაობს. Windows-ზე ეს ხელსაწყოები QGIS-ის ინსტალერთან ერთად მოდის ან OSGeo4W-ით ყენდება.",
+                    "en": "Installing packages from here only works on Linux. On Windows these tools come with the QGIS installer or OSGeo4W."},
+    "rq_sandbox": {"ka": "ეს QGIS იზოლირებულია ({kind}): სისტემური პაკეტები მას ვერ ნახავს, ამიტომ აქედან არ ვაყენებთ.",
+                   "en": "This QGIS is sandboxed ({kind}): system packages would not be visible to it, so nothing is installed from here."},
+    "rq_no_pm": {"ka": "პაკეტების მმართველი ვერ ამოვიცანით.", "en": "No supported package manager was found."},
+    "rq_elev_fail": {"ka": "ადმინისტრატორის უფლება ავტომატურად ვერ მივიღეთ. ტერმინალში გაუშვით:\n{cmd}",
+                     "en": "Could not get administrator rights automatically. Run this in a terminal:\n{cmd}"},
+}
+
+
+def t(key: str, lang: str = DEFAULT_LANG, **kw):
+    entry = S.get(key)
+    if entry is None:
+        return key
+    text = entry.get(lang) or entry.get("en") or key
+    return text.format(**kw) if kw and isinstance(text, str) else text
+
+
+def resolve_lang(locale_name: str = "", saved: str = "") -> str:
+    if saved in ("ka", "en"):
+        return saved
+    return "ka" if (locale_name or "").lower().startswith("ka") else "en"

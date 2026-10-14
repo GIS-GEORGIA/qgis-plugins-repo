@@ -227,6 +227,15 @@ pushed or `build.py --check` fails. Rotating the key: `python tools/sign_catalog
 `GIS_GEORGIA_SIGNING_KEY` pointing at a new path), add its public key to `TRUSTED_KEYS` next to the old one,
 release a Hub that trusts both, sign with the new key, and only later remove the old key.
 
+### QGIS Environment Manager and its vendored core
+
+`qgis_environment_manager/qgis_installer/` is a **copy** of the logic of the standalone installer
+(<https://github.com/kapo-Toolkits/linux-scripts>, `qgis-installer/qgis_installer/`). Never edit it here: change it in
+linux-scripts, then `python tools/sync_env_manager_core.py --source <linux-scripts>/qgis-installer/qgis_installer`.
+`VENDORED.json` records the source commit and the SHA-256 of every file; `--check` (also run in CI) fails if the copy
+was edited by hand. The plugin only *reads* what plugins declare; installing system packages is Linux-only and goes
+through the same reviewed commands as `qgis-installer-cli`.
+
 ---
 
 ## 📞 Contact / კონტაქტი
