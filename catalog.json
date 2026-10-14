@@ -14,7 +14,7 @@
    "catalog_id": "gis-georgia-hub",
    "name": "GIS Georgia Hub",
    "name_ka": "GIS Georgia — დანამატების ცენტრი",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "summary": "One place in QGIS to browse, install and update the GIS GEORGIA plugins (catalog in Georgian and English).",
    "description": {
     "en": "The catalog of the GIS GEORGIA plugins inside QGIS: search, read what each plugin does and where to find it, open its Processing algorithms, and install, update or remove it with a click. Checksum-verified downloads; update notice at start-up.",
@@ -42,12 +42,16 @@
    "icon_url": "https://plugins.qgis.ge/gis_georgia_hub/icon.svg",
    "vendored": false,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.1.0",
+    "url": "https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.2.0",
     "file": "gis_georgia_hub.zip",
-    "sha256": "dc9824360f6e5a6c03ff213ff2d6afa34c2c15a7da43a97af2b8b8f473e8a6d6",
-    "size": 19789
+    "sha256": "7118c525cca6ef626c5ae170543aa83047b50d4fdab6821eea9c76da5b507fb9",
+    "size": 19838
    },
    "changelog": [
+    {
+     "version": "0.2.0",
+     "text": "Update all, plugin icons, a note when a newer Hub exists, status line fixes."
+    },
     {
      "version": "0.1.0",
      "text": "First release: catalog window (search, filters, ka/en), install / update / uninstall / enable with checksum verification, Processing algorithms opened from the list, update notice at start-up, optional registration of the GIS GEORGIA repository in the Plugin Manager."

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="GIS Georgia Hub" version="0.1.0">
+  <pyqgis_plugin name="GIS Georgia Hub" version="0.2.0">
     <description>One place in QGIS to browse, install and update the GIS GEORGIA plugins (catalog in Georgian and English).</description>
     <about>GIS Georgia Hub is the catalog of the GIS GEORGIA plugins inside QGIS. Search the plugins, read what each one does and where to find it in QGIS, see its Processing algorithms and open them straight from the list, and install, update, disable or remove them with a click. Downloads come only from plugins.qgis.ge over HTTPS and are checked against a SHA-256 checksum before anything is installed. On start-up the Hub can tell you when an update is available (it never updates by itself); it can also add the GIS GEORGIA repository to the QGIS Plugin Manager, but only if you say yes. Bilingual (ka/en). / GIS GEORGIA-ს დანამატების კატალოგი QGIS-ში: მოძებნე, ნახე რას აკეთებს და სად არის, გახსენი Processing-ის ალგორითმები, დააყენე ან განაახლე ერთი დაჭერით.</about>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <qgis_minimum_version>3.40</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://plugins.qgis.ge</homepage>
     <file_name>gis_georgia_hub.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.1.0</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/gis_georgia_hub.zip?v=0.2.0</download_url>
     <icon>https://plugins.qgis.ge/gis_georgia_hub/icon.svg</icon>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
