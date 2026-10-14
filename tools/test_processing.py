@@ -126,7 +126,6 @@ def test_calc_geometry():
     section("calculate_geometry:calculate_geometry")
     poly = "POLYGON((44.80 41.70, 44.81 41.70, 44.81 41.71, 44.80 41.71, 44.80 41.70))"
     lyr = memlayer("Polygon", "field=id:integer", [(poly, [1])])
-    props = {}
 
     def calc(layer, prop_label_part, **kw):
         from calculate_geometry import processing_algorithms as pa
@@ -254,7 +253,6 @@ def test_model():
         QgsProcessingModelAlgorithm, QgsProcessingModelChildAlgorithm,
         QgsProcessingModelChildParameterSource, QgsProcessingModelOutput,
         QgsProcessingModelParameter, QgsProcessingParameterFeatureSource,
-        QgsProcessingParameterFeatureSink, QgsProcessingContext,
     )
     m = QgsProcessingModelAlgorithm("gg_chain", "GG chain")
     m.addModelParameter(QgsProcessingParameterFeatureSource("in", "in"),

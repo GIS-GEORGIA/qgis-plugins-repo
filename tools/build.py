@@ -528,7 +528,8 @@ def main() -> int:
 
         icon_url = None
         icon = metadata.get("icon", "").strip()
-        if icon and plugin.get("source"):
+        if icon and plugin.get("source") and os.path.isfile(
+                os.path.join(ROOT, plugin["source"], icon)):
             icon_url = f"{base_url}/{quote_path(plugin['source'])}/{quote_path(icon)}"
 
         entries.append(

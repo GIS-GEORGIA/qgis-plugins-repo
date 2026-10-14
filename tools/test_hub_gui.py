@@ -49,8 +49,13 @@ def providers():
 def local_fetch(url):
     """Serve our own catalog.json and zips instead of plugins.qgis.ge."""
     installer_core.check_url(url)  # same https + host rules as production
-    name = url.split("?")[0].rsplit("/", 1)[-1]
-    path = os.path.join(ROOT, name if name == "catalog.json" else os.path.join("plugins", name))
+    clean = url.split("?")[0].split("://", 1)[1].split("/", 1)[1]  # path on the host
+    if clean == "catalog.json":
+        path = os.path.join(ROOT, "catalog.json")
+    elif clean.startswith("plugins/"):
+        path = os.path.join(ROOT, clean)
+    else:  # icons are served from the plugin source folders
+        path = os.path.join(ROOT, *clean.split("/"))
     with open(path, "rb") as fh:
         return fh.read()
 
@@ -78,7 +83,9 @@ def run():
     n = len(ctl.plugins)
     check("catalog cached on disk", os.path.isfile(cache))
     check("list shows every plugin", dlg.list.count() == n and n >= 15, (dlg.list.count(), n))
-    check("status line counts them", str(n) in dlg.status.text(), dlg.status.text())
+    pump(lambda: not ctl.is_busy(), 30)  # the icon download runs right after the catalog
+    check("status line counts them once idle", "{} / {}".format(n, n) in dlg.status.text(),
+          dlg.status.text())
 
     # --- search / filters ---------------------------------------------------
     dlg.search.setText("cadastre")
@@ -197,6 +204,47 @@ def run():
     check("uninstall removes files and provider",
           installer_core.installed_version("calculate_geometry") is None
           and "calculate_geometry" not in providers())
+
+    # --- icons ----------------------------------------------------------------
+    check("icons were downloaded into the profile cache",
+          pump(lambda: os.path.isdir(ctl.icon_dir) and len(os.listdir(ctl.icon_dir)) >= 8, 30),
+          os.listdir(ctl.icon_dir) if os.path.isdir(ctl.icon_dir) else None)
+    with_icon = [p for p in ctl.plugins if ctl.icon_for(p) is not None]
+    check("icon_for returns real icons for plugins that have one", len(with_icon) >= 8, len(with_icon))
+    check("a plugin without an icon file falls back to the emoji",
+          ctl.icon_for(next(p for p in ctl.plugins if p["id"] == "postgis_manager")) is None)
+    check("no cached 404 pages", all(os.path.getsize(os.path.join(ctl.icon_dir, f)) > 20
+                                     for f in os.listdir(ctl.icon_dir)))
+
+    # --- update all -----------------------------------------------------------
+    pre = {}
+    for pid in ("owners_analyzer", "transliterator"):
+        e = next(p for p in ctl.plugins if p["id"] == pid)
+        got = []
+        ctl.install(e, done=got.append)
+        pump(lambda: bool(got))
+        mp = os.path.join(installer_core.plugins_dir(), pid, "metadata.txt")
+        txt = open(mp, encoding="utf-8").read()
+        open(mp, "w", encoding="utf-8").write(txt.replace("version=", "version=0.0.", 1))
+        pre[pid] = e["version"]
+    dlg.reload()
+    pend = sorted(p["id"] for p in ctl.pending_updates())
+    check("two outdated plugins are pending",
+          {"owners_analyzer", "transliterator"} <= set(pend), pend)
+    check("Update all button shows the count and is enabled",
+          str(len(pend)) in dlg.btn_update_all.text() and dlg.btn_update_all.isEnabled(),
+          dlg.btn_update_all.text())
+    asked.clear()
+    dlg.btn_update_all.click()
+    check("update all asks once and lists the plugins",
+          len(asked) == 1 and "Transliterator" in asked[0] and asked[0].count("•") >= 2, asked)
+    check("update all finishes: nothing pending, versions current",
+          pump(lambda: not ctl.is_busy() and not ctl.pending_updates()
+               and installer_core.installed_version("owners_analyzer") == pre["owners_analyzer"], 90),
+          [p["id"] for p in ctl.pending_updates()])
+    check("update all button disabled when nothing is pending", not dlg.btn_update_all.isEnabled())
+    for pid in ("owners_analyzer", "transliterator"):
+        installer_core.uninstall(pid)
 
     # --- tampered download is refused ---------------------------------------
     bad = dict(cur)
