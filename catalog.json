@@ -126,8 +126,8 @@
    "download": {
     "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.1.0",
     "file": "qgis_environment_manager.zip",
-    "sha256": "5c7b6adbc689132e4974b542fb0b8243f56d4651670b7b34155ace7aa69159fa",
-    "size": 30600
+    "sha256": "9fa25940c7e50fd86690486a9086993f63c105ba428592b3a7a214ff8aa497b7",
+    "size": 30599
    },
    "changelog": [
     {
