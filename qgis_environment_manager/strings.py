@@ -172,6 +172,11 @@ S = {
     "env_apply_btn": {"ka": "ამ კომპიუტერის ფაილთან მისადაგება…", "en": "Make this machine match a file…"},
     "env_saved": {"ka": "ჩაწერილია: {path} (კომპონენტი: {n})", "en": "Saved: {path} ({n} components)"},
     "env_fail": {"ka": "ფაილთან მუშაობა ვერ მოხერხდა: {why}", "en": "Could not work with the file: {why}"},
+    "doc_btn": {"ka": "ექიმის გაშვება", "en": "Run the doctor"},
+    "doc_text": {"ka": "ეძებს იმას, რაც QGIS-ს ცნობილად ანგრევს: საკუთარი Python-ის ასლი სისტემურს ფარავს (ამ QGIS-ის Python-ით ვამოწმებ), GDAL-ის ვერსიები არ ემთხვევა, PROJ-ის გზა ცუდია, რეპოზიტორია სხვა რელიზისაა, ბაზა დაზიანებულია, ადგილი არ არის. მხოლოდ კითხულობს.",
+                 "en": "Looks for what is known to break QGIS: your own copy of a Python library hiding the system's (checked through the Python of this QGIS), GDAL versions that disagree, a bad PROJ path, a repository of another release, a half-finished package database, no room. Reads only."},
+    "doc_running": {"ka": "ვამოწმებ…", "en": "Looking…"},
+    "doc_failed": {"ka": "ექიმი ვერ გაეშვა: {why}", "en": "The doctor could not run: {why}"},
     "rq_elev_fail": {"ka": "ადმინისტრატორის უფლება ავტომატურად ვერ მივიღეთ. ტერმინალში გაუშვით:\n{cmd}",
                      "en": "Could not get administrator rights automatically. Run this in a terminal:\n{cmd}"},
 }
