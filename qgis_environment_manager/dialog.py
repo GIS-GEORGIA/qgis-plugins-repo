@@ -16,7 +16,7 @@ from qgis.PyQt.QtWidgets import (
 
 from . import compat, diagnostics, strings
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import doctor, requirements, runner, simulate, system
+from .qgis_installer import doctor, pluginscan, requirements, runner, simulate, system
 from .components_tab import ComponentsTab
 from .versions_tab import VersionsTab
 from .workers import FuncWorker, InstallsWorker, StepsWorker
@@ -37,6 +37,7 @@ class EnvDialog(QDialog):
                  sysinfo=None, load_installs=True, simulate_fn=None, doctor_fn=None):
         super().__init__(parent)
         self.iface = iface
+        self._scan_find_spec = None               # tests: what "can this Python import it?" answers; None = the real one
         self._doctor_fn = doctor_fn              # tests: a function () -> result, run in the background like the real one
         self._simulate_fn = simulate_fn          # tests: a function steps -> result, run at once; None = ask the package manager in the background
         self._sim_workers = []
@@ -82,12 +83,16 @@ class EnvDialog(QDialog):
         self.lbl_doctor.setWordWrap(True)
         self.doc_row.addWidget(self.btn_doctor)
         self.doc_row.addWidget(self.lbl_doctor, 1)
+        self.chk_startup = QCheckBox()
+        self.chk_startup.setChecked(QgsSettings().value(SETTINGS + "startup_check", False, bool))
+        self.chk_startup.toggled.connect(lambda on: QgsSettings().setValue(SETTINGS + "startup_check", bool(on)))
         self.doctor_out = QPlainTextEdit()
         self.doctor_out.setReadOnly(True)
         self.doctor_out.setMaximumHeight(150)
         lay.addWidget(self.diag, 1)
         lay.addLayout(self.doc_row)
         lay.addWidget(self.doctor_out)
+        lay.addWidget(self.chk_startup)
         self.tabs.addTab(page, "")
         self.doctor_lines: list = []
         self._doctor_worker = None
@@ -108,6 +113,22 @@ class EnvDialog(QDialog):
         self.table.horizontalHeader().setStretchLastSection(True)
         for w in (self.pl_head, self.pl_summary, self.chk_only, self.table):
             lay.addWidget(w)
+        # what the plugins import that this Python lacks
+        self.scan_row = QHBoxLayout()
+        self.btn_scan = QPushButton()
+        self.chk_scan_optional = QCheckBox()
+        self.btn_scan_install = QPushButton()
+        self.scan_row.addWidget(self.btn_scan)
+        self.scan_row.addWidget(self.chk_scan_optional)
+        self.scan_row.addStretch(1)
+        self.scan_row.addWidget(self.btn_scan_install)
+        self.scan_out = QPlainTextEdit()
+        self.scan_out.setReadOnly(True)
+        self.scan_out.setMaximumHeight(140)
+        lay.addLayout(self.scan_row)
+        lay.addWidget(self.scan_out)
+        self.scan_result = None
+        self._scan_worker = None
         self.tabs.addTab(page, "")
 
         # requirements
@@ -142,6 +163,9 @@ class EnvDialog(QDialog):
         self.versions = VersionsTab(self)
         self.tabs.addTab(self.versions, "")
 
+        self.btn_scan.clicked.connect(self.scan_plugins)
+        self.btn_scan_install.clicked.connect(self.scan_install)
+        self.chk_scan_optional.toggled.connect(lambda *_: self._scan_buttons())
         self.btn_doctor.clicked.connect(self.run_doctor)
         self.btn_lang.clicked.connect(self._toggle_lang)
         self.btn_refresh.clicked.connect(self.refresh)
@@ -154,6 +178,11 @@ class EnvDialog(QDialog):
         self.setWindowTitle(self.tr_("title"))
         self.btn_copy.setText(self.tr_("copy"))
         self.btn_doctor.setText(self.tr_("doc_btn"))
+        self.chk_startup.setText(self.tr_("sn_chk"))
+        self.btn_scan.setText(self.tr_("sc_btn"))
+        self.chk_scan_optional.setText(self.tr_("sc_optional"))
+        self.btn_scan_install.setText(self.tr_("sc_install_btn"))
+        self._scan_buttons()
         self.lbl_doctor.setText(self.tr_("doc_text"))
         self.btn_doctor.setEnabled(bool(self.facts.get("is_linux")) and not (self._doctor_worker and self._doctor_worker.isRunning()))
         self.btn_refresh.setText(self.tr_("refresh"))
@@ -183,6 +212,63 @@ class EnvDialog(QDialog):
             self._installs_worker = InstallsWorker(self)
             self._installs_worker.done.connect(self._on_installs)
             self._installs_worker.start()
+
+    # ---- what the installed plugins import --------------------------------------------------
+    def _scan_buttons(self):
+        busy = bool(self._scan_worker and self._scan_worker.isRunning()) or bool(self.worker and self.worker.isRunning())
+        linux = bool(self.facts.get("is_linux"))
+        self.btn_scan.setEnabled(not busy)
+        steps_possible = bool(self.scan_result and pluginscan.wanted_components(self.scan_result, self.chk_scan_optional.isChecked()))
+        native = self.facts.get("runtime") == "native"
+        self.btn_scan_install.setEnabled(linux and native and steps_possible and not busy and bool(self._pm()))
+
+    def scan_plugins(self):
+        """Read the code of every installed plugin (never run it) and list what it imports that THIS Python - the one QGIS runs - cannot import."""
+        if self._scan_worker and self._scan_worker.isRunning():
+            return
+        dirs, pm = list(self._dirs_fn()), self._pm()
+        self.scan_out.setPlainText(self.tr_("sc_running"))
+        self.btn_scan.setEnabled(False)
+        spec = self._scan_find_spec
+        self._scan_worker = FuncWorker(lambda: pluginscan.report(dirs, pm, find_spec=spec), self)
+        self._scan_worker.done.connect(self._on_scanned)
+        self._scan_worker.start()
+
+    def _on_scanned(self, result):
+        if isinstance(result, Exception):
+            self.scan_result = None
+            self.scan_out.setPlainText(self.tr_("sc_failed", why=str(result)))
+        else:
+            self.scan_result = result
+            self.scan_out.setPlainText("\n".join(pluginscan.lines(result, self.lang)))
+        self._scan_buttons()
+
+    def scan_install(self):
+        ids = pluginscan.wanted_components(self.scan_result, self.chk_scan_optional.isChecked()) if self.scan_result else []
+        steps, _manual = requirements.install_steps(ids, self._pm()) if ids else ([], [])
+        if not steps:
+            return
+        text = core_i18n.steps_text(steps, self.lang)
+
+        def go():
+            self.scan_out.clear()
+            self.scan_out.appendPlainText(self.tr_("rq_running"))
+            self._steps = steps
+            self.worker = StepsWorker(steps, runner.default_elevator(), self, self._run_steps)
+            self.worker.line.connect(self.scan_out.appendPlainText)
+            self.worker.done.connect(self._on_scan_install_done)
+            self.btn_scan_install.setEnabled(False)
+            self.worker.start()
+        self.confirm_steps(self.tr_("rq_confirm_title"), text, steps, go, log=self.scan_out)
+
+    def _on_scan_install_done(self, rc, failed):
+        if rc == 0:
+            self.scan_out.appendPlainText(self.tr_("rq_done"))
+        elif runner.needs_elevation_fallback(rc, failed):
+            self.scan_out.appendPlainText(self.tr_("rq_elev_fail", cmd="sudo sh " + runner.write_root_script(self._steps)))
+        else:
+            self.scan_out.appendPlainText(self.tr_("rq_failed", rc=rc))
+        self.scan_plugins()
 
     def run_doctor(self):
         """Look for what is known to break QGIS, through the Python that QGIS itself runs (so a user copy of a library that hides the system's

@@ -124,6 +124,48 @@ REQ = {
         "pkgs": {"apt-get": ["python3-fiona"], "dnf": ["python3-fiona"], "pacman": ["python-fiona"],
                  "zypper": ["python{pyver}-Fiona"], "apk": None},
     },
+    "openpyxl": {
+        "cat": "python", "kind": "module", "module": "openpyxl",
+        "label": {"en": "openpyxl (Excel files)", "ka": "openpyxl (Excel-ის ფაილები)"},
+        "pkgs": {"apt-get": ["python3-openpyxl"], "dnf": ["python3-openpyxl"], "pacman": ["python-openpyxl"],
+                 "zypper": ["python{pyver}-openpyxl"], "apk": ["py3-openpyxl"]},
+    },
+    "requests": {
+        "cat": "python", "kind": "module", "module": "requests",
+        "label": {"en": "requests (web requests)", "ka": "requests (ვებ-მოთხოვნები)"},
+        "pkgs": {"apt-get": ["python3-requests"], "dnf": ["python3-requests"], "pacman": ["python-requests"],
+                 "zypper": ["python{pyver}-requests"], "apk": ["py3-requests"]},
+    },
+    "pyyaml": {
+        "cat": "python", "kind": "module", "module": "yaml",
+        "label": {"en": "PyYAML (YAML files)", "ka": "PyYAML (YAML ფაილები)"},
+        "pkgs": {"apt-get": ["python3-yaml"], "dnf": ["python3-pyyaml"], "pacman": ["python-yaml"],
+                 "zypper": ["python{pyver}-PyYAML"], "apk": ["py3-yaml"]},
+    },
+    "lxml": {
+        "cat": "python", "kind": "module", "module": "lxml",
+        "label": {"en": "lxml (XML)", "ka": "lxml (XML)"},
+        "pkgs": {"apt-get": ["python3-lxml"], "dnf": ["python3-lxml"], "pacman": ["python-lxml"],
+                 "zypper": ["python{pyver}-lxml"], "apk": ["py3-lxml"]},
+    },
+    "pillow": {
+        "cat": "python", "kind": "module", "module": "PIL",
+        "label": {"en": "Pillow (images)", "ka": "Pillow (სურათები)"},
+        "pkgs": {"apt-get": ["python3-pil"], "dnf": ["python3-pillow"], "pacman": ["python-pillow"],
+                 "zypper": ["python{pyver}-Pillow"], "apk": ["py3-pillow"]},
+    },
+    "jinja2": {
+        "cat": "python", "kind": "module", "module": "jinja2",
+        "label": {"en": "Jinja2 (templates)", "ka": "Jinja2 (შაბლონები)"},
+        "pkgs": {"apt-get": ["python3-jinja2"], "dnf": ["python3-jinja2"], "pacman": ["python-jinja"],
+                 "zypper": ["python{pyver}-Jinja2"], "apk": ["py3-jinja2"]},
+    },
+    "sqlalchemy": {
+        "cat": "python", "kind": "module", "module": "sqlalchemy",
+        "label": {"en": "SQLAlchemy (databases)", "ka": "SQLAlchemy (მონაცემთა ბაზები)"},
+        "pkgs": {"apt-get": ["python3-sqlalchemy"], "dnf": ["python3-sqlalchemy"], "pacman": ["python-sqlalchemy"],
+                 "zypper": ["python{pyver}-SQLAlchemy"], "apk": ["py3-sqlalchemy"]},
+    },
 }
 
 # where the components are listed, in this order

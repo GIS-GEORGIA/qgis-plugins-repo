@@ -790,6 +790,179 @@ def run():
     dlg.btn_lang.click()
     missing.clear()
 
+    # ---- what the installed plugins import (Plugins tab) -------------------------------------
+    from qgis_environment_manager.qgis_installer import pluginscan as core_scan
+    scan_dir = os.path.join(tmp, "scan_plugins")
+    plug = os.path.join(scan_dir, "lab_report")
+    os.makedirs(plug)
+    with open(os.path.join(plug, "metadata.txt"), "w", encoding="utf-8") as fh:
+        fh.write("[general]\nname=Lab report\n")
+    with open(os.path.join(plug, "__init__.py"), "w", encoding="utf-8") as fh:
+        fh.write("import os\nimport helper\nfrom qgis.core import QgsProject\nimport openpyxl\nimport numpy\n\ndef later():\n    import yaml\n    import rare_thing\n")
+    with open(os.path.join(plug, "helper.py"), "w", encoding="utf-8") as fh:
+        fh.write("import json\n")
+    d13 = EnvDialog(utils.iface, confirm=lambda title, text: confirms.append(text) or True, run_steps=fake_steps, facts_fn=lambda: dict(FACTS),
+                    dirs_fn=lambda: [scan_dir], sysinfo={"pm": "apt-get"}, load_installs=False, simulate_fn=sim_stub)
+    d13.lang = "en"
+    d13._scan_find_spec = lambda m: object() if m == "numpy" else None          # this "Python" has numpy and nothing else
+    d13.refresh()
+    check("the scan button is there; nothing to install before a scan", d13.btn_scan.isEnabled() and not d13.btn_scan_install.isEnabled(), d13.btn_scan.text())
+    d13.btn_scan.click()
+    check("the scan runs in the background and reports the plugin that does not load without openpyxl",
+          pump(lambda: d13.scan_result is not None) and "lab_report: does not load without openpyxl" in d13.scan_out.toPlainText(), d13.scan_out.toPlainText())
+    text = d13.scan_out.toPlainText()
+    check("it names the package, says yaml is optional, and does not invent anything for the plugin's own helper, qgis, os or numpy (present)",
+          "-> install with the system: python3-openpyxl" in text and "works without rare_thing, yaml but with less" in text and "helper" not in text and "numpy" not in text, text)
+    check("rare_thing has no package and is said so, not guessed", "no package for this system: rare_thing" in text, text)
+    check("install is possible for what has a package", d13.btn_scan_install.isEnabled())
+    confirms.clear()
+    runs.clear()
+    d13.btn_scan_install.click()
+    check("without the optional ones only the required package is in the reviewed commands (with the simulation)",
+          confirms and "apt-get install -y python3-openpyxl" in confirms[0] and "yaml" not in confirms[0] and "What the package manager says" in confirms[0], confirms)
+    check("the steps run as root", pump(lambda: bool(runs)) and runs[0][0][0]["root"] is True, runs)
+    pump(lambda: not (d13.worker and d13.worker.isRunning()))
+    check("afterwards it looks again and says what is still missing", pump(lambda: "works without rare_thing, yaml" in d13.scan_out.toPlainText()), d13.scan_out.toPlainText())
+    d13.chk_scan_optional.setChecked(True)
+    confirms.clear()
+    runs.clear()
+    pump(lambda: d13.btn_scan_install.isEnabled())
+    d13.btn_scan_install.click()
+    check("ticking 'also the optional ones' adds yaml", confirms and "python3-openpyxl python3-yaml" in confirms[0].replace("\n", " ") or "python3-yaml" in confirms[0], confirms)
+    pump(lambda: not (d13.worker and d13.worker.isRunning()))
+    d13.btn_lang.click()
+    d13.btn_scan.click()
+    check("Georgian scan report", pump(lambda: "შემოწმებულია დანამატი: 1." in d13.scan_out.toPlainText()), d13.scan_out.toPlainText())
+    d13.close()
+    d14 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS, runtime="flatpak"), dirs_fn=lambda: [scan_dir], sysinfo={"pm": "apt-get"}, load_installs=False)
+    d14.lang = "en"
+    d14._scan_find_spec = lambda m: None
+    d14.refresh()
+    d14.btn_scan.click()
+    pump(lambda: d14.scan_result is not None)
+    check("in a sandboxed QGIS the scan works (it only reads) but installing is off", "does not load without numpy, openpyxl" in d14.scan_out.toPlainText()
+          and not d14.btn_scan_install.isEnabled(), d14.scan_out.toPlainText())
+    d14.close()
+    d15 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [scan_dir], sysinfo={"pm": "apt-get"}, load_installs=False)
+    d15.lang = "en"
+    d15.refresh()
+    d15.btn_scan.click()
+    check("the REAL scan, with this QGIS's own Python as the importer, runs and reports what is missing there",
+          pump(lambda: d15.scan_result is not None) and d15.scan_out.toPlainText().startswith("Plugins checked: 1."), d15.scan_out.toPlainText())
+    d15.close()
+    d16 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [os.path.join(tmp, "no", "such")], sysinfo={"pm": "apt-get"}, load_installs=False)
+    d16.lang = "en"
+    d16.refresh()
+    d16.btn_scan.click()
+    check("no plugin folder: a clear zero, not a crash", pump(lambda: d16.scan_result is not None) and "Plugins checked: 0." in d16.scan_out.toPlainText(), d16.scan_out.toPlainText())
+    d16.close()
+
+    # ---- the notice at start-up (off by default) ----------------------------------------------
+    from qgis.core import QgsSettings as Settings
+    from qgis_environment_manager.plugin import EnvManagerPlugin as Plugin, SETTINGS as PLUGIN_SETTINGS
+
+    class Bar:
+        def __init__(self):
+            self.messages = []
+
+        def pushMessage(self, title, text, level=None, duration=0):  # noqa: N802
+            self.messages.append((title, text, level, duration))
+
+    class FakeIface:
+        def __init__(self):
+            self.bar = Bar()
+
+        def messageBar(self):  # noqa: N802
+            return self.bar
+
+        def mainWindow(self):  # noqa: N802
+            return None
+
+        def addPluginToMenu(self, *a):  # noqa: N802
+            pass
+
+        def addToolBarIcon(self, *a):  # noqa: N802
+            pass
+
+        def removePluginMenu(self, *a):  # noqa: N802
+            pass
+
+        def removeToolBarIcon(self, *a):  # noqa: N802
+            pass
+
+    st = Settings()
+    st.setValue(PLUGIN_SETTINGS + "lang", "en")                    # the message follows the language saved in the window (an earlier check left "ka")
+    st.remove(PLUGIN_SETTINGS + "startup_check")
+    st.remove(PLUGIN_SETTINGS + "last_check")
+    bad_result = {"diagnostics": [("warn", "fi_older", {})], "doctor": {"findings": [("problem", "proj_missing", {"var": "PROJ_LIB", "path": "/x"}),
+                                                                                       ("warn", "shadowing", {"name": "numpy", "user": "u", "system": "s"}),
+                                                                                       ("info", "shared_profile", {"n": 2})], "ran": [], "skipped": []}}
+    fi = FakeIface()
+    pl = Plugin(fi)
+    calls = []
+    pl._startup_fn = lambda: calls.append(1) or bad_result
+    check("start-up check is off by default: nothing runs, nothing is said", pl.start_check() is False and not calls and not fi.bar.messages)
+    st.setValue(PLUGIN_SETTINGS + "startup_check", True)
+    check("turned on: it runs in the background", pl.start_check() is True and pump(lambda: bool(fi.bar.messages)), fi.bar.messages)
+    title, text, level, duration = fi.bar.messages[0]
+    check("it says how many things need attention and how many are problems, and where to look",
+          "Needs attention: 3 (problems among them: 1)" in text and "Diagnostics" in text, text)
+    check("a problem makes it a critical message, and it goes away by itself", level == Qgis.MessageLevel.Critical and duration == 15, (level, duration))
+    check("it asks only once a day", pl.start_check() is False and len(calls) == 1 and len(fi.bar.messages) == 1, (calls, fi.bar.messages))
+    st.setValue(PLUGIN_SETTINGS + "last_check", "2000-01-01")
+    fi2 = FakeIface()
+    pl2 = Plugin(fi2)
+    pl2._startup_fn = lambda: {"diagnostics": [("info", "fi_ltr", {})], "doctor": {"findings": [("info", "shared_profile", {"n": 2})], "ran": [], "skipped": []}}
+    check("the next day it runs again; notes and information are not worth a message", pl2.start_check() is True and pump(lambda: Settings().value(PLUGIN_SETTINGS + "last_check", "", str) != "2000-01-01")
+          and (pump(lambda: bool(fi2.bar.messages), 1) or True) and not fi2.bar.messages, fi2.bar.messages)
+    st.setValue(PLUGIN_SETTINGS + "last_check", "2000-01-01")
+    fi3 = FakeIface()
+    pl3 = Plugin(fi3)
+    pl3._startup_fn = lambda: 1 / 0
+    check("a check that crashes is silent and does not break QGIS", pl3.start_check() is True and (pump(lambda: bool(fi3.bar.messages), 1) or True) and not fi3.bar.messages, fi3.bar.messages)
+    st.setValue(PLUGIN_SETTINGS + "last_check", "2000-01-01")
+    fi4 = FakeIface()
+    pl4 = Plugin(fi4)
+    pl4._startup_fn = lambda: {"diagnostics": [("warn", "fi_older", {})], "doctor": {"findings": [], "ran": [], "skipped": []}}
+    pl4.start_check()
+    pump(lambda: bool(fi4.bar.messages))
+    check("only warnings: a warning-level message", fi4.bar.messages and fi4.bar.messages[0][2] == Qgis.MessageLevel.Warning, fi4.bar.messages)
+    st.setValue(PLUGIN_SETTINGS + "startup_check", False)
+    pl5 = Plugin(FakeIface())
+    pl5.initGui()
+    check("turned off: no timer is even started when QGIS starts", pl5._timer is None)
+    pl5.unload()
+    st.setValue(PLUGIN_SETTINGS + "startup_check", True)
+    pl6 = Plugin(FakeIface())
+    pl6.initGui()
+    check("turned on: a single-shot timer waits until QGIS has started", pl6._timer is not None and pl6._timer.isSingleShot() and pl6._timer.isActive(), pl6._timer)
+    pl6.unload()
+    check("unload stops it", pl6._timer is None)
+    st.remove(PLUGIN_SETTINGS + "startup_check")
+    d17 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"}, load_installs=False)
+    d17.lang = "en"
+    d17.refresh()
+    check("the box in the window is off by default and says so", not d17.chk_startup.isChecked() and "off by default" in d17.chk_startup.text(), d17.chk_startup.text())
+    d17.chk_startup.setChecked(True)
+    check("ticking it is remembered", Settings().value(PLUGIN_SETTINGS + "startup_check", False, bool) is True)
+    d17.chk_startup.setChecked(False)
+    check("unticking it too", Settings().value(PLUGIN_SETTINGS + "startup_check", True, bool) is False)
+    d17.close()
+    st.remove(PLUGIN_SETTINGS + "startup_check")
+    st.remove(PLUGIN_SETTINGS + "last_check")
+    st.setValue(PLUGIN_SETTINGS + "lang", "en")
+    fi7 = FakeIface()
+    pl7 = Plugin(fi7)
+    st.setValue(PLUGIN_SETTINGS + "startup_check", True)
+    pl7._startup_fn = lambda: bad_result
+    st.setValue(PLUGIN_SETTINGS + "lang", "ka")
+    pl7.start_check()
+    pump(lambda: bool(fi7.bar.messages))
+    check("the message is in the language saved in the window (Georgian)", fi7.bar.messages and "ყურადღებას საჭიროებს: 3" in fi7.bar.messages[0][1], fi7.bar.messages)
+    st.setValue(PLUGIN_SETTINGS + "lang", "en")
+    st.remove(PLUGIN_SETTINGS + "startup_check")
+    st.remove(PLUGIN_SETTINGS + "last_check")
+
     # ---- the doctor (Diagnostics tab) --------------------------------------------------------
     from qgis_environment_manager.qgis_installer import doctor as core_doctor
     fake_result = {"findings": [("problem", "proj_missing", {"var": "PROJ_LIB", "path": "/x"}), ("warn", "shadowing", {"name": "numpy", "user": "/home/u/.local/n", "system": "/usr/n"}),
