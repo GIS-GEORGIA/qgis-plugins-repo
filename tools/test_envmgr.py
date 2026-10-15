@@ -154,7 +154,7 @@ class Texts(unittest.TestCase):
     def test_every_key_the_code_uses_exists(self):
         import re
         used = set()
-        for name in ("dialog.py", "diagnostics.py", "plugin.py", "versions_tab.py"):
+        for name in ("dialog.py", "diagnostics.py", "plugin.py", "versions_tab.py", "components_tab.py"):
             with open(os.path.join(PLUGIN_DIR, name), encoding="utf-8") as fh:
                 src = fh.read()
             found = re.findall(r'\b(?:tr_|t)\("([a-z0-9_]+)"', src)
@@ -194,6 +194,19 @@ class VersionsTexts(unittest.TestCase):
             self.assertIn("br_" + branch, core.STR["en"])
         for ch in recipes.AUR_CHANNELS:
             self.assertIn("aur_" + ch, core.STR["ka"])
+
+
+class ComponentsTexts(unittest.TestCase):
+    def test_every_category_has_a_core_text_and_every_component_has_both_labels(self):
+        from qgis_environment_manager.qgis_installer import i18n as core
+        for c in requirements.CATEGORIES:
+            for lang in ("en", "ka"):
+                self.assertIn("cat_" + c, core.STR[lang])
+        rows = requirements.components("apt-get")
+        self.assertEqual({r["id"] for r in rows}, set(requirements.REQ))
+        for r in rows:
+            self.assertTrue(r["label"]["en"] and r["label"]["ka"], r["id"])
+        self.assertGreaterEqual(len(rows), 18)
 
 
 class ProfileBackup(unittest.TestCase):
@@ -260,6 +273,7 @@ class Vendored(unittest.TestCase):
         self.assertIn("requirements.py", record["files"])
         for name in ("recipes.py", "update.py"):                 # the versions tab needs the recipes and the update plan
             self.assertIn(name, record["files"])
+        self.assertTrue(hasattr(requirements, "components") and requirements.CATEGORIES)    # the components tab
         self.assertNotIn("cli.py", record["files"])
 
     def test_every_gis_georgia_plugin_in_the_table_is_a_real_catalog_plugin(self):

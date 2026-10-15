@@ -120,6 +120,13 @@ S = {
     "vt_backup_btn": {"ka": "პროფილის ასლის გაკეთება…", "en": "Back up my profile…"},
     "vt_backup_done": {"ka": "ასლი მზადაა: {path} ({files} ფაილი, {size})", "en": "Copy ready: {path} ({files} files, {size})"},
     "vt_backup_fail": {"ka": "ასლი ვერ გაკეთდა: {why}", "en": "Could not make the copy: {why}"},
+    # components tab
+    "tab_components": {"ka": "კომპონენტები", "en": "Components"},
+    "cp_head": {"ka": "პროგრამები და ბიბლიოთეკები QGIS-ის გარშემო (GDAL, PROJ, GRASS, SAGA, Python-ის ბიბლიოთეკები, ბაზის კლიენტები): რა არის და რა შეიძლება დაემატოს. ეს OSGeo4W-ის არჩევანის პატარა ანალოგია Linux-ზე: ყველაფერი სისტემის პაკეტების მმართველით დგება. წაშლა აქედან არ ხდება, რადგან ბიბლიოთეკა (მაგ. NumPy) თავად QGIS-ის დამოკიდებულებაც შეიძლება იყოს.",
+                "en": "Programs and libraries around QGIS (GDAL, PROJ, GRASS, SAGA, Python libraries, database clients): what is there and what can be added. The small Linux form of the OSGeo4W chooser: everything is installed with the system's package manager. Nothing is removed from here, because a library (for example NumPy) can be a dependency of QGIS itself."},
+    "cp_install_btn": {"ka": "არჩეულის დაყენება…", "en": "Install selected…"},
+    "cp_selected": {"ka": "არჩეულია: {n}", "en": "Selected: {n}"},
+    "cp_none_selected": {"ka": "ჩაატარეთ ნიშანი იმ კომპონენტებზე, რომელთა დაყენებაც გინდათ.", "en": "Tick the components you want to install."},
     "rq_elev_fail": {"ka": "ადმინისტრატორის უფლება ავტომატურად ვერ მივიღეთ. ტერმინალში გაუშვით:\n{cmd}",
                      "en": "Could not get administrator rights automatically. Run this in a terminal:\n{cmd}"},
 }
