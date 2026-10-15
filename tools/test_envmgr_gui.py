@@ -790,6 +790,50 @@ def run():
     dlg.btn_lang.click()
     missing.clear()
 
+    # ---- the doctor (Diagnostics tab) --------------------------------------------------------
+    from qgis_environment_manager.qgis_installer import doctor as core_doctor
+    fake_result = {"findings": [("problem", "proj_missing", {"var": "PROJ_LIB", "path": "/x"}), ("warn", "shadowing", {"name": "numpy", "user": "/home/u/.local/n", "system": "/usr/n"}),
+                                ("info", "shared_profile", {"n": 2})], "ran": ["shadowing", "proj", "sources"], "skipped": ["gdal"]}
+    d9 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"}, load_installs=False,
+                   doctor_fn=lambda: fake_result)
+    d9.lang = "en"
+    d9.refresh()
+    check("the doctor button is there and enabled on Linux", d9.btn_doctor.text() == "Run the doctor" and d9.btn_doctor.isEnabled(), d9.btn_doctor.text())
+    d9.btn_doctor.click()
+    check("while it runs the button is off and says so", not d9.btn_doctor.isEnabled() or d9.doctor_lines, d9.doctor_out.toPlainText())
+    check("the doctor runs in the background and its findings appear, worst first",
+          pump(lambda: bool(d9.doctor_lines)) and d9.doctor_lines[1].startswith("[PROBLEM] PROJ_LIB points to /x") and d9.doctor_lines[2].startswith("[warning] numpy")
+          and d9.doctor_lines[3].startswith("[note]"), d9.doctor_lines)
+    check("it says what was looked at and what was not", d9.doctor_lines[0].startswith("What the doctor looked at: Python libraries hidden")
+          and "Not looked at (not available here): GDAL tools against GDAL for Python." in d9.doctor_lines[-1], d9.doctor_lines)
+    check("the button works again afterwards", pump(lambda: d9.btn_doctor.isEnabled()), d9.btn_doctor.isEnabled())
+    check("the copied report carries the doctor's lines", "[PROBLEM] PROJ_LIB points to /x" in d9.report() and "QGIS Environment Manager" in d9.report(), d9.report()[-300:])
+    d9.btn_lang.click()
+    d9.btn_doctor.click()
+    check("Georgian doctor", pump(lambda: d9.doctor_lines and d9.doctor_lines[0].startswith("ექიმმა შეამოწმა")) and d9.doctor_lines[1].startswith("[პრობლემა]"), d9.doctor_lines)
+    d9.close()
+    d10 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"}, load_installs=False, doctor_fn=lambda: 1 / 0)
+    d10.lang = "en"
+    d10.refresh()
+    d10.btn_doctor.click()
+    check("a doctor that crashes says so and does not break the window", pump(lambda: bool(d10.doctor_lines)) and d10.doctor_lines[0].startswith("The doctor could not run"), d10.doctor_lines)
+    d10.close()
+    d11 = EnvDialog(utils.iface, facts_fn=lambda: dict(FACTS, is_linux=False), dirs_fn=lambda: [plugins], sysinfo={"pm": ""}, load_installs=False)
+    d11.lang = "en"
+    d11.refresh()
+    check("off Linux the doctor button is disabled", not d11.btn_doctor.isEnabled())
+    d11.close()
+    # the REAL doctor, in this real QGIS: its own GDAL against the gdalinfo on the path, its own Python's libraries
+    d12 = EnvDialog(utils.iface, facts_fn=lambda: dict(diagnostics.gather_facts(), is_linux=True), dirs_fn=lambda: [plugins], sysinfo=None, load_installs=False)
+    d12.lang = "en"
+    d12.refresh()
+    d12.btn_doctor.click()
+    check("the real doctor runs inside QGIS", pump(lambda: bool(d12.doctor_lines), 90) and d12.doctor_lines[0].startswith("What the doctor looked at"), d12.doctor_lines)
+    check("and does not invent a GDAL mismatch for the GDAL that QGIS itself ships",
+          not any("GDAL command line tools are" in ln for ln in d12.doctor_lines), d12.doctor_lines)
+    print("   real doctor in QGIS:", d12.doctor_lines)
+    d12.close()
+
     # ---- copy report -------------------------------------------------------------
     report = dlg.report()
     check("the report is plain text with facts and findings", "QGIS Environment Manager" in report and "3.44.5" in report

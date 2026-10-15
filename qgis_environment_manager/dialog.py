@@ -16,7 +16,7 @@ from qgis.PyQt.QtWidgets import (
 
 from . import compat, diagnostics, strings
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import requirements, runner, simulate, system
+from .qgis_installer import doctor, requirements, runner, simulate, system
 from .components_tab import ComponentsTab
 from .versions_tab import VersionsTab
 from .workers import FuncWorker, InstallsWorker, StepsWorker
@@ -34,9 +34,10 @@ def plugin_dirs():
 
 class EnvDialog(QDialog):
     def __init__(self, iface=None, parent=None, confirm=None, run_steps=None, facts_fn=None, dirs_fn=None,
-                 sysinfo=None, load_installs=True, simulate_fn=None):
+                 sysinfo=None, load_installs=True, simulate_fn=None, doctor_fn=None):
         super().__init__(parent)
         self.iface = iface
+        self._doctor_fn = doctor_fn              # tests: a function () -> result, run in the background like the real one
         self._simulate_fn = simulate_fn          # tests: a function steps -> result, run at once; None = ask the package manager in the background
         self._sim_workers = []
         self._confirm = confirm or self._ask
@@ -71,9 +72,25 @@ class EnvDialog(QDialog):
         self.tabs = QTabWidget()
         root.addWidget(self.tabs, 1)
 
-        # diagnostics
+        # diagnostics (+ the doctor)
+        page = QWidget()
+        lay = QVBoxLayout(page)
         self.diag = QTextBrowser()
-        self.tabs.addTab(self.diag, "")
+        self.doc_row = QHBoxLayout()
+        self.btn_doctor = QPushButton()
+        self.lbl_doctor = QLabel()
+        self.lbl_doctor.setWordWrap(True)
+        self.doc_row.addWidget(self.btn_doctor)
+        self.doc_row.addWidget(self.lbl_doctor, 1)
+        self.doctor_out = QPlainTextEdit()
+        self.doctor_out.setReadOnly(True)
+        self.doctor_out.setMaximumHeight(150)
+        lay.addWidget(self.diag, 1)
+        lay.addLayout(self.doc_row)
+        lay.addWidget(self.doctor_out)
+        self.tabs.addTab(page, "")
+        self.doctor_lines: list = []
+        self._doctor_worker = None
 
         # plugins
         page = QWidget()
@@ -125,6 +142,7 @@ class EnvDialog(QDialog):
         self.versions = VersionsTab(self)
         self.tabs.addTab(self.versions, "")
 
+        self.btn_doctor.clicked.connect(self.run_doctor)
         self.btn_lang.clicked.connect(self._toggle_lang)
         self.btn_refresh.clicked.connect(self.refresh)
         self.btn_copy.clicked.connect(self._copy)
@@ -135,6 +153,9 @@ class EnvDialog(QDialog):
     def retranslate(self):
         self.setWindowTitle(self.tr_("title"))
         self.btn_copy.setText(self.tr_("copy"))
+        self.btn_doctor.setText(self.tr_("doc_btn"))
+        self.lbl_doctor.setText(self.tr_("doc_text"))
+        self.btn_doctor.setEnabled(bool(self.facts.get("is_linux")) and not (self._doctor_worker and self._doctor_worker.isRunning()))
         self.btn_refresh.setText(self.tr_("refresh"))
         self.btn_lang.setText(self.tr_("lang_btn"))
         for i, key in enumerate(("tab_diag", "tab_plugins", "tab_req", "tab_components", "tab_versions")):
@@ -162,6 +183,33 @@ class EnvDialog(QDialog):
             self._installs_worker = InstallsWorker(self)
             self._installs_worker.done.connect(self._on_installs)
             self._installs_worker.start()
+
+    def run_doctor(self):
+        """Look for what is known to break QGIS, through the Python that QGIS itself runs (so a user copy of a library that hides the system's
+        one is the very one QGIS imports), in the background."""
+        if self._doctor_worker and self._doctor_worker.isRunning():
+            return
+        installs = list(self.installs or [])
+        info = self._sysinfo if (self._sysinfo and "apt" in self._sysinfo) else system.detect()
+        gdal_version = self._facts_gdal()
+        self.btn_doctor.setEnabled(False)
+        self.doctor_out.setPlainText(self.tr_("doc_running"))
+        fn = self._doctor_fn or (lambda: doctor.run_all(installs, info, python_gdal=gdal_version))
+        self._doctor_worker = FuncWorker(fn, self)
+        self._doctor_worker.done.connect(self._on_doctor)
+        self._doctor_worker.start()
+
+    def _facts_gdal(self):
+        g = self.facts.get("gdal")
+        return g or None                       # the GDAL that QGIS itself loads (an empty string = not known)
+
+    def _on_doctor(self, result):
+        if isinstance(result, Exception):
+            self.doctor_lines = [self.tr_("doc_failed", why=str(result))]
+        else:
+            self.doctor_lines = doctor.lines(result, self.lang)
+        self.doctor_out.setPlainText("\n".join(self.doctor_lines))
+        self.btn_doctor.setEnabled(bool(self.facts.get("is_linux")))
 
     def _on_installs(self, items):
         self.installs = items
@@ -339,7 +387,8 @@ class EnvDialog(QDialog):
 
     # ---- misc -----------------------------------------------------------------
     def report(self) -> str:
-        return diagnostics.report_text(self.facts, self.findings, self.installs, self.lang, self._label)
+        text = diagnostics.report_text(self.facts, self.findings, self.installs, self.lang, self._label)
+        return text + ("\n\n" + "\n".join(self.doctor_lines) if self.doctor_lines else "")
 
     def _copy(self):
         QApplication.clipboard().setText(self.report())

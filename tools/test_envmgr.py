@@ -412,7 +412,7 @@ class Vendored(unittest.TestCase):
         with open(os.path.join(PLUGIN_DIR, "qgis_installer", "VENDORED.json"), encoding="utf-8") as fh:
             record = json.load(fh)
         self.assertIn("requirements.py", record["files"])
-        for name in ("recipes.py", "update.py", "instances.py", "simulate.py", "versions.py", "envspec.py"):    # what the tabs need
+        for name in ("recipes.py", "update.py", "instances.py", "simulate.py", "versions.py", "envspec.py", "doctor.py"):    # what the tabs need
             self.assertIn(name, record["files"])
         self.assertTrue(hasattr(requirements, "components") and requirements.CATEGORIES)    # the components tab
         self.assertNotIn("cli.py", record["files"])
