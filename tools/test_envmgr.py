@@ -209,6 +209,23 @@ class ComponentsTexts(unittest.TestCase):
         self.assertGreaterEqual(len(rows), 18)
 
 
+class InstancesTexts(unittest.TestCase):
+    def test_the_texts_the_installed_programs_block_builds_exist_in_both_languages(self):
+        from qgis_environment_manager.qgis_installer import i18n as core
+        for key in ("upd_available", "upd_current", "upd_unknown", "upd_cached", "upd_network", "inst_profile", "inst_cannot_launch"):
+            for lang in ("en", "ka"):
+                self.assertIn(key, core.STR[lang], (key, lang))
+        for lang in ("en", "ka"):
+            self.assertEqual(len(strings.S["vt_inst_cols"][lang]), 4)
+
+    def test_every_update_source_has_a_text(self):
+        from qgis_environment_manager.qgis_installer import i18n as core, instances
+        rows = instances.check_updates([], run=lambda *a, **k: (1, ""))
+        self.assertEqual(rows, [])
+        for src in ("cached", "network"):                         # the two values of check_updates()[...]["source"]
+            self.assertIn("upd_" + src, core.STR["en"])
+
+
 class ProfileBackup(unittest.TestCase):
     def make_profile(self, base):
         prof = os.path.join(base, "profiles", "default")
@@ -271,7 +288,7 @@ class Vendored(unittest.TestCase):
         with open(os.path.join(PLUGIN_DIR, "qgis_installer", "VENDORED.json"), encoding="utf-8") as fh:
             record = json.load(fh)
         self.assertIn("requirements.py", record["files"])
-        for name in ("recipes.py", "update.py"):                 # the versions tab needs the recipes and the update plan
+        for name in ("recipes.py", "update.py", "instances.py"):    # the versions tab needs the recipes, the update plan and the instances
             self.assertIn(name, record["files"])
         self.assertTrue(hasattr(requirements, "components") and requirements.CATEGORIES)    # the components tab
         self.assertNotIn("cli.py", record["files"])

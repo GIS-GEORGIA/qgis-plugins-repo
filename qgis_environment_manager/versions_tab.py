@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import os
 
+from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
-    QComboBox, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QRadioButton, QVBoxLayout, QWidget,
+    QAbstractItemView, QComboBox, QFileDialog, QGroupBox, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit, QPushButton,
+    QRadioButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from . import profile_backup
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import recipes, runner, system, update
-from .workers import StepsWorker
+from .qgis_installer import instances, recipes, runner, system, update
+from .workers import StepsWorker, UpdatesWorker
 
 
 def plan_text(result: dict, lang: str) -> str:
@@ -47,6 +49,10 @@ class VersionsTab(QWidget):
         self.worker = None
         self._steps: list = []
         self._pick_dir = None                     # tests inject a folder chooser
+        self._popen = None                        # tests inject a process starter
+        self._check_fn = None                     # tests inject the update check
+        self.updates: dict = {}                   # instance id -> check_updates row
+        self._updates_worker = None
         self._info = None                         # tests inject a system description
         self._build()
 
@@ -69,6 +75,29 @@ class VersionsTab(QWidget):
         v.addWidget(self.lbl_update)
         v.addWidget(self.btn_update)
         lay.addWidget(self.g_update)
+
+        self.g_inst = QGroupBox()
+        v = QVBoxLayout(self.g_inst)
+        self.inst_table = QTableWidget(0, 4)
+        self.inst_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.inst_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.inst_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.inst_table.verticalHeader().setVisible(False)
+        self.inst_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.inst_table.horizontalHeader().setStretchLastSection(True)
+        self.inst_table.setMaximumHeight(150)
+        self.lbl_check = QLabel()
+        self.lbl_check.setWordWrap(True)
+        row = QHBoxLayout()
+        self.btn_check = QPushButton()
+        self.btn_start = QPushButton()
+        row.addWidget(self.btn_check)
+        row.addWidget(self.btn_start)
+        row.addStretch(1)
+        v.addWidget(self.inst_table)
+        v.addWidget(self.lbl_check)
+        v.addLayout(row)
+        lay.addWidget(self.g_inst)
 
         self.g_other = QGroupBox()
         v = QVBoxLayout(self.g_other)
@@ -113,6 +142,8 @@ class VersionsTab(QWidget):
 
         self.cmb_recipe.currentIndexChanged.connect(self._on_recipe)
         self.opt_cmb["channel"].currentIndexChanged.connect(lambda *_: None)
+        self.btn_check.clicked.connect(self.check_updates)
+        self.btn_start.clicked.connect(self.start_selected)
         self.btn_update.clicked.connect(self.run_update)
         self.btn_install.clicked.connect(self.run_install)
         self.btn_backup.clicked.connect(self.run_backup)
@@ -127,6 +158,11 @@ class VersionsTab(QWidget):
         self.head.setText(self.tr_("vt_head"))
         self.g_update.setTitle(self.tr_("vt_update_h"))
         self.btn_update.setText(self.tr_("vt_update_btn"))
+        self.g_inst.setTitle(self.tr_("vt_inst_h"))
+        self.inst_table.setHorizontalHeaderLabels(self.tr_("vt_inst_cols"))
+        self.lbl_check.setText(self.tr_("vt_check_note"))
+        self.btn_check.setText(self.tr_("vt_check_btn"))
+        self.btn_start.setText(self.tr_("vt_start_btn"))
         self.g_other.setTitle(self.tr_("vt_other_h"))
         for goal, b in self.goal_btns.items():
             b.setText(self.core("goal_" + goal))
@@ -167,6 +203,71 @@ class VersionsTab(QWidget):
         self.btn_update.setEnabled(reason is None and bool(plan["steps"] or plan["manual"]) and not self._running())
         self.btn_install.setEnabled(self.recipe_id() is not None and reason is None and not self._running())
         self.btn_backup.setEnabled(not self._running())
+        self._fill_instances()
+
+    # ---- installed programs ---------------------------------------------------------
+    def instance_rows(self):
+        return instances.list_instances(self.d.installs or [])
+
+    def _fill_instances(self):
+        rows = self.instance_rows()
+        self.inst_table.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            u = self.updates.get(r["id"])
+            if u is None:
+                state = ""
+            else:
+                state = {True: self.core("upd_available"), False: self.core("upd_current"), None: self.core("upd_unknown")}[u["update"]]
+                if u["update"] and u.get("candidate"):
+                    state += " ({})".format(u["candidate"])
+            how = " ".join(r["launch"]) if r["launch"] else self.core("inst_cannot_launch")
+            for c, text in enumerate((core_i18n.label_for(r["label_item"], self.d.lang), r["version"], state, how)):
+                item = QTableWidgetItem(text)
+                if c == 2 and u is not None and u["update"]:
+                    item.setForeground(QColor("#e65100"))
+                if c == 2 and u is not None:
+                    item.setToolTip(self.core("upd_" + u["source"]))
+                self.inst_table.setItem(i, c, item)
+        if self.d.installs is None:
+            self.lbl_check.setText(self.tr_("vt_inst_loading"))
+        elif not rows:
+            self.lbl_check.setText(self.tr_("vt_inst_none"))
+        else:
+            self.lbl_check.setText(self.tr_("vt_check_note"))
+        busy = self._running() or bool(self._updates_worker and self._updates_worker.isRunning())
+        self.btn_check.setEnabled(bool(rows) and not busy)
+        self.btn_start.setEnabled(any(r["launchable"] for r in rows))
+
+    def check_updates(self):
+        items = self.d.installs or []
+        if not items or (self._updates_worker and self._updates_worker.isRunning()):
+            return
+        self.btn_check.setEnabled(False)
+        self.lbl_check.setText(self.tr_("vt_checking"))
+        self._updates_worker = UpdatesWorker(items, self, self._check_fn)
+        self._updates_worker.done.connect(self._on_checked)
+        self._updates_worker.start()
+
+    def _on_checked(self, rows):
+        self.updates = {r["id"]: r for r in rows}
+        self._fill_instances()
+
+    def start_selected(self):
+        rows = self.instance_rows()
+        sel = self.inst_table.currentRow()
+        if not (0 <= sel < len(rows)) or not rows[sel]["launchable"]:
+            self.log.appendPlainText(self.tr_("vt_start_none"))
+            return
+        row = rows[sel]
+        note = self.core("inst_profile") if row["shared_profile"] else ""
+        if not self.d._confirm(self.tr_("vt_start_title"), self.tr_("vt_start_confirm", cmd=" ".join(row["launch"]), note=note).strip()):
+            return
+        try:
+            pid = instances.launch(row, popen=self._popen)
+        except (OSError, ValueError) as exc:
+            self.log.appendPlainText(self.tr_("vt_start_fail", why=str(exc)))
+            return
+        self.log.appendPlainText(self.tr_("vt_started", pid=pid))
 
     def goal(self):
         return next(g for g, b in self.goal_btns.items() if b.isChecked())

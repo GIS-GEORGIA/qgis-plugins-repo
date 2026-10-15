@@ -69,13 +69,13 @@ def find_installs(sysinfo):
         items.append({"kind": "repo", "files": sorted(files), "c": chan, "root": True})
     # flatpak
     if shutil.which("flatpak"):
-        rc, out = _run(["flatpak", "list", "--app", "--columns=application,version,installation"])
+        rc, out = _run(["flatpak", "list", "--app", "--columns=application,version,installation,branch"])
         for line in out.splitlines():
             c = [x.strip() for x in line.split("\t")]
             if c and c[0] == "org.qgis.qgis":
                 inst = c[2] if len(c) > 2 else "user"
                 items.append({"kind": "flatpak", "i": inst, "v": c[1] if len(c) > 1 else "?",
-                              "root": inst == "system"})
+                              "br": c[3] if len(c) > 3 else "", "root": inst == "system"})
     # snap
     if shutil.which("snap"):
         rc, out = _run(["snap", "list", "qgis"])
@@ -123,7 +123,9 @@ def build_remove_steps(items, purge, autoremove, sysinfo):
         elif k == "repo":
             root.append("rm -f " + " ".join(shlex.quote(f) for f in it["files"]))
         elif k == "flatpak":
-            (root if it["root"] else user).append(f"flatpak uninstall --{it['i']} -y org.qgis.qgis")
+            # both branches (stable and lts) can be installed side by side: name the one that was found
+            ref = "org.qgis.qgis//" + it["br"] if re.fullmatch(r"[A-Za-z0-9_.-]+", it.get("br") or "") else "org.qgis.qgis"
+            (root if it["root"] else user).append(f"flatpak uninstall --{it['i']} -y {ref}")
         elif k == "snap":
             root.append("snap remove qgis")
         elif k == "dist":

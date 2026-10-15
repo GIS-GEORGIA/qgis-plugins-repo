@@ -168,6 +168,13 @@ STR = {
  "cp_unknown": "Unknown component '{id}'. Known: {known}",
  "cp_have": "{name}: already installed.",
  "cp_no_pm": "No supported package manager was found on this system.",
+ "inst_none": "No QGIS installation that can be started was found.",
+ "inst_cannot_launch": "No way to start this one is known.",
+ "inst_unknown_id": "Unknown installation '{id}'. Known: {known}",
+ "inst_profile": "Two QGIS programs of the same major version share your profile folder: close the other one before starting this, or start only one at a time. Flatpak and Snap keep their own profile.",
+ "inst_started": "Started (process {pid}).",
+ "upd_available": "newer build available", "upd_current": "up to date", "upd_unknown": "could not tell",
+ "upd_cached": "as of the last refresh of the package index", "upd_network": "asked online",
  "upd_title": "Update the QGIS installations found here",
  "rcw_upd_close_qgis": "Close QGIS before updating: its libraries change under it. Your profile (settings, plugins) is not touched; a copy of it is a cheap safety net.",
  "rcw_upd_none": "Nothing to update here: no QGIS installation was found, or only user data and repository files.",
@@ -341,6 +348,13 @@ STR = {
  "cp_unknown": "უცნობი კომპონენტი „{id}“. ცნობილია: {known}",
  "cp_have": "{name}: უკვე დაყენებულია.",
  "cp_no_pm": "ამ სისტემაზე მხარდაჭერილი პაკეტების მმართველი ვერ მოიძებნა.",
+ "inst_none": "გასაშვები QGIS-ის დაყენება ვერ ვიპოვე.",
+ "inst_cannot_launch": "ამის გაშვების გზა უცნობია.",
+ "inst_unknown_id": "უცნობი დაყენება „{id}“. ცნობილია: {known}",
+ "inst_profile": "ერთი და იმავე მთავარი ვერსიის ორი QGIS თქვენს პროფილის საქაღალდეს იზიარებს: ამის გაშვებამდე სხვა დახურეთ ან ერთდროულად მხოლოდ ერთი გაუშვით. Flatpak-სა და Snap-ს საკუთარი პროფილი აქვთ.",
+ "inst_started": "გაეშვა (პროცესი {pid}).",
+ "upd_available": "ხელმისაწვდომია უფრო ახალი ვერსია", "upd_current": "უახლესია", "upd_unknown": "გარკვევა ვერ მოხერხდა",
+ "upd_cached": "პაკეტების ინდექსის ბოლო განახლების მიხედვით", "upd_network": "ინტერნეტში იკითხება",
  "upd_title": "აქ ნაპოვნი QGIS-ის განახლება",
  "rcw_upd_close_qgis": "განახლებამდე დახურეთ QGIS: მისი ბიბლიოთეკები მის ქვეშ იცვლება. თქვენი პროფილი (პარამეტრები, დანამატები) არ შეიცვლება, მისი ასლი იაფი დაზღვევაა.",
  "rcw_upd_none": "აქ განახლებადი არაფერია: QGIS-ის დაყენება ვერ ვიპოვე ან მხოლოდ მომხმარებლის მონაცემები და რეპოზიტორიის ფაილებია.",
@@ -365,7 +379,7 @@ def label_for(it, lang="en"):
     if k == "repo":
         return t("k_repo", lang, f=", ".join(os.path.basename(f) for f in it["files"]), c=it["c"])
     if k == "flatpak":
-        return t("k_flatpak", lang, i=it["i"], v=it["v"])
+        return t("k_flatpak", lang, i=it["i"] + (", " + it["br"] if it.get("br") else ""), v=it["v"])
     if k == "snap":
         return t("k_snap", lang, v=it["v"])
     if k == "dist":

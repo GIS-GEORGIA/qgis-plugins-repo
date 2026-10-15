@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
-from .qgis_installer import runner, system, uninstall
+from .qgis_installer import instances, runner, system, uninstall
 
 
 class InstallsWorker(QThread):
@@ -32,3 +32,19 @@ class StepsWorker(QThread):
     def run(self):
         rc, failed = self._run(self._steps, on_line=lambda s: self.line.emit(s.rstrip("\n")), elevate=self._elevate)
         self.done.emit(rc, failed)
+
+
+class UpdatesWorker(QThread):
+    """check_updates() asks apt / flatpak / dnf...: some of it goes over the network, so keep it off the GUI thread."""
+    done = pyqtSignal(list)
+
+    def __init__(self, items, parent=None, check=None):
+        super().__init__(parent)
+        self._items = items
+        self._check = check or instances.check_updates
+
+    def run(self):
+        try:
+            self.done.emit(self._check(self._items))
+        except Exception:  # noqa: BLE001 - a failed check must not break the window: it just reports nothing
+            self.done.emit([])

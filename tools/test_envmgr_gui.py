@@ -301,6 +301,82 @@ def run():
     vt.refresh()
     check("installs still loading: says so", "Checking" in vt.lbl_update.text() and not vt.btn_update.isEnabled(), vt.lbl_update.text())
 
+    # installed QGIS programs: the table, the update check, starting one
+    from qgis_environment_manager.qgis_installer import instances as core_instances
+    have = lambda *names: (lambda c: "/usr/bin/" + c if c in names else None)  # noqa: E731
+    FP_STABLE = {"kind": "flatpak", "i": "user", "v": "4.2.2", "br": "stable", "root": False}
+    FP_LTS = {"kind": "flatpak", "i": "system", "v": "3.44.5", "br": "lts", "root": True}
+    APT = {"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "3.44.5", "o": "qgis.org", "root": True}
+    SNAP = {"kind": "snap", "v": "3.44", "root": True}
+    dlg.installs = [APT, FP_STABLE, FP_LTS, SNAP]
+    vt.instance_rows = lambda: core_instances.list_instances(dlg.installs, which=have("qgis", "flatpak"))   # snap cannot be started here
+    vt.retranslate()
+    tbl = vt.inst_table
+    cell = lambda r, c: tbl.item(r, c).text()  # noqa: E731
+    check("the table lists every installation with its version and how it starts",
+          tbl.rowCount() == 4 and "apt packages" in cell(0, 0) and cell(0, 1) == "3.44.5" and cell(0, 3) == "qgis"
+          and "user, stable" in cell(1, 0) and cell(1, 3) == "flatpak run --branch=stable org.qgis.qgis"
+          and cell(2, 3) == "flatpak run --branch=lts org.qgis.qgis", [(cell(r, 0), cell(r, 3)) for r in range(tbl.rowCount())])
+    check("one that cannot be started says so", cell(3, 3) == "No way to start this one is known.", cell(3, 3))
+    check("before the check the update column is empty", all(cell(r, 2) == "" for r in range(4)))
+
+    vt._check_fn = lambda items: [{"id": "apt", "version": "3.44.5", "update": True, "candidate": "3.44.6", "source": "cached"},
+                                  {"id": "flatpak-user-stable", "version": "4.2.2", "update": None, "candidate": None, "source": "network"},
+                                  {"id": "flatpak-system-lts", "version": "3.44.5", "update": False, "candidate": None, "source": "network"}]
+    vt.btn_check.click()
+    check("the update check runs in the background and fills the column",
+          pump(lambda: cell(0, 2) != ""), [cell(r, 2) for r in range(4)])
+    pump(lambda: not (vt._updates_worker and vt._updates_worker.isRunning()))
+    check("a newer build is shown with its version; unknown is not 'up to date'; current is current",
+          cell(0, 2) == "newer build available (3.44.6)" and cell(1, 2) == "could not tell" and cell(2, 2) == "up to date",
+          [cell(r, 2) for r in range(4)])
+    check("the source of the answer is in the tooltip", "last refresh" in tbl.item(0, 2).toolTip() and "online" in tbl.item(1, 2).toolTip(),
+          (tbl.item(0, 2).toolTip(), tbl.item(1, 2).toolTip()))
+    check("the check button is usable again", vt.btn_check.isEnabled())
+
+    started = []
+
+    class P:
+        pid = 99
+
+    vt._popen = lambda argv, **kw: started.append((argv, kw)) or P()
+    confirms.clear()
+    vt.log.clear()
+    tbl.selectRow(0)
+    vt.btn_start.click()
+    check("starting a system QGIS shows the command and the shared-profile warning first",
+          confirms and "qgis" in confirms[0] and "share your profile folder" in confirms[0], confirms)
+    check("then starts it detached", started and started[0][0] == ["qgis"] and started[0][1]["start_new_session"] is True, started)
+    check("and logs the process", "Started (process 99)" in vt.log.toPlainText(), vt.log.toPlainText())
+    started.clear()
+    confirms.clear()
+    tbl.selectRow(1)
+    vt.btn_start.click()
+    check("a Flatpak has its own profile: no warning, the branch is in the command",
+          confirms and "flatpak run --branch=stable org.qgis.qgis" in confirms[0] and "share your profile" not in confirms[0]
+          and started and started[0][0][:3] == ["flatpak", "run", "--branch=stable"], (confirms, started))
+    started.clear()
+    dlg._confirm = lambda title, text: False
+    tbl.selectRow(0)
+    vt.btn_start.click()
+    check("declining the question starts nothing", started == [], started)
+    dlg._confirm = lambda title, text: confirms.append(text) or True
+    vt.log.clear()
+    tbl.selectRow(3)
+    vt.btn_start.click()
+    check("an installation that cannot be started starts nothing and says what to do", started == [] and "Pick a QGIS" in vt.log.toPlainText(), vt.log.toPlainText())
+    tbl.clearSelection()
+    tbl.setCurrentCell(-1, -1)
+    vt.log.clear()
+    vt.btn_start.click()
+    check("nothing selected: the same hint", started == [] and "Pick a QGIS" in vt.log.toPlainText(), vt.log.toPlainText())
+    dlg.btn_lang.click()
+    check("Georgian headers of the installed-programs table", list(tbl.horizontalHeaderItem(i).text() for i in range(4))[:2] == ["QGIS", "ვერსია"], tbl.horizontalHeaderItem(1).text())
+    dlg.btn_lang.click()
+    del vt.instance_rows                              # back to the real method
+    dlg.installs = None
+    vt.refresh()
+
     # instructions-only recipes run nothing
     vt._info = NIXOS
     vt.retranslate()
