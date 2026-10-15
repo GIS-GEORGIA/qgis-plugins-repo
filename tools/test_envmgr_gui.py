@@ -699,6 +699,97 @@ def run():
           and "ბრძანების სტრიქონის" in cp.tree.topLevelItem(0).text(0), (dlg.tabs.tabText(3), cp.tree.topLevelItem(0).text(0)))
     dlg.btn_lang.click()
 
+    # ---- the environment file (Components tab) ----------------------------------------------
+    from qgis_environment_manager.qgis_installer import envspec as core_envspec
+    cp._info = UBUNTU
+    dlg.facts = dict(FACTS)
+    dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "1:3.44.5+24noble", "o": "qgis.org", "root": True}]
+    missing.clear()
+    missing.update({"gdal", "numpy"})
+    cp.refresh()
+    env_dir = os.path.join(tmp, "envfiles")
+    os.makedirs(env_dir, exist_ok=True)
+
+    def write_env(name, doc):
+        path = os.path.join(env_dir, name)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(doc if isinstance(doc, str) else json.dumps(doc))
+        return path
+
+    check("the environment file group is there, with three buttons", cp.btn_env_save.text().startswith("Save this machine") and cp.btn_env_check.isEnabled(),
+          cp.btn_env_save.text())
+    saved = os.path.join(env_dir, "saved.json")
+    cp._pick_save = lambda: saved
+    cp.log.clear()
+    cp.btn_env_save.click()
+    spec_saved = json.load(open(saved, encoding="utf-8")) if os.path.exists(saved) else {}
+    check("saving writes a valid environment file with the components that are there and the QGIS that is installed",
+          core_envspec.validate(spec_saved) and "proj" in spec_saved["components"] and "gdal" not in spec_saved["components"]
+          and spec_saved["qgis"]["recipe"] == "apt-distro", spec_saved)
+    check("the log says where it was saved", "Saved: " in cp.log.toPlainText() and saved in cp.log.toPlainText(), cp.log.toPlainText())
+    dlg.installs = None
+    cp.log.clear()
+    cp.btn_env_save.click()
+    check("while the installations are still being looked for it does not write a file that lacks QGIS", "Checking" in cp.log.toPlainText(), cp.log.toPlainText())
+    dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "1:3.44.5+24noble", "o": "qgis.org", "root": True}]
+
+    wanted = write_env("want.json", {"schema": 1, "name": "lab", "components": ["gdal", "numpy", "proj"],
+                                     "qgis": {"goal": "stable", "recipe": "apt-official", "options": {"channel": "ltr"}, "version": "3.44.5"}})
+    cp._pick_open = lambda: wanted
+    cp.log.clear()
+    cp.btn_env_check.click()
+    text = cp.log.toPlainText()
+    check("comparing says what is there and what is missing, and changes nothing",
+          "QGIS: installed (1:3.44.5+24noble), as the file asks" in text and "Components: 1 of 3 present" in text
+          and "to install: GDAL command line tools" in text and not runs[-1:] == [None], text)
+
+    confirms.clear()
+    runs.clear()
+    sims.clear()
+    cp.log.clear()
+    cp.btn_env_apply.click()
+    check("applying shows the file's state, the commands for exactly what is missing and the simulation first",
+          confirms and "apt-get install -y gdal-bin python3-numpy" in confirms[0] and "Components: 1 of 3 present" in confirms[0]
+          and "What the package manager says" in confirms[0] and "proj-bin" not in confirms[0], confirms)
+    check("then it runs them as root through the elevator", pump(lambda: bool(runs)) and runs[0][0][0]["root"] is True, runs)
+    pump(lambda: not cp._running())
+    check("afterwards the list is refreshed and the same file now matches", all(
+        "[installed]" in comp_item(c).text(0) for c in ("gdal", "numpy")), [comp_item(c).text(0) for c in ("gdal", "numpy")])
+    cp.log.clear()
+    confirms.clear()
+    runs.clear()
+    cp.btn_env_apply.click()
+    check("applying it again says it already matches and asks nothing", "already matches" in cp.log.toPlainText() and not confirms and not runs, cp.log.toPlainText())
+
+    for label, doc, needle in (("recipe", {"schema": 1, "components": [], "qgis": {"goal": "stable", "recipe": "x; rm -rf ~", "options": {}}}, "unknown recipe"),
+                               ("component", {"schema": 1, "components": ["gdal", "evil"]}, "unknown component"),
+                               ("json", "{nope", "Not a valid environment file"),
+                               ("big", " " * (70 * 1024), "larger than 64 KB")):
+        cp._pick_open = lambda path=write_env("bad_" + label + ".json", doc): path
+        confirms.clear()
+        runs.clear()
+        cp.log.clear()
+        cp.btn_env_apply.click()
+        check("a bad file is refused with the reason, nothing asked or run: " + label,
+              needle in cp.log.toPlainText() and not confirms and not runs, (cp.log.toPlainText(), confirms, runs))
+    cp._pick_open = lambda: os.path.join(env_dir, "nope.json")
+    cp.log.clear()
+    cp.btn_env_apply.click()
+    check("a file that is not there is said so", "Could not work with the file" in cp.log.toPlainText(), cp.log.toPlainText())
+
+    for label, facts, needle in (("flatpak QGIS", dict(FACTS, runtime="flatpak"), "sandboxed (flatpak)"), ("not Linux", dict(FACTS, is_linux=False), "only works on Linux")):
+        d8 = EnvDialog(utils.iface, facts_fn=lambda f=facts: dict(f), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"}, load_installs=False)
+        d8.lang = "en"
+        d8.components._info = UBUNTU
+        d8.retranslate()
+        check("environment file apply is blocked: " + label, not d8.components.btn_env_apply.isEnabled() and needle in d8.components.blocker.text(),
+              d8.components.blocker.text())
+        d8.close()
+    dlg.btn_lang.click()
+    check("Georgian texts of the environment file group", cp.g_env.title() == "გარემოს ფაილი" and cp.btn_env_apply.text().endswith("მისადაგება…"), cp.g_env.title())
+    dlg.btn_lang.click()
+    missing.clear()
+
     # ---- copy report -------------------------------------------------------------
     report = dlg.report()
     check("the report is plain text with facts and findings", "QGIS Environment Manager" in report and "3.44.5" in report

@@ -1,9 +1,10 @@
 {
  "source": "https://github.com/kapo-Toolkits/linux-scripts/tree/main/qgis-installer/qgis_installer",
- "source_commit": "f6427475e3b49444d5b70fff5bf34f1019433730",
+ "source_commit": "beff84cbcb258e942de0b58c0c7e7dd9862809af",
  "files": {
-  "__init__.py": "32d7b15ecec138672554eb07e76f21587dae930ac5b5dc729e6719955743d37c",
-  "i18n.py": "02fab1fdba82bf5946080ac980f8932705b9a3259657b68a65ab7e9b00565850",
+  "__init__.py": "c71cd77bb6423ffc70ca918bd2532acb0f4f8634ad0f5f7ac4735cf69cc01ad2",
+  "envspec.py": "ca4541d5a0ed6e05cf9e0b953dc6155f8d4d3ed4449c1037cc6aa4bf304d8029",
+  "i18n.py": "05a27c67d18bb88e4452d7123acb3d82512443e93dd021e09a43c42532a64120",
   "instances.py": "7767511a7aa80eb3ef4415195f619f1e2fc7cd876935f58a41eb8eed4f117185",
   "plan.py": "4166638fd72d02a85579845f4e36ba3da8e5cea790c0b51e9ddeb3a3671fb432",
   "recipes.py": "6d11d29b4e773ad4085966d9bb2c11c0d83834d206dbaf615e140f5ad74b857f",
