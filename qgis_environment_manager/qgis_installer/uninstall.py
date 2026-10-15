@@ -4,6 +4,8 @@ import re
 import shutil
 import subprocess
 
+from .system import CONTAINER_BOX
+
 
 def _run(cmd):
     try:
@@ -59,7 +61,8 @@ def find_installs(sysinfo):
         chan = ""
         for f in files:
             if f.endswith((".sources", ".list")):
-                m = re.search(r"qgis\.org/(\S+)", open(f, errors="replace").read())
+                with open(f, errors="replace") as fh:
+                    m = re.search(r"qgis\.org/(\S+)", fh.read())
                 if m:
                     chan = f" — {m.group(1)}"
                     break
@@ -80,14 +83,26 @@ def find_installs(sysinfo):
             c = line.split()
             if c and c[0] == "qgis":
                 items.append({"kind": "snap", "v": c[1] if len(c) > 1 else "?", "root": True})
-    # distro packages other than apt
+    # distro packages other than apt (the official ones and, on Arch, the AUR's qgis-ltr / qgis-git)
     pm = sysinfo["pm"]
-    if pm == "pacman" and _run(["pacman", "-Q", "qgis"])[0] == 0:
-        items.append({"kind": "dist", "pm": pm, "v": _run(["pacman", "-Q", "qgis"])[1].split()[-1], "root": True})
-    elif pm in ("dnf", "zypper") and shutil.which("rpm"):
-        rc, out = _run(["rpm", "-q", "--qf", "%{VERSION}", "qgis"])
-        if rc == 0:
-            items.append({"kind": "dist", "pm": pm, "v": out.strip(), "root": True})
+    if pm == "pacman":
+        found = [(n, _run(["pacman", "-Q", n])) for n in ("qgis", "qgis-ltr", "qgis-git")]
+        have = [(n, out.split()[-1]) for n, (rc, out) in found if rc == 0 and out.split()]
+        if have:
+            items.append({"kind": "dist", "pm": pm, "pkgs": [n for n, _ in have], "v": have[0][1], "root": True})
+    elif (pm in ("dnf", "zypper") or sysinfo.get("immutable") == "ostree") and shutil.which("rpm"):
+        names = ["qgis", "qgis-ltr"] if pm == "zypper" else ["qgis"]
+        for n in names:
+            rc, out = _run(["rpm", "-q", "--qf", "%{VERSION}", n])
+            if rc == 0:
+                items.append({"kind": "dist", "pm": "rpm-ostree" if sysinfo.get("immutable") == "ostree" else pm,
+                              "pkgs": [n], "v": out.strip(), "root": True})
+    # containers made by this installer (Distrobox / Toolbx)
+    for tool, cmd in (("distrobox", ["distrobox", "list"]), ("toolbox", ["toolbox", "list", "--containers"])):
+        if shutil.which(tool):
+            rc, out = _run(cmd)
+            if rc == 0 and CONTAINER_BOX in out:
+                items.append({"kind": "container", "tool": tool, "name": CONTAINER_BOX, "root": False})
     # user data (never ticked by default)
     for d in USER_DATA:
         full = os.path.expanduser(d)
@@ -112,8 +127,13 @@ def build_remove_steps(items, purge, autoremove, sysinfo):
         elif k == "snap":
             root.append("snap remove qgis")
         elif k == "dist":
-            root.append({"dnf": "dnf remove -y qgis", "zypper": "zypper --non-interactive remove qgis",
-                         "pacman": "pacman -R --noconfirm qgis"}[it["pm"]])
+            names = " ".join(shlex.quote(n) for n in it.get("pkgs") or ["qgis"])
+            root.append({"dnf": f"dnf remove -y {names}", "zypper": f"zypper --non-interactive remove {names}",
+                         "pacman": f"pacman -R --noconfirm {names}",
+                         "rpm-ostree": f"rpm-ostree uninstall {names}"}[it["pm"]])
+        elif k == "container":
+            if it["tool"] in ("distrobox", "toolbox") and re.fullmatch(r"[A-Za-z0-9_.-]+", it["name"]):
+                user.append(f"{it['tool']} rm --force {it['name']}")
         elif k == "data":
             path = it["path"]
             allowed = {os.path.expanduser(d) for d in USER_DATA}

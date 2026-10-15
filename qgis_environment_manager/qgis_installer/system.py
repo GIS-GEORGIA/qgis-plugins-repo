@@ -1,4 +1,5 @@
 """System detection and the data about QGIS channels / supported distributions (no UI)."""
+import os
 import platform
 import shutil
 import subprocess
@@ -8,6 +9,7 @@ LATEST, LTR = "4.2.x", "3.44.x"           # per the QGIS installation guide (202
 KEY_URL = "https://download.qgis.org/downloads/qgis-archive-keyring.gpg"
 KEY_FPR = "2D7E3441A707FDB3E7059441D155B8E6A419C5BE"   # expires 2027-08-08
 KEYRING = "/etc/apt/keyrings/qgis-archive-keyring.gpg"
+CONTAINER_BOX = "qgis-box"      # the Distrobox / Toolbx container the recipes create
 SOURCES = "/etc/apt/sources.list.d/qgis.sources"
 
 # supported codenames -> LTR only?
@@ -36,9 +38,52 @@ def read_os_release(path="/etc/os-release"):
     return d
 
 
-def detect(os_release=None, pm=None, arch=None):
-    """Describe this system. ``os_release`` / ``pm`` / ``arch`` override the real values
-    (used by tests and by ``--os-release`` to preview what would happen on another system)."""
+TOOLS = ("flatpak", "distrobox", "toolbox", "spack", "nix-shell", "yay", "paru", "rpm-ostree",
+         "transactional-update", "urpmi")
+
+
+def classify_distro(o, family):
+    """'debian' / 'ubuntu' / 'fedora' / 'rhel' / 'opensuse' / 'arch' / 'mageia' / 'slackware' / 'nixos' / 'other'.
+
+    ``o`` is the parsed os-release, ``family`` the apt family detected from it."""
+    i = o.get("ID", "").lower()
+    ids = {i} | set(o.get("ID_LIKE", "").lower().split())
+    if i == "nixos":
+        return "nixos"
+    if ids & {"mageia", "mandriva", "mandrake"}:
+        return "mageia"
+    if "slackware" in ids:
+        return "slackware"
+    if i == "fedora" or ("fedora" in ids and not ids & {"rhel", "centos"}):
+        return "fedora"
+    if ids & {"rhel", "centos"}:
+        return "rhel"
+    if i.startswith("opensuse") or ids & {"suse", "opensuse"}:
+        return "opensuse"
+    if "arch" in ids:
+        return "arch"
+    return family or "other"
+
+
+def immutable_kind(o, tools, exists=os.path.exists):
+    """'ostree' (Fedora Atomic Desktops...), 'transactional' (openSUSE MicroOS / Aeon / Kalpa) or None."""
+    if exists("/run/ostree-booted"):
+        return "ostree"
+    variant = (o.get("VARIANT_ID", "") + " " + o.get("ID", "")).lower()
+    if tools.get("transactional-update") and (
+            "microos" in variant or "aeon" in variant or "kalpa" in variant or "leapmicro" in variant
+            or "micro" in o.get("PRETTY_NAME", "").lower()):
+        return "transactional"
+    return None
+
+
+def detect(os_release=None, pm=None, arch=None, tools=None, immutable=None, exists=os.path.exists):
+    """Describe this system. ``os_release`` / ``pm`` / ``arch`` / ``tools`` / ``immutable`` override the real
+    values (used by tests and by ``--os-release`` to preview what would happen on another system).
+
+    Besides the apt-oriented keys (family, code, supported...) the result has ``distro`` (see classify_distro),
+    ``immutable`` (None, "ostree" or "transactional"; pass "none" to force None), and ``tools``: {name: bool} for flatpak, distrobox, toolbox, spack, nix-shell, yay, paru,
+    rpm-ostree, transactional-update, urpmi."""
     o = read_os_release(os_release or "/etc/os-release")
     like = (o.get("ID", "") + " " + o.get("ID_LIKE", "")).lower()
     family, code = None, o.get("VERSION_CODENAME", "")
@@ -60,9 +105,19 @@ def detect(os_release=None, pm=None, arch=None):
     supported, ltr_only = False, False
     if family and code in SUPPORT.get(family, {}):
         supported, ltr_only = True, SUPPORT[family][code]
+    if tools is None:
+        tools = {t: bool(shutil.which(t)) for t in TOOLS}
+    else:
+        tools = {t: bool(tools.get(t)) for t in TOOLS}
+    if not pm and tools.get("urpmi"):
+        pm = "urpmi"
     return {"name": o.get("PRETTY_NAME", "Linux"), "family": family, "code": code, "pm": pm,
             "arch": arch, "supported": supported, "ltr_only": ltr_only,
-            "apt": family is not None and pm == "apt-get"}
+            "apt": family is not None and pm == "apt-get",
+            "id": o.get("ID", ""), "version_id": o.get("VERSION_ID", ""), "distro": classify_distro(o, family),
+            "immutable": (immutable_kind(o, tools, exists) if immutable is None
+                          else (None if immutable == "none" else immutable)),
+            "tools": tools}
 
 
 def installed_qgis():

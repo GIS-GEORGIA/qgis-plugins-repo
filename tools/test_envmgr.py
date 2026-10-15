@@ -13,7 +13,7 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from qgis_environment_manager import compat, diagnostics, strings  # noqa: E402
+from qgis_environment_manager import compat, diagnostics, profile_backup, strings  # noqa: E402
 from qgis_environment_manager.qgis_installer import requirements, system  # noqa: E402
 
 PLUGIN_DIR = os.path.join(ROOT, "qgis_environment_manager")
@@ -154,7 +154,7 @@ class Texts(unittest.TestCase):
     def test_every_key_the_code_uses_exists(self):
         import re
         used = set()
-        for name in ("dialog.py", "diagnostics.py", "plugin.py"):
+        for name in ("dialog.py", "diagnostics.py", "plugin.py", "versions_tab.py"):
             with open(os.path.join(PLUGIN_DIR, name), encoding="utf-8") as fh:
                 src = fh.read()
             found = re.findall(r'\b(?:tr_|t)\("([a-z0-9_]+)"', src)
@@ -165,6 +165,86 @@ class Texts(unittest.TestCase):
         for key in ("rt_native", "rt_flatpak", "rt_snap", "why_max_below", "why_min_above", "why_no_qt6", "why_declared", "why_unreadable"):
             used.add(key)
         self.assertEqual([k for k in sorted(used) if k not in strings.S], [])
+
+
+class VersionsTexts(unittest.TestCase):
+    def test_the_core_texts_the_tab_uses_exist_in_both_languages(self):
+        import re
+        from qgis_environment_manager.qgis_installer import i18n as core
+        with open(os.path.join(PLUGIN_DIR, "versions_tab.py"), encoding="utf-8") as fh:
+            src = fh.read()
+        keys = {k for k in re.findall(r'\bcore\("([a-z0-9_]+)"', src) if not k.endswith("_")}   # "goal_" + x is built at run time
+        self.assertTrue(keys)
+        for prefix in ("goal_", "vf_", "rc_", "ch_", "br_", "aur_", "nixch_", "sc_", "why_"):      # built at run time
+            self.assertTrue([k for k in core.STR["en"] if k.startswith(prefix)], prefix)
+        for key in keys:
+            for lang in ("en", "ka"):
+                self.assertIn(key, core.STR[lang], (key, lang))
+
+    def test_every_recipe_has_the_texts_the_tab_builds_for_it(self):
+        from qgis_environment_manager.qgis_installer import i18n as core, recipes
+        for rid, r in recipes.RECIPES.items():
+            for lang in ("en", "ka"):
+                self.assertIn("rc_" + rid, core.STR[lang])
+                self.assertIn("vf_" + r["verified"], core.STR[lang])
+        for goal in recipes.GOALS:
+            for lang in ("en", "ka"):
+                self.assertIn("goal_" + goal, core.STR[lang])
+        for branch in recipes.FLATPAK_BRANCHES:
+            self.assertIn("br_" + branch, core.STR["en"])
+        for ch in recipes.AUR_CHANNELS:
+            self.assertIn("aur_" + ch, core.STR["ka"])
+
+
+class ProfileBackup(unittest.TestCase):
+    def make_profile(self, base):
+        prof = os.path.join(base, "profiles", "default")
+        for rel, data in (("QGIS/QGIS3.ini", b"[General]\nx=1\n"), ("python/plugins/p/metadata.txt", b"[general]\n"),
+                          ("symbology-style.db", b"db"), ("cache/big.bin", b"x" * 1000), ("python/plugins/p/__pycache__/m.pyc", b"c"),
+                          ("QGIS/QGIS3.ini.lock", b"")):
+            path = os.path.join(prof, *rel.split("/"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as fh:
+                fh.write(data)
+        return prof
+
+    def test_backup_keeps_settings_and_plugins_and_leaves_the_cache_out(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make_profile(d)
+            res = profile_backup.backup(prof, os.path.join(d, "out"))
+            self.assertTrue(os.path.exists(res["path"]) and res["path"].endswith(".zip"))
+            with zipfile.ZipFile(res["path"]) as zf:
+                names = sorted(zf.namelist())
+            self.assertEqual([n.replace("\\", "/") for n in names],
+                             ["default/QGIS/QGIS3.ini", "default/python/plugins/p/metadata.txt", "default/symbology-style.db"])
+            self.assertEqual(res["files"], 3)
+            self.assertEqual(profile_backup.estimate(prof)[0], 3)
+            self.assertFalse([f for f in os.listdir(os.path.join(d, "out")) if f.endswith(".part")])
+
+    def test_the_original_is_not_touched(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make_profile(d)
+            before = sorted(os.path.join(r, f) for r, _d, fs in os.walk(prof) for f in fs)
+            profile_backup.backup(prof, os.path.join(d, "out"))
+            self.assertEqual(before, sorted(os.path.join(r, f) for r, _d, fs in os.walk(prof) for f in fs))
+
+    def test_refuses_a_destination_inside_the_profile_and_an_existing_file_and_a_missing_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make_profile(d)
+            with self.assertRaises(ValueError):
+                profile_backup.backup(prof, os.path.join(prof, "QGIS"))
+            with self.assertRaises(ValueError):
+                profile_backup.backup(prof, prof)
+            profile_backup.backup(prof, os.path.join(d, "out"), "a.zip")
+            with self.assertRaises(ValueError):
+                profile_backup.backup(prof, os.path.join(d, "out"), "a.zip")
+            with self.assertRaises(ValueError):
+                profile_backup.backup(os.path.join(d, "nothing"), os.path.join(d, "out"))
+            self.assertFalse(os.path.exists(os.path.join(prof, "QGIS", "x.zip")))
+
+    def test_default_name_is_a_sortable_timestamp(self):
+        self.assertEqual(profile_backup.default_name(datetime.datetime(2026, 10, 15, 9, 5, 3)), "qgis-profile-20261015-090503.zip")
 
 
 class Vendored(unittest.TestCase):
@@ -178,6 +258,8 @@ class Vendored(unittest.TestCase):
         with open(os.path.join(PLUGIN_DIR, "qgis_installer", "VENDORED.json"), encoding="utf-8") as fh:
             record = json.load(fh)
         self.assertIn("requirements.py", record["files"])
+        for name in ("recipes.py", "update.py"):                 # the versions tab needs the recipes and the update plan
+            self.assertIn(name, record["files"])
         self.assertNotIn("cli.py", record["files"])
 
     def test_every_gis_georgia_plugin_in_the_table_is_a_real_catalog_plugin(self):

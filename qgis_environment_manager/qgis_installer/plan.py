@@ -5,6 +5,10 @@ from . import system
 from .system import SUFFIX
 
 
+FLATPAK_INSTALL = {"apt-get": "apt-get install -y flatpak", "dnf": "dnf install -y flatpak",
+                   "pacman": "pacman -S --noconfirm flatpak", "zypper": "zypper --non-interactive install flatpak"}
+
+
 def sources_text(sysinfo, channel):
     uri = f"https://qgis.org/{sysinfo['family']}{SUFFIX[channel]}"
     return (f"Types: deb\nURIs: {uri}\nSuites: {sysinfo['code']}\nArchitectures: amd64\n"
@@ -39,19 +43,21 @@ apt-get install -y {' '.join(names)}
     if method == "B":
         steps = []
         if not shutil.which("flatpak"):
-            pm = sysinfo["pm"]
-            inst = {"apt-get": "apt-get install -y flatpak", "dnf": "dnf install -y flatpak",
-                    "pacman": "pacman -S --noconfirm flatpak", "zypper": "zypper --non-interactive install flatpak"}.get(pm)
+            inst = FLATPAK_INSTALL.get(sysinfo["pm"])
             if inst:
                 steps.append({"root": True, "sh": "set -eu\n" + inst + "\n"})
-        steps.append({"root": False, "sh": """set -eu
-flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak install --user -y flathub org.qgis.qgis
+        # Flathub has two branches (stable = QGIS 4 / Qt 6, lts = QGIS 3 LTR / Qt 5): without one,
+        # a non-interactive install fails with "No ref chosen"
+        branch = pkgs.get("branch", "stable")
+        scope = pkgs.get("scope", "user")
+        steps.append({"root": scope == "system", "sh": f"""set -eu
+flatpak remote-add --{scope} --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --{scope} -y flathub org.qgis.qgis//{branch}
 """})
         return steps
     pm = sysinfo["pm"]
-    cmd = {"apt-get": "apt-get install -y qgis qgis-plugin-grass", "dnf": "dnf install -y qgis",
-           "pacman": "pacman -S --noconfirm qgis", "zypper": "zypper --non-interactive install qgis"}.get(pm)
+    cmd = {"apt-get": "apt-get install -y qgis qgis-plugin-grass", "dnf": "dnf install -y qgis python3-qgis qgis-grass",
+           "pacman": "pacman -S --noconfirm qgis", "zypper": "zypper --non-interactive install qgis qgis-plugin-grass"}.get(pm)
     return [{"root": True, "sh": f"set -eu\n{cmd}\n"}] if cmd else []
 
 
