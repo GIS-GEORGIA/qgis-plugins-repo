@@ -16,10 +16,10 @@ from qgis.PyQt.QtWidgets import (
 
 from . import compat, diagnostics, strings
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import requirements, runner, system
+from .qgis_installer import requirements, runner, simulate, system
 from .components_tab import ComponentsTab
 from .versions_tab import VersionsTab
-from .workers import InstallsWorker, StepsWorker
+from .workers import FuncWorker, InstallsWorker, StepsWorker
 
 SETTINGS = "qgis_environment_manager/"
 _COLOR = {compat.OK: "#2e7d32", compat.CHECK: "#e65100", compat.NO: "#c62828"}
@@ -34,9 +34,11 @@ def plugin_dirs():
 
 class EnvDialog(QDialog):
     def __init__(self, iface=None, parent=None, confirm=None, run_steps=None, facts_fn=None, dirs_fn=None,
-                 sysinfo=None, load_installs=True):
+                 sysinfo=None, load_installs=True, simulate_fn=None):
         super().__init__(parent)
         self.iface = iface
+        self._simulate_fn = simulate_fn          # tests: a function steps -> result, run at once; None = ask the package manager in the background
+        self._sim_workers = []
         self._confirm = confirm or self._ask
         self._run_steps = run_steps
         self._facts_fn = facts_fn or diagnostics.gather_facts
@@ -279,6 +281,30 @@ class EnvDialog(QDialog):
             return self.tr_("rq_all_ok")
         return None
 
+    def confirm_steps(self, title, text, steps, then, log=None):
+        """Show the commands, and what the package manager says they would do (a simulation, asked in the background), then ask.
+
+        ``then()`` is called only on yes. The question appears even when the simulation could not be made: it is then said so."""
+        def ask(result):
+            sim = simulate.format_text(result, self.lang) if isinstance(result, dict) else ""
+            body = text + ("\n\n" + sim if sim else "")
+            if self._confirm(title, self.tr_("rq_confirm", text=body)):
+                then()
+
+        if self._simulate_fn is not None:
+            ask(self._simulate_fn(steps))
+            return
+        if log is not None:
+            log.appendPlainText(self.tr_("sim_checking"))
+        worker = FuncWorker(lambda: simulate.explain(steps), self)
+        self._sim_workers.append(worker)
+
+        def done(result):
+            self._sim_workers.remove(worker)
+            ask(result)
+        worker.done.connect(done)
+        worker.start()
+
     def _ask(self, title, text) -> bool:
         return QMessageBox.question(self, title, text) == QMessageBox.StandardButton.Yes
 
@@ -289,16 +315,17 @@ class EnvDialog(QDialog):
         if not steps:
             return
         text = core_i18n.steps_text(steps, self.lang)
-        if not self._confirm(self.tr_("rq_confirm_title"), self.tr_("rq_confirm", text=text)):
-            return
-        self.log.clear()
-        self.log.appendPlainText(self.tr_("rq_running"))
-        self.btn_install.setEnabled(False)
-        self._steps = steps
-        self.worker = StepsWorker(steps, runner.default_elevator(), self, self._run_steps)
-        self.worker.line.connect(self.log.appendPlainText)
-        self.worker.done.connect(self._on_done)
-        self.worker.start()
+
+        def go():
+            self.log.clear()
+            self.log.appendPlainText(self.tr_("rq_running"))
+            self.btn_install.setEnabled(False)
+            self._steps = steps
+            self.worker = StepsWorker(steps, runner.default_elevator(), self, self._run_steps)
+            self.worker.line.connect(self.log.appendPlainText)
+            self.worker.done.connect(self._on_done)
+            self.worker.start()
+        self.confirm_steps(self.tr_("rq_confirm_title"), text, steps, go, log=self.log)
 
     def _on_done(self, rc, failed):
         if rc == 0:

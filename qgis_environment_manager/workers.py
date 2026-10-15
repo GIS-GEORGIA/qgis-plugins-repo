@@ -35,8 +35,9 @@ class StepsWorker(QThread):
 
 
 class UpdatesWorker(QThread):
-    """check_updates() asks apt / flatpak / dnf...: some of it goes over the network, so keep it off the GUI thread."""
-    done = pyqtSignal(list)
+    """check_updates() asks apt / flatpak / dnf...: some of it goes over the network, so keep it off the GUI thread.
+    ``done`` carries what the check function returned (a list, or a dict with the updates and the kept versions)."""
+    done = pyqtSignal(object)
 
     def __init__(self, items, parent=None, check=None):
         super().__init__(parent)
@@ -48,3 +49,18 @@ class UpdatesWorker(QThread):
             self.done.emit(self._check(self._items))
         except Exception:  # noqa: BLE001 - a failed check must not break the window: it just reports nothing
             self.done.emit([])
+
+
+class FuncWorker(QThread):
+    """Run any function off the GUI thread; ``done`` carries its result, or the exception it raised."""
+    done = pyqtSignal(object)
+
+    def __init__(self, fn, parent=None):
+        super().__init__(parent)
+        self._fn = fn
+
+    def run(self):
+        try:
+            self.done.emit(self._fn())
+        except Exception as exc:  # noqa: BLE001 - handed to the GUI thread, which decides what to say
+            self.done.emit(exc)

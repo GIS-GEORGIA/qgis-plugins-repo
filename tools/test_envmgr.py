@@ -212,11 +212,14 @@ class ComponentsTexts(unittest.TestCase):
 class InstancesTexts(unittest.TestCase):
     def test_the_texts_the_installed_programs_block_builds_exist_in_both_languages(self):
         from qgis_environment_manager.qgis_installer import i18n as core
-        for key in ("upd_available", "upd_current", "upd_unknown", "upd_cached", "upd_network", "inst_profile", "inst_cannot_launch"):
+        for key in ("upd_available", "upd_current", "upd_unknown", "upd_cached", "upd_network", "inst_profile", "inst_cannot_launch",
+                    "lock_kept", "lock_free", "lock_unknown", "ver_none", "ver_installed", "rcw_ver_downgrade", "rcw_ver_flatpak", "rcw_ver_arch",
+                    "rcw_ver_unsupported", "sim_head", "sim_unsimulated", "sim_downgrade"):
             for lang in ("en", "ka"):
                 self.assertIn(key, core.STR[lang], (key, lang))
         for lang in ("en", "ka"):
-            self.assertEqual(len(strings.S["vt_inst_cols"][lang]), 4)
+            self.assertEqual(len(strings.S["vt_inst_cols"][lang]), 5)
+            self.assertEqual(len(strings.S["vt_backup_cols"][lang]), 4)
 
     def test_every_update_source_has_a_text(self):
         from qgis_environment_manager.qgis_installer import i18n as core, instances
@@ -224,6 +227,127 @@ class InstancesTexts(unittest.TestCase):
         self.assertEqual(rows, [])
         for src in ("cached", "network"):                         # the two values of check_updates()[...]["source"]
             self.assertIn("upd_" + src, core.STR["en"])
+
+
+class ProfileRestore(unittest.TestCase):
+    def make(self, base):
+        prof = os.path.join(base, "profiles", "default")
+        for rel, data in (("QGIS/QGIS3.ini", b"[General]\nx=1\n"), ("python/plugins/p/metadata.txt", b"[general]\n"), ("cache/big.bin", b"c" * 900)):
+            path = os.path.join(prof, *rel.split("/"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as fh:
+                fh.write(data)
+        return prof
+
+    def zip_with(self, path, members):
+        import zipfile
+        with zipfile.ZipFile(path, "w") as zf:
+            for name, data in members:
+                zf.writestr(name, data)
+
+    def test_a_copy_comes_back_as_a_new_profile_without_touching_the_current_one(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make(d)
+            res = profile_backup.backup(prof, os.path.join(d, "out"))
+            root = os.path.join(d, "profiles")
+            got = profile_backup.restore_as_new_profile(res["path"], root)
+            self.assertTrue(got["name"].startswith("restored-") and got["files"] == 2)
+            self.assertEqual(open(os.path.join(got["path"], "QGIS", "QGIS3.ini"), "rb").read(), b"[General]\nx=1\n")
+            self.assertFalse(os.path.exists(os.path.join(got["path"], "cache")))
+            self.assertEqual(open(os.path.join(prof, "QGIS", "QGIS3.ini"), "rb").read(), b"[General]\nx=1\n")
+            self.assertFalse([n for n in os.listdir(root) if n.endswith(".part")])
+            with self.assertRaises(ValueError):
+                profile_backup.restore_as_new_profile(res["path"], root)                          # never overwrites
+            again = profile_backup.restore_as_new_profile(res["path"], root, "second_try")
+            self.assertEqual(again["name"], "second_try")
+
+    def test_unsafe_archives_are_refused_before_anything_is_written(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = os.path.join(d, "profiles")
+            for label, members in (("parent path", [("default/../../evil.txt", b"x"), ("default/a", b"1")]),
+                                   ("absolute", [("/etc/evil", b"x")]),
+                                   ("drive", [("C:/evil", b"x")]),
+                                   ("two folders", [("a/x", b"1"), ("b/y", b"2")]),
+                                   ("no files", [("default/", b"")]),
+                                   ("files at the top", [("x", b"1")])):
+                z = os.path.join(d, label.replace(" ", "_") + ".zip")
+                self.zip_with(z, members)
+                with self.assertRaises(ValueError, msg=label):
+                    profile_backup.restore_as_new_profile(z, root)
+            self.assertFalse(os.path.exists(os.path.join(d, "evil.txt")))
+            self.assertFalse(os.path.exists(os.path.join(root)) and os.listdir(root))               # nothing was created
+            bad = os.path.join(d, "bad.zip")
+            with open(bad, "wb") as fh:
+                fh.write(b"not a zip")
+            with self.assertRaises(ValueError):
+                profile_backup.verify(bad)
+
+    def test_a_link_in_the_archive_is_refused(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as d:
+            z = os.path.join(d, "l.zip")
+            with zipfile.ZipFile(z, "w") as zf:
+                info = zipfile.ZipInfo("default/link")
+                info.external_attr = (0o120777 << 16)
+                zf.writestr(info, "/etc/passwd")
+                zf.writestr("default/a", "1")
+            with self.assertRaises(ValueError):
+                profile_backup.verify(z)
+
+    def test_names_and_room(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make(d)
+            res = profile_backup.backup(prof, os.path.join(d, "out"))
+            for bad in ("../x", "a/b", ".", "..", "x y"):
+                with self.assertRaises(ValueError, msg=bad):
+                    profile_backup.restore_as_new_profile(res["path"], os.path.join(d, "profiles"), bad)
+            import shutil
+            real = shutil.disk_usage
+            shutil.disk_usage = lambda p: shutil._ntuple_diskusage(1000, 990, 10)
+            try:
+                with self.assertRaises(ValueError):
+                    profile_backup.restore_as_new_profile(res["path"], os.path.join(d, "profiles"), "tight")
+            finally:
+                shutil.disk_usage = real
+            self.assertFalse(os.path.exists(os.path.join(d, "profiles", "tight")))
+
+    def test_the_list_and_the_pruning_of_automatic_copies_only(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make(d)
+            out = os.path.join(d, "out")
+            for stamp in range(1, 8):
+                profile_backup.backup(prof, out, profile_backup.auto_name(datetime.datetime(2026, 10, stamp, 12, 0, 0)))
+            mine = profile_backup.backup(prof, out, profile_backup.default_name(datetime.datetime(2026, 9, 1, 8, 0, 0)))["path"]
+            open(os.path.join(out, "notes.zip"), "wb").write(b"x")                                     # somebody else's file
+            rows = profile_backup.list_backups(out)
+            self.assertEqual(len(rows), 8)
+            self.assertEqual(rows[0]["name"], "qgis-profile-auto-20261007-120000.zip")                  # newest first
+            self.assertEqual([r["auto"] for r in rows].count(False), 1)
+            removed = profile_backup.prune_auto(out, keep=3)
+            self.assertEqual(removed, ["qgis-profile-auto-20261001-120000.zip", "qgis-profile-auto-20261002-120000.zip",
+                                       "qgis-profile-auto-20261003-120000.zip", "qgis-profile-auto-20261004-120000.zip"])
+            self.assertTrue(os.path.exists(mine))                                                        # the one made by hand stays
+            self.assertTrue(os.path.exists(os.path.join(out, "notes.zip")))
+            self.assertEqual(profile_backup.prune_auto(out, keep=3), [])
+            self.assertEqual(profile_backup.prune_auto(os.path.join(d, "nowhere")), [])
+
+    def test_two_automatic_copies_in_the_same_second_are_both_made(self):
+        with tempfile.TemporaryDirectory() as d:
+            prof = self.make(d)
+            name = profile_backup.auto_name(datetime.datetime(2026, 10, 5, 9, 0, 0))
+            one = profile_backup.backup(prof, os.path.join(d, "out"), name, unique=True)["path"]
+            two = profile_backup.backup(prof, os.path.join(d, "out"), name, unique=True)["path"]
+            three = profile_backup.backup(prof, os.path.join(d, "out"), name, unique=True)["path"]
+            self.assertEqual([os.path.basename(p) for p in (one, two, three)],
+                             ["qgis-profile-auto-20261005-090000.zip", "qgis-profile-auto-20261005-090000-2.zip", "qgis-profile-auto-20261005-090000-3.zip"])
+            self.assertEqual(len(profile_backup.list_backups(os.path.join(d, "out"))), 3)            # the suffix is still recognised as one of ours
+            with self.assertRaises(ValueError):                                                       # a manual copy never replaces or renames silently
+                profile_backup.backup(prof, os.path.join(d, "out"), name)
+
+    def test_a_damaged_zip_is_left_out_of_the_list(self):
+        with tempfile.TemporaryDirectory() as d:
+            open(os.path.join(d, "qgis-profile-20261001-120000.zip"), "wb").write(b"junk")
+            self.assertEqual(profile_backup.list_backups(d), [])
 
 
 class ProfileBackup(unittest.TestCase):

@@ -139,16 +139,17 @@ class ComponentsTab(QWidget):
         if not steps:
             return
         text = core_i18n.steps_text(steps, self.d.lang)
-        if not self.d._confirm(self.tr_("rq_confirm_title"), self.tr_("rq_confirm", text=text)):
-            return
-        self.log.clear()
-        self.log.appendPlainText(self.tr_("rq_running"))
-        self._steps = steps
-        self.btn_install.setEnabled(False)
-        self.worker = StepsWorker(steps, runner.default_elevator(), self, self.d._run_steps)
-        self.worker.line.connect(self.log.appendPlainText)
-        self.worker.done.connect(self._on_done)
-        self.worker.start()
+
+        def go():
+            self.log.clear()
+            self.log.appendPlainText(self.tr_("rq_running"))
+            self._steps = steps
+            self.btn_install.setEnabled(False)
+            self.worker = StepsWorker(steps, runner.default_elevator(), self, self.d._run_steps)
+            self.worker.line.connect(self.log.appendPlainText)
+            self.worker.done.connect(self._on_done)
+            self.worker.start()
+        self.d.confirm_steps(self.tr_("rq_confirm_title"), text, steps, go, log=self.log)
 
     def _on_done(self, rc, failed):
         if rc == 0:

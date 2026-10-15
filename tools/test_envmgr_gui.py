@@ -59,6 +59,19 @@ FACTS = {"qgis_version": "3.44.5", "qgis_release": "Solothurn", "python": "3.12.
 def run():
     check("QGIS", True, Qgis.version())
     tmp = tempfile.mkdtemp(prefix="envmgr_")
+    prof_default = os.path.join(tmp, "profiles", "default")
+    for rel, data in (("QGIS/QGIS3.ini", b"[General]\nx=1\n"), ("python/plugins/p/metadata.txt", b"[general]\n"), ("cache/big.bin", b"c" * 400)):
+        os.makedirs(os.path.dirname(os.path.join(prof_default, *rel.split("/"))), exist_ok=True)
+        with open(os.path.join(prof_default, *rel.split("/")), "wb") as fh:
+            fh.write(data)
+    FACTS["profile"] = prof_default
+    AUTO_DIR = os.path.join(tmp, "auto_backups")
+    sims = []
+
+    def sim_stub(steps):
+        sims.append(steps)
+        return {"items": [{"installs": 2, "upgrades": 0, "downgrades": 1, "remove_count": 0, "removes": [], "download": "1.6 MiB", "disk": None,
+                           "tool": "apt", "verb": "install", "names": [], "cmd": ""}], "unsimulated": 0, "warnings": []}
     plugins = os.path.join(tmp, "plugins")
     make_plugin(plugins, "fits_both", name="Fits Both", version="1.0", qgisMinimumVersion="3.40",
                 qgisMaximumVersion="4.99", supportsQt6="True")
@@ -92,7 +105,7 @@ def run():
 
     dlg = EnvDialog(utils.iface, confirm=lambda title, text: confirms.append(text) or True,
                     run_steps=fake_steps, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [plugins],
-                    sysinfo={"pm": "apt-get"}, load_installs=False)
+                    sysinfo={"pm": "apt-get"}, load_installs=False, simulate_fn=sim_stub)
     dlg.lang = "en"
     dlg.refresh()
     dlg.show()
@@ -151,6 +164,8 @@ def run():
           and "[installed] PostgreSQL driver" in flat, flat)
     check("install button enabled (required ones missing)", dlg.btn_install.isEnabled(), dlg.rq_note.text())
     dlg.btn_install.click()
+    check("the package manager's simulation is part of what is shown before anything runs",
+          sims and "What the package manager says it would do" in confirms[0] and "download 1.6 MiB" in confirms[0], confirms)
     check("the commands are shown for review before anything runs",
           len(confirms) == 1 and "apt-get install -y postgresql-client" in confirms[0] and "exiftool" not in confirms[0], confirms)
     check("steps ran through the elevator as root steps",
@@ -227,6 +242,7 @@ def run():
                          'UBUNTU_CODENAME=noble\nPRETTY_NAME="Ubuntu 24.04 LTS"\n', "apt-get")
     NIXOS = sysinfo_for('ID=nixos\nPRETTY_NAME="NixOS"\n', "")
     vt = dlg.versions
+    vt._backup_dir = AUTO_DIR
     dlg.lang = "en"
     vt._info = UBUNTU
     dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "3.44.5", "o": "qgis.org", "root": True}]
@@ -425,6 +441,204 @@ def run():
     vt.log.clear()
     vt.btn_backup.click()
     check("cancelling the folder chooser does nothing", vt.log.toPlainText() == "", vt.log.toPlainText())
+    dlg.facts["profile"] = FACTS["profile"]
+    vt._pick_dir = None
+
+    # ---- the automatic copy before QGIS is changed, the simulation, other versions, keeping, restoring -------
+    import zipfile as zf_mod
+    from qgis_environment_manager import profile_backup as pbk
+    from qgis_environment_manager.qgis_installer import versions as core_versions
+    APT2 = {"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "1:3.44.5+24noble", "o": "qgis.org", "root": True}
+    FP2 = {"kind": "flatpak", "i": "user", "v": "4.2.2", "br": "stable", "root": False}
+    dlg.facts["profile"] = FACTS["profile"]
+    vt._info = UBUNTU
+    vt.updates, vt.locks = {}, {}
+    vt.instance_rows = lambda: core_instances.list_instances(dlg.installs or [], which=have("qgis", "flatpak"))
+
+    def reset():
+        """Every finished run refreshes the window, which forgets the installations (the real one finds them again in the background)."""
+        pump(lambda: not vt._running())
+        dlg.installs = [APT2, FP2]
+        dlg.facts["profile"] = FACTS["profile"]
+        vt.refresh()
+    reset()
+    vt.retranslate()
+    confirms.clear()
+    runs.clear()
+    sims.clear()
+    before = os.listdir(AUTO_DIR) if os.path.isdir(AUTO_DIR) else []
+    vt.btn_update.click()
+    check("update: the simulation was asked for the same steps that are shown", sims and sims[-1][0]["sh"].count("apt-get install -y --only-upgrade") == 1, sims)
+    check("update: the simulation text is in the first question", confirms and "download 1.6 MiB" in confirms[0] and "go back to an older version" in confirms[0], confirms)
+    check("update: a profile copy is made first, then the steps run", pump(lambda: bool(runs)), (runs, vt.log.toPlainText()))
+    pump(lambda: not vt._running())
+    autos = [n for n in os.listdir(AUTO_DIR) if n.startswith("qgis-profile-auto-")] if os.path.isdir(AUTO_DIR) else []
+    check("update: exactly one new automatic copy exists, and it holds the settings but not the cache",
+          len(autos) == len(before) + 1 and any("QGIS3.ini" in n for n in zf_mod.ZipFile(os.path.join(AUTO_DIR, sorted(autos)[-1])).namelist())
+          and not any("cache" in n for n in zf_mod.ZipFile(os.path.join(AUTO_DIR, sorted(autos)[-1])).namelist()), autos)
+    check("update: the log shows the copy before the run", vt.log.toPlainText().index("Copy ready") < vt.log.toPlainText().index("Finished"), vt.log.toPlainText())
+    check("the copies list shows it as automatic", vt.backup_table.rowCount() >= 1 and vt.backup_table.item(0, 3).text() == "automatic", vt.backup_table.rowCount())
+
+    # unticked: no copy
+    reset()
+    vt.chk_auto.setChecked(False)
+    n_before = len(os.listdir(AUTO_DIR))
+    confirms.clear()
+    runs.clear()
+    vt.btn_update.click()
+    pump(lambda: bool(runs))
+    pump(lambda: not vt._running())
+    check("with the box unticked no copy is made", len(os.listdir(AUTO_DIR)) == n_before and bool(runs), (n_before, os.listdir(AUTO_DIR)))
+    vt.chk_auto.setChecked(True)
+
+    # a copy that cannot be made stops everything
+    reset()
+    dlg.facts["profile"] = os.path.join(tmp, "no-such-profile")
+    confirms.clear()
+    runs.clear()
+    vt.log.clear()
+    vt.btn_update.click()
+    pump(lambda: "nothing was changed" in vt.log.toPlainText(), 5)
+    check("if the profile cannot be copied, nothing is changed", not runs and "nothing was changed" in vt.log.toPlainText(), (runs, vt.log.toPlainText()))
+    dlg.facts["profile"] = FACTS["profile"]
+
+    # side by side: no copy needed
+    reset()
+    vt.goal_btns["alongside"].setChecked(True)
+    n_before = len(os.listdir(AUTO_DIR))
+    confirms.clear()
+    runs.clear()
+    vt.btn_install.click()
+    pump(lambda: bool(runs))
+    pump(lambda: not vt._running())
+    check("a Flatpak install next to QGIS makes no profile copy", len(os.listdir(AUTO_DIR)) == n_before and bool(runs), os.listdir(AUTO_DIR))
+    vt.goal_btns["stable"].setChecked(True)
+
+    # other versions
+    MAD = ("qgis | 1:3.44.5+24noble | http://qgis.org/ubuntu-ltr noble/main amd64 Packages\n"
+           "qgis | 1:3.44.3+24noble | http://qgis.org/ubuntu-ltr noble/main amd64 Packages\n"
+           "python3-qgis | 1:3.44.5+24noble | x\npython3-qgis | 1:3.44.3+24noble | x\n")
+    real_run = core_versions._run
+    core_versions._run = lambda cmd, timeout=120: (0, MAD) if cmd[:2] == ["apt-cache", "madison"] else (1, "")
+    try:
+        reset()
+        tbl.selectRow(0)
+        offered = []
+        vt._pick_version = lambda rows: offered.append([r["version"] for r in rows]) or rows[1]
+        confirms.clear()
+        runs.clear()
+        n_before = len(os.listdir(AUTO_DIR))
+        vt.btn_version.click()
+        check("other version: the repositories' versions are offered, the installed one marked",
+              pump(lambda: bool(offered)) and offered[0] == ["1:3.44.5+24noble", "1:3.44.3+24noble"], offered)
+        check("other version: the commands pin both packages and allow the downgrade",
+              pump(lambda: bool(confirms)) and "--allow-downgrades" in confirms[0] and "python3-qgis=1:3.44.3+24noble" in confirms[0]
+              and "qgis=1:3.44.3+24noble" in confirms[0], confirms)
+        check("other version: it is an in-place change, so a profile copy is made and the steps run",
+              pump(lambda: bool(runs)) and len(confirms) == 2 and len(os.listdir(AUTO_DIR)) == n_before + 1, (len(confirms), os.listdir(AUTO_DIR)))
+        pump(lambda: not vt._running())
+        reset()
+        tbl.selectRow(0)
+        vt._pick_version = lambda rows: rows[0]                     # the installed version itself
+        runs.clear()
+        vt.log.clear()
+        vt.btn_version.click()
+        check("choosing the installed version changes nothing and says so", pump(lambda: "already installed" in vt.log.toPlainText()) and not runs, vt.log.toPlainText())
+        core_versions._run = lambda cmd, timeout=120: (1, "")
+        reset()
+        tbl.selectRow(0)
+        vt.log.clear()
+        vt.btn_version.click()
+        check("no versions on offer: said, nothing run", pump(lambda: "No other versions" in vt.log.toPlainText()), vt.log.toPlainText())
+        tbl.clearSelection()
+        tbl.setCurrentCell(-1, -1)
+        vt.log.clear()
+        vt.btn_version.click()
+        check("no row selected: a hint", "Pick an installed QGIS" in vt.log.toPlainText(), vt.log.toPlainText())
+
+        # keeping a version
+        reset()
+        tbl.selectRow(0)
+        core_versions._run = lambda cmd, timeout=120: (0, "qgis\n") if cmd[:2] == ["apt-mark", "showhold"] else (1, "")
+        vt._check_fn = lambda items: {"updates": [], "locks": {"apt": True, "flatpak-user-stable": None}}
+        vt.btn_check.click()
+        check("the check also reads which versions are kept", pump(lambda: cell(0, 4) != ""), [cell(r, 4) for r in range(tbl.rowCount())])
+        check("kept / not known are told apart", cell(0, 4) == "version kept (not updated)" and cell(1, 4) == "not known", [cell(r, 4) for r in range(2)])
+        pump(lambda: not (vt._updates_worker and vt._updates_worker.isRunning()))
+        confirms.clear()
+        runs.clear()
+        n_before = len(os.listdir(AUTO_DIR))
+        tbl.selectRow(0)
+        core_versions._run = lambda cmd, timeout=120: (0, "") if cmd[:2] == ["apt-mark", "showhold"] else (1, "")   # after releasing: nothing held
+        vt.btn_keep.click()
+        check("a kept version is released with unhold, with no second question and no copy",
+              pump(lambda: bool(runs)) and "apt-mark unhold python3-qgis qgis" in confirms[0] and len(confirms) == 1
+              and len(os.listdir(AUTO_DIR)) == n_before, (confirms, runs))
+        pump(lambda: not vt._running())
+        reset()                                                       # the finished run refreshed the window; the installations come back
+        check("afterwards the column is re-read", cell(0, 4) == "updates allowed", cell(0, 4))
+        confirms.clear()
+        runs.clear()
+        reset()
+        vt.locks["apt"] = False
+        vt._fill_instances()
+        tbl.selectRow(0)
+        vt.btn_keep.click()
+        check("a free version is kept with hold", pump(lambda: bool(runs)) and "apt-mark hold python3-qgis qgis" in confirms[0], confirms)
+        pump(lambda: not vt._running())
+    finally:
+        core_versions._run = real_run
+        vt._pick_version = None
+        del vt.instance_rows
+
+    # restoring a copy: as a NEW profile, the current one untouched
+    pump(lambda: not vt._running())
+    vt.refresh()
+    tbl_b = vt.backup_table
+    check("the copies are listed newest first", tbl_b.rowCount() >= 2 and tbl_b.item(0, 0).text() >= tbl_b.item(1, 0).text(), [tbl_b.item(i, 0).text() for i in range(tbl_b.rowCount())])
+    cur_ini = os.path.join(FACTS["profile"], "QGIS", "QGIS3.ini")
+    with open(cur_ini, "rb") as fh:
+        ini_before = fh.read()
+    confirms.clear()
+    vt.log.clear()
+    tbl_b.clearSelection()
+    tbl_b.setCurrentCell(-1, -1)
+    vt.btn_restore.click()
+    check("restore without a selection: a hint", "Pick a copy" in vt.log.toPlainText(), vt.log.toPlainText())
+    tbl_b.selectRow(0)
+    vt.btn_restore.click()
+    root_dir = os.path.dirname(FACTS["profile"])
+    new_dirs = [d for d in os.listdir(root_dir) if d.startswith("restored-")]
+    check("restore asks first, naming the new profile and where to pick it in QGIS",
+          confirms and "new profile 'restored-" in confirms[0] and "Settings > User Profiles" in confirms[0], confirms)
+    check("restore makes a new profile folder next to the current one", len(new_dirs) == 1 and os.path.exists(os.path.join(root_dir, new_dirs[0], "QGIS", "QGIS3.ini")), new_dirs)
+    check("the restored profile has no cache and the current profile is untouched",
+          not os.path.exists(os.path.join(root_dir, new_dirs[0], "cache")) and open(cur_ini, "rb").read() == ini_before, new_dirs)
+    check("the log says where to pick it", "Restored: profile 'restored-" in vt.log.toPlainText() and "User Profiles" in vt.log.toPlainText(), vt.log.toPlainText())
+    vt.log.clear()
+    vt.btn_restore.click()
+    check("restoring the same copy again is refused, never overwritten", "already exists" in vt.log.toPlainText(), vt.log.toPlainText())
+    dlg.facts["profile"] = os.path.join(tmp, "odd-place", "x")
+    vt.log.clear()
+    vt.btn_restore.click()
+    check("without a profiles folder to put it in nothing is written", "profiles folder" in vt.log.toPlainText(), vt.log.toPlainText())
+    dlg.facts["profile"] = FACTS["profile"]
+    dlg.btn_lang.click()
+    check("Georgian texts of the copies and the kept column", vt.btn_restore.text().startswith("არჩეულის აღდგენა")
+          and vt.backup_table.horizontalHeaderItem(0).text() == "ფაილი" and tbl.horizontalHeaderItem(4).text() == "შენარჩუნება", vt.btn_restore.text())
+    dlg.btn_lang.click()
+
+    # the simulation in the background (the default): a dialog without a stub
+    d7 = EnvDialog(utils.iface, confirm=lambda title, text: confirms.append(text) or True, facts_fn=lambda: dict(FACTS), dirs_fn=lambda: [plugins],
+                   sysinfo={"pm": "apt-get"}, load_installs=False)
+    d7.lang = "en"
+    confirms.clear()
+    seen = []
+    d7.confirm_steps("t", "COMMANDS", [{"root": True, "sh": "set -eu\napt-get install -y something-not-here\n"}], lambda: seen.append(1))
+    check("simulation in the background: the question comes when it is done", pump(lambda: bool(seen)) and confirms, confirms)
+    check("a simulation that could not be made is said so and does not stop the question",
+          "COMMANDS" in confirms[0] and "could not be simulated" in confirms[0], confirms)
+    d7.close()
 
     # ---- Components tab ------------------------------------------------------------------
     cp = dlg.components

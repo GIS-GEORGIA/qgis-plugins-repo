@@ -145,15 +145,29 @@ INSTALL_CMD = {
 }
 
 
+# Where packages put tools that a plain (non-login) PATH does not list: Arch installs ExifTool and other Perl tools in /usr/bin/vendor_perl,
+# which only the login shell's profile adds. A tool there is installed, whatever this process's PATH says.
+EXTRA_TOOL_DIRS = ("/usr/bin/vendor_perl", "/usr/bin/site_perl", "/usr/bin/core_perl", "/usr/local/bin", "/usr/sbin", "/sbin")
+
+
+def _tool_present(tool, which, access=None):
+    access = access or os.access
+    if which(tool):
+        return True
+    if which is not shutil.which:                      # a test that injects its own `which` decides alone
+        return False
+    return any(access(os.path.join(d, tool), os.X_OK) and os.path.isfile(os.path.join(d, tool)) for d in EXTRA_TOOL_DIRS)
+
+
 def is_present(req_id, which=shutil.which, find_spec=importlib.util.find_spec):
-    """Is the module importable / are all the tools on PATH - in the interpreter that runs this."""
+    """Is the module importable / are all the tools on PATH (or in the usual directories a login PATH adds) - in the interpreter that runs this."""
     r = REQ[req_id]
     if r["kind"] == "module":
         try:
             return find_spec(r["module"]) is not None
         except (ImportError, ValueError):
             return False
-    return all(which(t) for t in r["tools"])
+    return all(_tool_present(t, which) for t in r["tools"])
 
 
 def status(plugin_id, **kw):

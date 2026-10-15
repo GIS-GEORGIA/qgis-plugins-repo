@@ -8,18 +8,19 @@ Linux nothing is run at all - the tab says why.
 """
 from __future__ import annotations
 
+import datetime
 import os
 
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
-    QAbstractItemView, QComboBox, QFileDialog, QGroupBox, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit, QPushButton,
-    QRadioButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QAbstractItemView, QCheckBox, QComboBox, QFileDialog, QGroupBox, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QPlainTextEdit,
+    QPushButton, QRadioButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from . import profile_backup
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import instances, recipes, runner, system, update
-from .workers import StepsWorker, UpdatesWorker
+from .qgis_installer import instances, recipes, runner, system, update, versions
+from .workers import FuncWorker, StepsWorker, UpdatesWorker
 
 
 def plan_text(result: dict, lang: str) -> str:
@@ -32,6 +33,12 @@ def plan_text(result: dict, lang: str) -> str:
         parts.append("# " + t("rcm_" + m["title"]) + "\n" + m["text"])
     parts.extend("* " + t("rcw_" + k) for k in result["notes"])
     return "\n\n".join(parts)
+
+
+def check_all(items):
+    """What the "Check" button asks: is a newer build waiting, and is the installed version kept? (both only read)"""
+    return {"updates": instances.check_updates(items),
+            "locks": {r["id"]: versions.lock_state(r["label_item"]) for r in instances.list_instances(items)}}
 
 
 def human_size(n: int) -> str:
@@ -54,6 +61,10 @@ class VersionsTab(QWidget):
         self.updates: dict = {}                   # instance id -> check_updates row
         self._updates_worker = None
         self._info = None                         # tests inject a system description
+        self._pick_version = None                 # tests inject the chooser of a version: (rows) -> row or None
+        self._backup_dir = None                   # tests inject the folder of the automatic copies
+        self.locks: dict = {}                     # instance id -> True kept / False free / None not known
+        self._func = None
         self._build()
 
     # ---- UI ----------------------------------------------------------------------
@@ -78,7 +89,7 @@ class VersionsTab(QWidget):
 
         self.g_inst = QGroupBox()
         v = QVBoxLayout(self.g_inst)
-        self.inst_table = QTableWidget(0, 4)
+        self.inst_table = QTableWidget(0, 5)
         self.inst_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.inst_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.inst_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -91,8 +102,12 @@ class VersionsTab(QWidget):
         row = QHBoxLayout()
         self.btn_check = QPushButton()
         self.btn_start = QPushButton()
+        self.btn_version = QPushButton()
+        self.btn_keep = QPushButton()
         row.addWidget(self.btn_check)
         row.addWidget(self.btn_start)
+        row.addWidget(self.btn_version)
+        row.addWidget(self.btn_keep)
         row.addStretch(1)
         v.addWidget(self.inst_table)
         v.addWidget(self.lbl_check)
@@ -131,8 +146,25 @@ class VersionsTab(QWidget):
         self.lbl_backup = QLabel()
         self.lbl_backup.setWordWrap(True)
         self.btn_backup = QPushButton()
+        self.chk_auto = QCheckBox()
+        self.chk_auto.setChecked(True)
+        self.backup_table = QTableWidget(0, 4)
+        self.backup_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.backup_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.backup_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.backup_table.verticalHeader().setVisible(False)
+        self.backup_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.backup_table.horizontalHeader().setStretchLastSection(True)
+        self.backup_table.setMaximumHeight(110)
+        self.btn_restore = QPushButton()
+        brow = QHBoxLayout()
+        brow.addWidget(self.btn_backup)
+        brow.addWidget(self.btn_restore)
+        brow.addStretch(1)
         v.addWidget(self.lbl_backup)
-        v.addWidget(self.btn_backup)
+        v.addWidget(self.chk_auto)
+        v.addWidget(self.backup_table)
+        v.addLayout(brow)
         lay.addWidget(self.g_backup)
 
         self.log = QPlainTextEdit()
@@ -144,6 +176,9 @@ class VersionsTab(QWidget):
         self.opt_cmb["channel"].currentIndexChanged.connect(lambda *_: None)
         self.btn_check.clicked.connect(self.check_updates)
         self.btn_start.clicked.connect(self.start_selected)
+        self.btn_version.clicked.connect(self.choose_version)
+        self.btn_keep.clicked.connect(self.toggle_keep)
+        self.btn_restore.clicked.connect(self.restore_selected)
         self.btn_update.clicked.connect(self.run_update)
         self.btn_install.clicked.connect(self.run_install)
         self.btn_backup.clicked.connect(self.run_backup)
@@ -163,6 +198,11 @@ class VersionsTab(QWidget):
         self.lbl_check.setText(self.tr_("vt_check_note"))
         self.btn_check.setText(self.tr_("vt_check_btn"))
         self.btn_start.setText(self.tr_("vt_start_btn"))
+        self.btn_version.setText(self.tr_("vt_other_version_btn"))
+        self.btn_keep.setText(self.tr_("vt_keep_btn"))
+        self.chk_auto.setText(self.tr_("vt_auto_chk"))
+        self.backup_table.setHorizontalHeaderLabels(self.tr_("vt_backup_cols"))
+        self.btn_restore.setText(self.tr_("vt_restore_btn"))
         self.g_other.setTitle(self.tr_("vt_other_h"))
         for goal, b in self.goal_btns.items():
             b.setText(self.core("goal_" + goal))
@@ -204,6 +244,7 @@ class VersionsTab(QWidget):
         self.btn_install.setEnabled(self.recipe_id() is not None and reason is None and not self._running())
         self.btn_backup.setEnabled(not self._running())
         self._fill_instances()
+        self._fill_backups()
 
     # ---- installed programs ---------------------------------------------------------
     def instance_rows(self):
@@ -221,7 +262,9 @@ class VersionsTab(QWidget):
                 if u["update"] and u.get("candidate"):
                     state += " ({})".format(u["candidate"])
             how = " ".join(r["launch"]) if r["launch"] else self.core("inst_cannot_launch")
-            for c, text in enumerate((core_i18n.label_for(r["label_item"], self.d.lang), r["version"], state, how)):
+            kept = self.locks.get(r["id"], "unchecked")
+            kept_text = "" if kept == "unchecked" else {True: self.core("lock_kept"), False: self.core("lock_free"), None: self.core("lock_unknown")}[kept]
+            for c, text in enumerate((core_i18n.label_for(r["label_item"], self.d.lang), r["version"], state, how, kept_text)):
                 item = QTableWidgetItem(text)
                 if c == 2 and u is not None and u["update"]:
                     item.setForeground(QColor("#e65100"))
@@ -237,6 +280,8 @@ class VersionsTab(QWidget):
         busy = self._running() or bool(self._updates_worker and self._updates_worker.isRunning())
         self.btn_check.setEnabled(bool(rows) and not busy)
         self.btn_start.setEnabled(any(r["launchable"] for r in rows))
+        self.btn_version.setEnabled(bool(rows) and self.blocked() is None and not busy)
+        self.btn_keep.setEnabled(bool(rows) and self.blocked() is None and not busy)
 
     def check_updates(self):
         items = self.d.installs or []
@@ -244,11 +289,14 @@ class VersionsTab(QWidget):
             return
         self.btn_check.setEnabled(False)
         self.lbl_check.setText(self.tr_("vt_checking"))
-        self._updates_worker = UpdatesWorker(items, self, self._check_fn)
+        self._updates_worker = UpdatesWorker(items, self, self._check_fn or check_all)
         self._updates_worker.done.connect(self._on_checked)
         self._updates_worker.start()
 
-    def _on_checked(self, rows):
+    def _on_checked(self, result):
+        rows = result["updates"] if isinstance(result, dict) else result          # (a test may hand over just the updates)
+        if isinstance(result, dict):
+            self.locks.update(result.get("locks", {}))
         self.updates = {r["id"]: r for r in rows}
         self._fill_instances()
 
@@ -268,6 +316,67 @@ class VersionsTab(QWidget):
             self.log.appendPlainText(self.tr_("vt_start_fail", why=str(exc)))
             return
         self.log.appendPlainText(self.tr_("vt_started", pid=pid))
+
+    def _selected_instance(self):
+        rows = self.instance_rows()
+        sel = self.inst_table.currentRow()
+        return rows[sel] if 0 <= sel < len(rows) else None
+
+    def choose_version(self):
+        row = self._selected_instance()
+        if row is None:
+            self.log.appendPlainText(self.tr_("vt_pick_row"))
+            return
+        item = row["label_item"]
+        self.log.appendPlainText(self.tr_("vt_ver_looking"))
+        self._func = FuncWorker(lambda: versions.available(item), self)
+        self._func.done.connect(lambda res: self._on_versions(item, res))
+        self._func.start()
+
+    def _on_versions(self, item, found):
+        if isinstance(found, Exception) or not found["versions"]:
+            self.log.appendPlainText(self.core("ver_none") + ("  " + self.core("rcw_" + found["note"]) if not isinstance(found, Exception) and found.get("note") else ""))
+            return
+        rows = found["versions"]
+        if self._pick_version is not None:
+            chosen = self._pick_version(rows)
+        else:
+            labels = ["{}  [{}] {}".format(r["version"], r["origin"], self.core("ver_installed") if r["installed"] else "").strip() for r in rows]
+            text, ok = QInputDialog.getItem(self, self.tr_("vt_ver_pick_title"), self.core("rcw_" + found["note"]) if found.get("note") else "", labels, 0, False)
+            chosen = rows[labels.index(text)] if ok else None
+        if chosen is None:
+            return
+        if chosen.get("installed"):
+            self.log.appendPlainText(self.tr_("vt_ver_same"))
+            return
+        try:
+            result = versions.steps_for(item, chosen)
+        except ValueError as exc:
+            self.log.appendPlainText(self.tr_("vt_ver_fail", why=str(exc)))
+            return
+        result["manual"] = []
+        self._confirm_and_run(result, in_place=item["kind"] != "flatpak", title_key="vt_other_version_btn")
+
+    def toggle_keep(self):
+        row = self._selected_instance()
+        if row is None:
+            self.log.appendPlainText(self.tr_("vt_pick_row"))
+            return
+        item = row["label_item"]
+        state = self.locks.get(row["id"], "unchecked")
+        if state == "unchecked":
+            state = versions.lock_state(item)
+        result = versions.lock_steps(item, state is not True)                     # kept now -> release; free or not known -> keep
+        result["notes"] = list(result["notes"])
+        self._pending_lock = row["id"]
+        self._confirm_and_run(result, in_place=False, title_key="vt_keep_btn", after=self._after_keep)
+
+    def _after_keep(self):
+        rid = getattr(self, "_pending_lock", None)
+        row = next((r for r in self.instance_rows() if r["id"] == rid), None)
+        if row is not None:
+            self.locks[rid] = versions.lock_state(row["label_item"])
+            self._fill_instances()
 
     def goal(self):
         return next(g for g, b in self.goal_btns.items() if b.isChecked())
@@ -363,20 +472,49 @@ class VersionsTab(QWidget):
         result = recipes.make_plan(rid, self.sysinfo(), self.options(rid))
         self._confirm_and_run(result, in_place=not recipes.RECIPES[rid]["side_by_side"], title_key="vt_other_h")
 
-    def _confirm_and_run(self, result, in_place, title_key):
+    def _confirm_and_run(self, result, in_place, title_key, after=None):
         if self.blocked() is not None or self._running():
             return
         text = plan_text(result, self.d.lang)
         if not result["steps"]:                    # instructions only: show them, nothing to run
             self.d._confirm(self.tr_(title_key), self.tr_("vt_manual_only", text=text))
             return
-        if not self.d._confirm(self.tr_("rq_confirm_title"), self.tr_("rq_confirm", text=text)):
+
+        def confirmed():
+            if in_place and not self.d._confirm(self.tr_("vt_inplace_title"), self.tr_("vt_inplace_confirm")):
+                return
+            self.log.clear()
+            if in_place and self.chk_auto.isChecked():
+                self._auto_backup(lambda: self._run(result["steps"], after))
+            else:
+                self._run(result["steps"], after)
+        self.d.confirm_steps(self.tr_("rq_confirm_title"), text, result["steps"], confirmed, log=self.log)
+
+    def _auto_backup(self, then):
+        """The profile is copied before QGIS itself is changed. If the copy cannot be made nothing is changed: it is the safer way round."""
+        profile = self.d.facts.get("profile") or ""
+        dest = self._backup_dir or profile_backup.default_dir()
+        if not profile or not os.path.isdir(profile):
+            self.log.appendPlainText(self.tr_("vt_backup_auto_fail", why=profile or "?"))
             return
-        if in_place and not self.d._confirm(self.tr_("vt_inplace_title"), self.tr_("vt_inplace_confirm")):
-            return
-        self.log.clear()
+        self.log.appendPlainText(self.tr_("vt_backup_auto_start"))
+        self._func = FuncWorker(lambda: profile_backup.backup(profile, dest, profile_backup.auto_name(), unique=True), self)
+
+        def done(res):
+            if isinstance(res, Exception):
+                self.log.appendPlainText(self.tr_("vt_backup_auto_fail", why=str(res)))
+                return
+            self.log.appendPlainText(self.tr_("vt_backup_done", path=res["path"], files=res["files"], size=human_size(res["bytes"]), est="", n=""))
+            profile_backup.prune_auto(dest)
+            self._fill_backups()
+            then()
+        self._func.done.connect(done)
+        self._func.start()
+
+    def _run(self, steps, after=None):
         self.log.appendPlainText(self.tr_("rq_running"))
-        self._steps = result["steps"]
+        self._steps = steps
+        self._after = after
         self.worker = StepsWorker(self._steps, runner.default_elevator(), self, self.d._run_steps)
         self.worker.line.connect(self.log.appendPlainText)
         self.worker.done.connect(self._on_done)
@@ -391,6 +529,9 @@ class VersionsTab(QWidget):
             self.log.appendPlainText(self.tr_("rq_elev_fail", cmd="sudo sh " + runner.write_root_script(self._steps)))
         else:
             self.log.appendPlainText(self.tr_("rq_failed", rc=rc))
+        after, self._after = getattr(self, "_after", None), None
+        if after is not None and rc == 0:
+            after()
         self.d.refresh()
 
     def run_backup(self):
@@ -400,7 +541,7 @@ class VersionsTab(QWidget):
             return
         count, size = profile_backup.estimate(profile)
         dest = self._pick_dir(profile) if self._pick_dir else QFileDialog.getExistingDirectory(
-            self, self.tr_("vt_backup_btn"), os.path.expanduser("~"))
+            self, self.tr_("vt_backup_btn"), profile_backup.default_dir() if os.path.isdir(profile_backup.default_dir()) else os.path.expanduser("~"))
         if not dest:
             return
         try:
@@ -410,3 +551,39 @@ class VersionsTab(QWidget):
             return
         self.log.appendPlainText(self.tr_("vt_backup_done", path=res["path"], files=res["files"], size=human_size(res["bytes"]),
                                           est=human_size(size), n=count))
+        self._fill_backups()
+
+    # ---- the copies and getting one back ------------------------------------------------
+    def backup_dir(self):
+        return self._backup_dir or profile_backup.default_dir()
+
+    def _fill_backups(self):
+        rows = profile_backup.list_backups(self.backup_dir())
+        self.backup_table.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            when = datetime.datetime.fromtimestamp(r["mtime"]).strftime("%Y-%m-%d %H:%M")
+            kind = self.tr_("vt_backup_auto") if r["auto"] else self.tr_("vt_backup_manual")
+            for c, text in enumerate((r["name"], human_size(r["bytes"]), when, kind)):
+                self.backup_table.setItem(i, c, QTableWidgetItem(text))
+        self.btn_restore.setEnabled(bool(rows))
+
+    def restore_selected(self):
+        rows = profile_backup.list_backups(self.backup_dir())
+        sel = self.backup_table.currentRow()
+        if not (0 <= sel < len(rows)):
+            self.log.appendPlainText(self.tr_("vt_restore_none"))
+            return
+        profile = self.d.facts.get("profile") or ""
+        root = os.path.dirname(profile.rstrip("/\\"))
+        if not profile or os.path.basename(root) != "profiles":
+            self.log.appendPlainText(self.tr_("vt_restore_fail", why=self.tr_("vt_restore_no_root", path=profile or "?")))
+            return
+        name = os.path.splitext(rows[sel]["name"])[0].replace("qgis-profile-", "restored-")
+        if not self.d._confirm(self.tr_("vt_restore_btn"), self.tr_("vt_restore_confirm", name=name, root=root)):
+            return
+        try:
+            res = profile_backup.restore_as_new_profile(rows[sel]["path"], root, name)
+        except (OSError, ValueError) as exc:
+            self.log.appendPlainText(self.tr_("vt_restore_fail", why=str(exc)))
+            return
+        self.log.appendPlainText(self.tr_("vt_restore_done", name=res["name"], files=res["files"], path=res["path"]))
