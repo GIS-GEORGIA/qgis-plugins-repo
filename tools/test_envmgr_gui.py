@@ -212,6 +212,144 @@ def run():
           and "No plugins" in d3.pl_summary.text() and "none of the installed" in d3.rq_note.text().lower(), (d3.pl_summary.text(), d3.rq_note.text()))
     d3.close()
 
+    # ---- QGIS versions tab ---------------------------------------------------------------
+    dlg._run_steps = fake_steps                       # the failure loop above left a failing runner behind
+    from qgis_environment_manager.qgis_installer import system as core_system
+    import zipfile
+
+    def sysinfo_for(osr, pm, tools=(), immutable="none"):
+        path = os.path.join(tmp, "os-release-" + str(len(osr)))
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(osr)
+        return core_system.detect(path, pm, "amd64", tools={t: True for t in tools}, immutable=immutable)
+
+    UBUNTU = sysinfo_for('NAME="Ubuntu"\nID=ubuntu\nID_LIKE=debian\nVERSION_ID="24.04"\nVERSION_CODENAME=noble\n'
+                         'UBUNTU_CODENAME=noble\nPRETTY_NAME="Ubuntu 24.04 LTS"\n', "apt-get")
+    NIXOS = sysinfo_for('ID=nixos\nPRETTY_NAME="NixOS"\n', "")
+    vt = dlg.versions
+    dlg.lang = "en"
+    vt._info = UBUNTU
+    dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "3.44.5", "o": "qgis.org", "root": True}]
+    dlg.retranslate()
+    check("versions tab is the fourth tab", dlg.tabs.count() == 4 and dlg.tabs.tabText(3) == "QGIS versions", dlg.tabs.tabText(3))
+    dlg.btn_lang.click()
+    check("Georgian title of the versions tab", dlg.tabs.tabText(3) == "QGIS-ის ვერსიები" and "პროფილ" in vt.btn_backup.text(), dlg.tabs.tabText(3))
+    dlg.btn_lang.click()
+    check("versions tab: stable goal on Ubuntu recommends the official repository, LTR preselected",
+          vt.recipe_id() == "apt-official" and "Official QGIS repository" in vt.lbl_rec.text()
+          and vt.opt_cmb["channel"].isVisibleTo(vt) and vt.chan_keys[vt.opt_cmb["channel"].currentIndex()] == "ltr",
+          (vt.recipe_id(), vt.lbl_rec.text()))
+    check("the official repository changes the system QGIS in place, and says so", "in place" in vt.lbl_where.text(), vt.lbl_where.text())
+    check("the other recipes of this system are offered too",
+          {"apt-official", "apt-distro", "flatpak"} <= set(vt.recipe_ids), vt.recipe_ids)
+    vt.goal_btns["alongside"].setChecked(True)
+    check("alongside goal: Flatpak stable, installs apart, branch chooser shown",
+          vt.recipe_id() == "flatpak" and "Installs apart" in vt.lbl_where.text()
+          and vt.opt_cmb["branch"].isVisibleTo(vt) and vt.opt_cmb["scope"].isVisibleTo(vt)
+          and not vt.opt_cmb["channel"].isVisibleTo(vt), (vt.recipe_id(), vt.lbl_where.text()))
+
+    # side by side: one confirmation, runs, no 'in place' question
+    confirms.clear()
+    runs.clear()
+    vt.btn_install.click()
+    check("flatpak: the reviewed text names the stable branch and the user scope",
+          len(confirms) == 1 and "org.qgis.qgis//stable" in confirms[0] and "--user" in confirms[0], confirms)
+    check("flatpak: side by side needs no second question and the steps ran",
+          pump(lambda: bool(runs)) and len(confirms) == 1, (len(confirms), runs))
+    pump(lambda: not vt._running())
+    check("flatpak: the log says it finished", "Finished" in vt.log.toPlainText(), vt.log.toPlainText())
+
+    # the lts branch, the system scope
+    vt.opt_cmb["branch"].setCurrentIndex(1)
+    vt.opt_cmb["scope"].setCurrentIndex(1)
+    confirms.clear()
+    runs.clear()
+    vt.btn_install.click()
+    pump(lambda: bool(runs))
+    check("flatpak lts, system scope: both choices reach the commands, with the end-of-life warning",
+          confirms and "org.qgis.qgis//lts" in confirms[0] and "--system" in confirms[0] and "end-of-life" in confirms[0], confirms)
+    check("flatpak system scope runs as root", runs and runs[0][0][-1]["root"] is True, runs)
+    pump(lambda: not vt._running())
+
+    # in place: two confirmations, and a 'no' to the second runs nothing
+    vt.goal_btns["stable"].setChecked(True)
+    answers = iter([True, False])
+    asked = []
+    dlg._confirm = lambda title, text: asked.append(title) or next(answers)
+    runs.clear()
+    vt.btn_install.click()
+    QApplication.processEvents()
+    check("in place: asked twice (commands, then 'this QGIS is open')", len(asked) == 2 and asked[1] == "This QGIS is open right now", asked)
+    check("declining the second question runs nothing", not runs and not vt._running(), runs)
+    dlg._confirm = lambda title, text: confirms.append(text) or True
+
+    # update (the earlier run refreshed the window, which forgets the installations: they are "found" again here)
+    confirms.clear()
+    runs.clear()
+    dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "3.44.5", "o": "qgis.org", "root": True}]
+    vt.refresh()
+    check("update button enabled when an installation was found", vt.btn_update.isEnabled(), vt.lbl_update.text())
+    vt.btn_update.click()
+    check("update: the exact installed packages, then the close-QGIS warning",
+          confirms and "apt-get install -y --only-upgrade python3-qgis qgis" in confirms[0] and "Close QGIS" in confirms[0], confirms)
+    check("update is in place: second confirmation too and then it ran", pump(lambda: bool(runs)) and len(confirms) == 2, (len(confirms), runs))
+    pump(lambda: not vt._running())
+    dlg.installs = []
+    vt.refresh()
+    check("nothing installed: update disabled with an explanation", not vt.btn_update.isEnabled() and "Nothing to update" in vt.lbl_update.text(), vt.lbl_update.text())
+    dlg.installs = None
+    vt.refresh()
+    check("installs still loading: says so", "Checking" in vt.lbl_update.text() and not vt.btn_update.isEnabled(), vt.lbl_update.text())
+
+    # instructions-only recipes run nothing
+    vt._info = NIXOS
+    vt.retranslate()
+    confirms.clear()
+    runs.clear()
+    check("NixOS: the recipe is instructions only", vt.recipe_id() == "nix-manual", vt.recipe_id())
+    vt.btn_install.click()
+    QApplication.processEvents()
+    check("NixOS: instructions shown, nothing run", confirms and "nix-shell -p" in confirms[0] and not runs, (confirms, runs))
+
+    # blockers
+    for label, facts, needle in (("flatpak QGIS", dict(FACTS, runtime="flatpak"), "sandboxed (flatpak)"),
+                                 ("not Linux", dict(FACTS, is_linux=False), "only works on Linux")):
+        d5 = EnvDialog(utils.iface, facts_fn=lambda f=facts: dict(f), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"},
+                       load_installs=False)
+        d5.lang = "en"
+        d5.versions._info = UBUNTU
+        d5.installs = [{"kind": "apt", "pkgs": ["qgis"], "v": "3.44.5", "o": "", "root": True}]
+        d5.retranslate()
+        check("versions blocked: " + label, not d5.versions.btn_update.isEnabled() and not d5.versions.btn_install.isEnabled()
+              and needle in d5.versions.blocker.text(), d5.versions.blocker.text())
+        d5.close()
+
+    # profile backup
+    prof = os.path.join(tmp, "profile")
+    for rel, data in (("QGIS/QGIS3.ini", b"[General]\n"), ("python/plugins/x/metadata.txt", b"[general]\n"), ("cache/c.bin", b"c" * 500)):
+        os.makedirs(os.path.dirname(os.path.join(prof, *rel.split("/"))), exist_ok=True)
+        with open(os.path.join(prof, *rel.split("/")), "wb") as fh:
+            fh.write(data)
+    dlg.facts["profile"] = prof
+    out_dir = os.path.join(tmp, "backups")
+    vt._pick_dir = lambda profile: out_dir
+    vt.log.clear()
+    vt.btn_backup.click()
+    zips = [f for f in os.listdir(out_dir)] if os.path.isdir(out_dir) else []
+    check("backup: one zip appears and the log reports it", len(zips) == 1 and "Copy ready" in vt.log.toPlainText(), (zips, vt.log.toPlainText()))
+    if zips:
+        with zipfile.ZipFile(os.path.join(out_dir, zips[0])) as zf:
+            names = sorted(n.replace("\\", "/") for n in zf.namelist())
+        check("backup: settings and plugins in, cache out", names == ["profile/QGIS/QGIS3.ini", "profile/python/plugins/x/metadata.txt"], names)
+    vt._pick_dir = lambda profile: os.path.join(profile, "QGIS")
+    vt.log.clear()
+    vt.btn_backup.click()
+    check("backup into the profile itself is refused", "Could not make the copy" in vt.log.toPlainText(), vt.log.toPlainText())
+    vt._pick_dir = lambda profile: ""
+    vt.log.clear()
+    vt.btn_backup.click()
+    check("cancelling the folder chooser does nothing", vt.log.toPlainText() == "", vt.log.toPlainText())
+
     # ---- copy report -------------------------------------------------------------
     report = dlg.report()
     check("the report is plain text with facts and findings", "QGIS Environment Manager" in report and "3.44.5" in report

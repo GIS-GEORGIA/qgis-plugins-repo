@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The QGIS Environment Manager window: Diagnostics, Plugins and QGIS 4, Requirements."""
+"""The QGIS Environment Manager window: Diagnostics, Plugins and QGIS 4, Requirements, QGIS versions."""
 from __future__ import annotations
 
 import importlib
@@ -17,6 +17,7 @@ from qgis.PyQt.QtWidgets import (
 from . import compat, diagnostics, strings
 from .qgis_installer import i18n as core_i18n
 from .qgis_installer import requirements, runner, system
+from .versions_tab import VersionsTab
 from .workers import InstallsWorker, StepsWorker
 
 SETTINGS = "qgis_environment_manager/"
@@ -113,6 +114,10 @@ class EnvDialog(QDialog):
         lay.addWidget(self.log)
         self.tabs.addTab(page, "")
 
+        # versions
+        self.versions = VersionsTab(self)
+        self.tabs.addTab(self.versions, "")
+
         self.btn_lang.clicked.connect(self._toggle_lang)
         self.btn_refresh.clicked.connect(self.refresh)
         self.btn_copy.clicked.connect(self._copy)
@@ -125,8 +130,9 @@ class EnvDialog(QDialog):
         self.btn_copy.setText(self.tr_("copy"))
         self.btn_refresh.setText(self.tr_("refresh"))
         self.btn_lang.setText(self.tr_("lang_btn"))
-        for i, key in enumerate(("tab_diag", "tab_plugins", "tab_req")):
+        for i, key in enumerate(("tab_diag", "tab_plugins", "tab_req", "tab_versions")):
             self.tabs.setTabText(i, self.tr_(key))
+        self.versions.retranslate()
         self.pl_head.setText(self.tr_("pl_head"))
         self.chk_only.setText(self.tr_("pl_only"))
         self.table.setHorizontalHeaderLabels(self.tr_("pl_cols"))
@@ -153,6 +159,7 @@ class EnvDialog(QDialog):
         self.installs = items
         self.findings = diagnostics.analyze(self.facts, items)
         self._fill_diag()
+        self.versions.refresh()
 
     def _label(self, it):
         return core_i18n.label_for(it, self.lang)
