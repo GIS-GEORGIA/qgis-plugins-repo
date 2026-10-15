@@ -231,9 +231,9 @@ def run():
     vt._info = UBUNTU
     dlg.installs = [{"kind": "apt", "pkgs": ["python3-qgis", "qgis"], "v": "3.44.5", "o": "qgis.org", "root": True}]
     dlg.retranslate()
-    check("versions tab is the fourth tab", dlg.tabs.count() == 4 and dlg.tabs.tabText(3) == "QGIS versions", dlg.tabs.tabText(3))
+    check("versions tab is the fifth tab", dlg.tabs.count() == 5 and dlg.tabs.tabText(4) == "QGIS versions", dlg.tabs.tabText(4))
     dlg.btn_lang.click()
-    check("Georgian title of the versions tab", dlg.tabs.tabText(3) == "QGIS-ის ვერსიები" and "პროფილ" in vt.btn_backup.text(), dlg.tabs.tabText(3))
+    check("Georgian title of the versions tab", dlg.tabs.tabText(4) == "QGIS-ის ვერსიები" and "პროფილ" in vt.btn_backup.text(), dlg.tabs.tabText(3))
     dlg.btn_lang.click()
     check("versions tab: stable goal on Ubuntu recommends the official repository, LTR preselected",
           vt.recipe_id() == "apt-official" and "Official QGIS repository" in vt.lbl_rec.text()
@@ -349,6 +349,65 @@ def run():
     vt.log.clear()
     vt.btn_backup.click()
     check("cancelling the folder chooser does nothing", vt.log.toPlainText() == "", vt.log.toPlainText())
+
+    # ---- Components tab ------------------------------------------------------------------
+    cp = dlg.components
+    cp._info = UBUNTU
+    dlg.facts = dict(FACTS)
+    missing.clear()
+    missing.update({"gdal", "numpy", "scipy", "windninja"})         # what the stub says is not installed
+    dlg.retranslate()
+    check("components tab is the fourth tab", dlg.tabs.tabText(3) == "Components", dlg.tabs.tabText(3))
+    tops = [cp.tree.topLevelItem(i).text(0) for i in range(cp.tree.topLevelItemCount())]
+    check("four groups in the order of the OSGeo4W-like chooser", tops == ["Command line tools", "GIS engines", "Python libraries", "Database clients"], tops)
+
+    def comp_item(rid):
+        for i in range(cp.tree.topLevelItemCount()):
+            top = cp.tree.topLevelItem(i)
+            for j in range(top.childCount()):
+                if top.child(j).data(0, cp_role) == rid:
+                    return top.child(j)
+
+    from qgis_environment_manager.components_tab import ROLE_ID as cp_role
+    from qgis.PyQt.QtCore import Qt as QtCore_Qt
+    gd, npy, pj, wn = comp_item("gdal"), comp_item("numpy"), comp_item("proj"), comp_item("windninja")
+    check("a missing component with a package can be ticked and shows its package",
+          bool(gd.flags() & QtCore_Qt.ItemFlag.ItemIsUserCheckable) and "[missing]" in gd.text(0) and "gdal-bin" in gd.text(0), gd.text(0))
+    check("an installed component cannot be ticked", "[installed]" in pj.text(0) and not (pj.flags() & QtCore_Qt.ItemFlag.ItemIsUserCheckable), pj.text(0))
+    check("a component without a package says so and cannot be ticked", "no package" in wn.text(0) and not (wn.flags() & QtCore_Qt.ItemFlag.ItemIsUserCheckable), wn.text(0))
+    check("nothing ticked: install disabled, hint shown", not cp.btn_install.isEnabled() and "Tick the components" in cp.note.text(), cp.note.text())
+    gd.setCheckState(0, QtCore_Qt.CheckState.Checked)
+    npy.setCheckState(0, QtCore_Qt.CheckState.Checked)
+    check("two ticked: counted, install enabled", cp.selected() == ["gdal", "numpy"] and cp.btn_install.isEnabled() and "Selected: 2" in cp.note.text(), (cp.selected(), cp.note.text()))
+    confirms.clear()
+    runs.clear()
+    cp.btn_install.click()
+    check("the reviewed commands name exactly the ticked packages", confirms and "apt-get install -y gdal-bin python3-numpy" in confirms[0]
+          and "scipy" not in confirms[0], confirms)
+    check("the steps ran as root through the elevator", pump(lambda: bool(runs)) and runs[0][0][0]["root"] is True, runs)
+    check("the log says it finished", pump(lambda: "Finished" in cp.log.toPlainText()), cp.log.toPlainText())
+    pump(lambda: not cp._running())
+    check("afterwards the list is refreshed: nothing left to tick",
+          cp.selected() == [] and "[installed]" in comp_item("gdal").text(0), comp_item("gdal").text(0))
+    for label, facts, needle in (("flatpak QGIS", dict(FACTS, runtime="flatpak"), "sandboxed (flatpak)"),
+                                 ("not Linux", dict(FACTS, is_linux=False), "only works on Linux")):
+        d6 = EnvDialog(utils.iface, facts_fn=lambda f=facts: dict(f), dirs_fn=lambda: [plugins], sysinfo={"pm": "apt-get"}, load_installs=False)
+        d6.lang = "en"
+        d6.components._info = UBUNTU
+        d6.retranslate()
+        gd6 = None
+        for i in range(d6.components.tree.topLevelItemCount()):
+            top = d6.components.tree.topLevelItem(i)
+            for j in range(top.childCount()):
+                if top.child(j).data(0, cp_role) == "gdal":
+                    gd6 = top.child(j)
+        check("components blocked: " + label, needle in d6.components.blocker.text() and not d6.components.btn_install.isEnabled()
+              and gd6 is not None and not (gd6.flags() & QtCore_Qt.ItemFlag.ItemIsUserCheckable), d6.components.blocker.text())
+        d6.close()
+    dlg.btn_lang.click()
+    check("Georgian title and texts of the components tab", dlg.tabs.tabText(3) == "კომპონენტები"
+          and "ბრძანების სტრიქონის" in cp.tree.topLevelItem(0).text(0), (dlg.tabs.tabText(3), cp.tree.topLevelItem(0).text(0)))
+    dlg.btn_lang.click()
 
     # ---- copy report -------------------------------------------------------------
     report = dlg.report()

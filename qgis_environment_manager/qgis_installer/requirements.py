@@ -1,4 +1,9 @@
-"""What the GIS GEORGIA QGIS plugins need from the operating system, and how to install it (no UI).
+"""What QGIS and the GIS GEORGIA plugins need from the operating system, and how to install it (no UI).
+
+The same table is the *components* list - the Linux counterpart of the OSGeo4W package chooser, kept small: command line
+tools (GDAL, PROJ), GIS engines (GRASS, SAGA), Python libraries and database clients, each installed with the system's own
+package manager. ``cat`` says where a component is listed; ``components()`` gives the rows, ``install_steps`` installs.
+Nothing here removes packages: a library such as numpy can be a dependency of QGIS itself, and removing it would take QGIS along.
 
 Each requirement is a Python module or a command line tool, with the distribution package that provides it
 per package manager (``None`` = no package, install it by hand). The names are verified against every
@@ -15,46 +20,114 @@ import sys
 # id -> {kind, module|tools, label{en,ka}, pkgs{pm: [package names] | None}}
 REQ = {
     "psycopg2": {
-        "kind": "module", "module": "psycopg2",
+        "cat": "python", "kind": "module", "module": "psycopg2",
         "label": {"en": "PostgreSQL driver for Python (psycopg2)", "ka": "PostgreSQL-ის დრაივერი Python-ისთვის (psycopg2)"},
         "pkgs": {"apt-get": ["python3-psycopg2"], "dnf": ["python3-psycopg2"], "pacman": ["python-psycopg2"],
                  "zypper": ["python{pyver}-psycopg2"], "apk": ["py3-psycopg2"]},
     },
     "pgclient": {
-        "kind": "tool", "tools": ["pg_dump", "pg_restore", "psql"],
+        "cat": "db", "kind": "tool", "tools": ["pg_dump", "pg_restore", "psql"],
         "label": {"en": "PostgreSQL client tools (pg_dump, pg_restore, psql)",
                   "ka": "PostgreSQL-ის კლიენტის ხელსაწყოები (pg_dump, pg_restore, psql)"},
         "pkgs": {"apt-get": ["postgresql-client"], "dnf": ["postgresql"], "pacman": ["postgresql"],
                  "zypper": ["postgresql"], "apk": ["postgresql-client"]},
     },
     "exiftool": {
-        "kind": "tool", "tools": ["exiftool"],
+        "cat": "cli", "kind": "tool", "tools": ["exiftool"],
         "label": {"en": "ExifTool (RAW and HEIC photos)", "ka": "ExifTool (RAW და HEIC ფოტოები)"},
         "pkgs": {"apt-get": ["libimage-exiftool-perl"], "dnf": ["perl-Image-ExifTool"],
                  "pacman": ["perl-image-exiftool"], "zypper": ["exiftool"], "apk": ["exiftool"]},
     },
     "geopandas": {
-        "kind": "module", "module": "geopandas",
+        "cat": "python", "kind": "module", "module": "geopandas",
         "label": {"en": "GeoPandas (vector import into PostGIS)", "ka": "GeoPandas (ვექტორის იმპორტი PostGIS-ში)"},
         "pkgs": {"apt-get": ["python3-geopandas"], "dnf": ["python3-geopandas"], "pacman": ["python-geopandas"],
                  "zypper": ["python{pyver}-geopandas"], "apk": None},
     },
     "saga": {
-        "kind": "tool", "tools": ["saga_cmd"],
+        "cat": "engine", "kind": "tool", "tools": ["saga_cmd"],
         "label": {"en": "SAGA GIS (solar radiation)", "ka": "SAGA GIS (მზის რადიაცია)"},
         "pkgs": {"apt-get": ["saga"], "dnf": None, "pacman": None, "zypper": None, "apk": None},
     },
     "grass": {
-        "kind": "tool", "tools": ["grass"],
+        "cat": "engine", "kind": "tool", "tools": ["grass"],
         "label": {"en": "GRASS GIS (r.sun)", "ka": "GRASS GIS (r.sun)"},
         "pkgs": {"apt-get": ["grass"], "dnf": ["grass"], "pacman": None, "zypper": ["grass"], "apk": None},
     },
     "windninja": {
-        "kind": "tool", "tools": ["WindNinja_cli"],
+        "cat": "engine", "kind": "tool", "tools": ["WindNinja_cli"],
         "label": {"en": "WindNinja (wind downscaling)", "ka": "WindNinja (ქარის დეტალიზაცია)"},
         "pkgs": {"apt-get": None, "dnf": None, "pacman": None, "zypper": None, "apk": None},
     },
+    "gdal": {
+        "cat": "cli", "kind": "tool", "tools": ["gdalinfo", "ogr2ogr"],
+        "label": {"en": "GDAL command line tools (gdalinfo, ogr2ogr, gdal_translate)",
+                  "ka": "GDAL-ის ბრძანების სტრიქონის ხელსაწყოები (gdalinfo, ogr2ogr, gdal_translate)"},
+        "pkgs": {"apt-get": ["gdal-bin"], "dnf": ["gdal"], "pacman": ["gdal"], "zypper": ["gdal"], "apk": ["gdal-tools"]},
+    },
+    "proj": {
+        "cat": "cli", "kind": "tool", "tools": ["projinfo", "cs2cs"],
+        "label": {"en": "PROJ tools (projinfo, cs2cs)", "ka": "PROJ-ის ხელსაწყოები (projinfo, cs2cs)"},
+        "pkgs": {"apt-get": ["proj-bin"], "dnf": ["proj"], "pacman": ["proj"], "zypper": ["proj"], "apk": ["proj-util"]},
+    },
+    "gdal-python": {
+        "cat": "python", "kind": "module", "module": "osgeo",
+        "label": {"en": "GDAL/OGR for Python (osgeo)", "ka": "GDAL/OGR Python-ისთვის (osgeo)"},
+        "pkgs": {"apt-get": ["python3-gdal"], "dnf": ["python3-gdal"], "pacman": ["gdal"],
+                 "zypper": ["python{pyver}-GDAL"], "apk": ["py3-gdal"]},
+    },
+    "numpy": {
+        "cat": "python", "kind": "module", "module": "numpy",
+        "label": {"en": "NumPy", "ka": "NumPy"},
+        "pkgs": {"apt-get": ["python3-numpy"], "dnf": ["python3-numpy"], "pacman": ["python-numpy"],
+                 "zypper": ["python{pyver}-numpy"], "apk": ["py3-numpy"]},
+    },
+    "pandas": {
+        "cat": "python", "kind": "module", "module": "pandas",
+        "label": {"en": "pandas", "ka": "pandas"},
+        "pkgs": {"apt-get": ["python3-pandas"], "dnf": ["python3-pandas"], "pacman": ["python-pandas"],
+                 "zypper": ["python{pyver}-pandas"], "apk": ["py3-pandas"]},
+    },
+    "scipy": {
+        "cat": "python", "kind": "module", "module": "scipy",
+        "label": {"en": "SciPy", "ka": "SciPy"},
+        "pkgs": {"apt-get": ["python3-scipy"], "dnf": ["python3-scipy"], "pacman": ["python-scipy"],
+                 "zypper": ["python{pyver}-scipy"], "apk": ["py3-scipy"]},
+    },
+    "matplotlib": {
+        "cat": "python", "kind": "module", "module": "matplotlib",
+        "label": {"en": "Matplotlib (charts)", "ka": "Matplotlib (დიაგრამები)"},
+        "pkgs": {"apt-get": ["python3-matplotlib"], "dnf": ["python3-matplotlib"], "pacman": ["python-matplotlib"],
+                 "zypper": ["python{pyver}-matplotlib"], "apk": ["py3-matplotlib"]},
+    },
+    "shapely": {
+        "cat": "python", "kind": "module", "module": "shapely",
+        "label": {"en": "Shapely (geometry)", "ka": "Shapely (გეომეტრია)"},
+        "pkgs": {"apt-get": ["python3-shapely"], "dnf": ["python3-shapely"], "pacman": ["python-shapely"],
+                 "zypper": ["python{pyver}-Shapely"], "apk": ["py3-shapely"]},
+    },
+    "pyproj": {
+        "cat": "python", "kind": "module", "module": "pyproj",
+        "label": {"en": "pyproj (coordinate systems)", "ka": "pyproj (საკოორდინატო სისტემები)"},
+        "pkgs": {"apt-get": ["python3-pyproj"], "dnf": ["python3-pyproj"], "pacman": ["python-pyproj"],
+                 "zypper": ["python{pyver}-pyproj"], "apk": None},
+    },
+    "rasterio": {
+        "cat": "python", "kind": "module", "module": "rasterio",
+        "label": {"en": "rasterio (rasters)", "ka": "rasterio (რასტრები)"},
+        "pkgs": {"apt-get": ["python3-rasterio"], "dnf": ["python3-rasterio"], "pacman": None,
+                 "zypper": None, "apk": None},
+    },
+    "fiona": {
+        "cat": "python", "kind": "module", "module": "fiona",
+        "label": {"en": "Fiona (vector files)", "ka": "Fiona (ვექტორული ფაილები)"},
+        "pkgs": {"apt-get": ["python3-fiona"], "dnf": ["python3-fiona"], "pacman": ["python-fiona"],
+                 "zypper": ["python{pyver}-Fiona"], "apk": None},
+    },
 }
+
+# where the components are listed, in this order
+CATEGORIES = ("cli", "engine", "python", "db")
 
 # GIS GEORGIA plugin folder name -> [(requirement id, optional?)]
 PLUGIN_REQUIREMENTS = {
@@ -87,6 +160,20 @@ def status(plugin_id, **kw):
     """[{id, label, optional, present, packages}] for one plugin (packages per detected pm are not resolved here)."""
     return [{"id": rid, "label": REQ[rid]["label"], "optional": opt, "present": is_present(rid, **kw)}
             for rid, opt in PLUGIN_REQUIREMENTS.get(plugin_id, [])]
+
+
+def components(pm, pyver=None, **kw):
+    """Every component as a row, grouped by category in the order of CATEGORIES:
+    ``{id, cat, label, present, packages, manual}`` (``manual``: no package for this package manager)."""
+    rows = []
+    for cat in CATEGORIES:
+        for rid, spec in REQ.items():
+            if spec.get("cat") != cat:
+                continue
+            pkgs, manual = packages_for([rid], pm, pyver)
+            rows.append({"id": rid, "cat": cat, "label": spec["label"], "present": is_present(rid, **kw),
+                         "packages": pkgs, "manual": bool(manual)})
+    return rows
 
 
 def python_tag():

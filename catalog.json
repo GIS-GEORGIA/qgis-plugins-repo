@@ -95,7 +95,7 @@
    "catalog_id": "qgis-environment-manager",
    "name": "QGIS Environment Manager",
    "name_ka": "QGIS-ის გარემო",
-   "version": "0.2.0",
+   "version": "0.3.0",
    "summary": "What this QGIS is, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (Georgian and English).",
    "description": {
     "en": "What this QGIS is and how it was installed, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (PostgreSQL client tools, ExifTool, SAGA, GRASS) - with a reviewed one-step install on Linux. Copyable report for support.",
@@ -124,15 +124,15 @@
    "icon_url": "https://plugins.qgis.ge/qgis_environment_manager/icon.svg",
    "vendored": false,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.2.0",
+    "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.3.0",
     "file": "qgis_environment_manager.zip",
-    "sha256": "f6a05670eb2bf1723e83ea3e24d9ac5540c1bb66b8eb50f5182d5d59a9c4abe8",
-    "size": 50528
+    "sha256": "e38c35c2f09b5cec2a2ef388e34d0e5ba5c195cc76e12bbebe6508ad911dc45a",
+    "size": 54891
    },
    "changelog": [
     {
-     "version": "0.2.0",
-     "text": "New tab \"QGIS versions\": update what is installed (apt, Flatpak, Snap, dnf, zypper, rpm-ostree; Arch gets the full-system line to run yourself), install another version from a recommendation for your goal (stable and long-term / newest / next to my QGIS) with the Flatpak branch and scope choice, instructions-only recipes for NixOS and Slackware, and a profile backup. Shared core updated to the new install recipes. / 0.1.0 - First release: diagnostics with a copyable report, a table of what each installed plugin declares for QGIS 3 and QGIS 4, and the system requirements of the GIS GEORGIA plugins with a reviewed one-step install on Linux."
+     "version": "0.3.0",
+     "text": "New tab \"Components\": GDAL, PROJ, GRASS, SAGA, Python libraries and database clients with the system package manager (install only; nothing is removed because a library can be a dependency of QGIS). / 0.2.0 - New tab \"QGIS versions\": update what is installed (apt, Flatpak, Snap, dnf, zypper, rpm-ostree; Arch gets the full-system line to run yourself), install another version from a recommendation for your goal (stable and long-term / newest / next to my QGIS) with the Flatpak branch and scope choice, instructions-only recipes for NixOS and Slackware, and a profile backup. Shared core updated to the new install recipes. / 0.1.0 - First release: diagnostics with a copyable report, a table of what each installed plugin declares for QGIS 3 and QGIS 4, and the system requirements of the GIS GEORGIA plugins with a reviewed one-step install on Linux."
     }
    ],
    "usage": {
