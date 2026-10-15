@@ -8,12 +8,17 @@ shown first and run only after confirmation; a sandboxed QGIS (Flatpak, Snap) or
 from __future__ import annotations
 
 import importlib
+import json
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
+from qgis.PyQt.QtWidgets import (
+    QFileDialog, QGroupBox, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+)
 
+from .qgis_installer import envspec
 from .qgis_installer import i18n as core_i18n
 from .qgis_installer import requirements, runner, system
+from .versions_tab import plan_text
 from .workers import StepsWorker
 
 ROLE_ID = Qt.ItemDataRole.UserRole
@@ -24,6 +29,8 @@ class ComponentsTab(QWidget):
         super().__init__(dialog)
         self.d = dialog
         self._info = None                          # tests inject a system description
+        self._pick_save = None                     # tests inject the file choosers: () -> path or ""
+        self._pick_open = None
         self.worker = None
         self._steps: list = []
         self._build()
@@ -46,11 +53,28 @@ class ComponentsTab(QWidget):
         self.log = QPlainTextEdit()
         self.log.setReadOnly(True)
         self.log.setMaximumBlockCount(2000)
+        self.g_env = QGroupBox()
+        v = QVBoxLayout(self.g_env)
+        self.lbl_env = QLabel()
+        self.lbl_env.setWordWrap(True)
+        erow = QHBoxLayout()
+        self.btn_env_save = QPushButton()
+        self.btn_env_check = QPushButton()
+        self.btn_env_apply = QPushButton()
+        for b in (self.btn_env_save, self.btn_env_check, self.btn_env_apply):
+            erow.addWidget(b)
+        erow.addStretch(1)
+        v.addWidget(self.lbl_env)
+        v.addLayout(erow)
         lay.addWidget(self.head)
         lay.addWidget(self.blocker)
         lay.addWidget(self.tree, 1)
         lay.addLayout(row)
+        lay.addWidget(self.g_env)
         lay.addWidget(self.log)
+        self.btn_env_save.clicked.connect(self.env_save)
+        self.btn_env_check.clicked.connect(self.env_check)
+        self.btn_env_apply.clicked.connect(self.env_apply)
         self.tree.itemChanged.connect(self._on_changed)
         self.btn_install.clicked.connect(self.run_install)
 
@@ -76,6 +100,11 @@ class ComponentsTab(QWidget):
     def retranslate(self):
         self.head.setText(self.tr_("cp_head"))
         self.btn_install.setText(self.tr_("cp_install_btn"))
+        self.g_env.setTitle(self.tr_("env_h"))
+        self.lbl_env.setText(self.tr_("env_text"))
+        self.btn_env_save.setText(self.tr_("env_save_btn"))
+        self.btn_env_check.setText(self.tr_("env_check_btn"))
+        self.btn_env_apply.setText(self.tr_("env_apply_btn"))
         self.refresh()
 
     # ---- the list ----------------------------------------------------------------
@@ -126,6 +155,7 @@ class ComponentsTab(QWidget):
         n = len(self.selected())
         self.note.setText(self.tr_("cp_selected", n=n) if n else self.tr_("cp_none_selected"))
         self.btn_install.setEnabled(n > 0 and self.blocked() is None and not self._running())
+        self.btn_env_apply.setEnabled(self.blocked() is None and not self._running())
 
     def _running(self):
         return bool(self.worker and self.worker.isRunning())
@@ -160,3 +190,71 @@ class ComponentsTab(QWidget):
             self.log.appendPlainText(self.tr_("rq_failed", rc=rc))
         self.refresh()
         self.d._fill_requirements()
+
+    # ---- the environment file ---------------------------------------------------------
+    def _rows(self):
+        return requirements.components(self.sysinfo()["pm"])
+
+    def env_save(self):
+        if self.d.installs is None:                            # the installations are still being looked for
+            self.log.appendPlainText(self.tr_("installs_loading"))
+            return
+        path = self._pick_save() if self._pick_save else QFileDialog.getSaveFileName(self, self.tr_("env_save_btn"), "environment.json", "JSON (*.json)")[0]
+        if not path:
+            return
+        spec = envspec.export_spec(self.d.installs, self._rows(), "")
+        try:
+            with open(path, "w", encoding="utf-8", newline="\n") as fh:
+                fh.write(json.dumps(spec, indent=2, ensure_ascii=False) + "\n")
+        except OSError as exc:
+            self.log.appendPlainText(self.tr_("env_fail", why=str(exc)))
+            return
+        self.log.appendPlainText(self.tr_("env_saved", path=path, n=len(spec["components"])))
+
+    def _env_read(self):
+        path = self._pick_open() if self._pick_open else QFileDialog.getOpenFileName(self, self.tr_("env_check_btn"), "", "JSON (*.json)")[0]
+        if not path:
+            return None
+        try:
+            return envspec.load(path)
+        except OSError as exc:
+            self.log.appendPlainText(self.tr_("env_fail", why=str(exc)))
+        except envspec.SpecError as exc:
+            self.log.appendPlainText(self.core("env_too_big") if "larger than 64 KB" in str(exc) else self.core("env_invalid", why=str(exc)))
+        return None
+
+    def env_check(self):
+        spec = self._env_read()
+        if spec is None:
+            return
+        state = envspec.check(spec, self.d.installs or [], self._rows())
+        self.log.appendPlainText("\n".join(envspec.describe(spec, state, self.d.lang)))
+
+    def env_apply(self):
+        if self.blocked() is not None or self._running():
+            return
+        spec = self._env_read()
+        if spec is None:
+            return
+        rows = self._rows()
+        state = envspec.check(spec, self.d.installs or [], rows)
+        lines = "\n".join(envspec.describe(spec, state, self.d.lang))
+        self.log.appendPlainText(lines)
+        result = envspec.plan(spec, self.d.installs or [], rows, self.sysinfo())
+        if not result["steps"] and not result["manual"]:
+            self.log.appendPlainText(self.core("env_matches"))
+            return
+        text = lines + "\n\n" + plan_text(result, self.d.lang)
+        if not result["steps"]:                                # instructions only
+            self.d._confirm(self.tr_("env_apply_btn"), self.tr_("vt_manual_only", text=text))
+            return
+
+        def go():
+            self.log.clear()
+            self.log.appendPlainText(self.tr_("rq_running"))
+            self._steps = result["steps"]
+            self.worker = StepsWorker(self._steps, runner.default_elevator(), self, self.d._run_steps)
+            self.worker.line.connect(self.log.appendPlainText)
+            self.worker.done.connect(self._on_done)
+            self.worker.start()
+        self.d.confirm_steps(self.tr_("rq_confirm_title"), text, result["steps"], go, log=self.log)
