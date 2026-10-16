@@ -117,6 +117,8 @@ def _flatpak_builds(item, run):
         c = re.search(r"^\s*Commit:\s*([0-9a-f]{64})\s*$", block, re.M)
         if not c:
             continue
+        if any(r["commit"] == c.group(1) for r in rows):      # the header block repeats the newest log entry
+            continue
         subject = re.search(r"^\s*Subject:\s*(.*)$", block, re.M)
         date = re.search(r"^\s*Date:\s*(\S+)", block, re.M)
         rows.append({"version": "{} {}".format(date.group(1) if date else "?", (subject.group(1) if subject else "").strip()).strip(),

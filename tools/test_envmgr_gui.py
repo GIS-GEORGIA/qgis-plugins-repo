@@ -28,6 +28,14 @@ from qgis_environment_manager.qgis_installer import requirements  # noqa: E402
 
 OUT = os.environ.get("ENVMGR_OUT", "envmgr_result.json")
 results = []
+SLOT_ERRORS = []                                # an exception inside a Qt slot: QGIS on Windows shows it only as a message, plain PyQt5 aborts
+
+
+def _hook(kind, value, tb):
+    SLOT_ERRORS.append("".join(traceback.format_exception(kind, value, tb)))
+
+
+sys.excepthook = _hook
 
 
 def check(name, cond, extra=""):
@@ -403,6 +411,50 @@ def run():
     QApplication.processEvents()
     check("NixOS: instructions shown, nothing run", confirms and "nix-shell -p" in confirms[0] and not runs, (confirms, runs))
 
+    # the offline copy (Flatpak): make one here, install from one
+    vt.goal_btns["stable"].setChecked(True)
+    check("offline: the choosers start at the LTS build and the system scope",
+          vt.cmb_off_branch.currentData() == "lts" and vt.cmb_off_scope.currentData() == "system", (vt.cmb_off_branch.currentData(), vt.cmb_off_scope.currentData()))
+    check("offline: both buttons are there and enabled on a native Linux QGIS", vt.btn_off_export.isEnabled() and vt.btn_off_install.isEnabled()
+          and "Make an offline copy" in vt.btn_off_export.text(), vt.btn_off_export.text())
+    vt._has_flatpak = lambda: True
+    vt._pick_offline = lambda which: "/media/usb stick"
+    confirms.clear()
+    runs.clear()
+    vt.btn_off_export.click()
+    check("offline export: the reviewed text sets the collection id before the copy, quotes the folder and names the size",
+          len(confirms) == 1 and "--collection-id=org.flathub.Stable" in confirms[0] and "create-usb --system '/media/usb stick' org.qgis.qgis//lts" in confirms[0]
+          and "1.2 GB" in confirms[0], confirms)
+    check("offline export: runs as root after one confirmation (nothing in place, so no second question)",
+          pump(lambda: bool(runs)) and len(confirms) == 1 and runs[0][0][-1]["root"] is True, (len(confirms), runs))
+    pump(lambda: not vt._running())
+    vt.cmb_off_branch.setCurrentIndex(1)
+    vt.cmb_off_scope.setCurrentIndex(1)
+    confirms.clear()
+    runs.clear()
+    vt.btn_off_install.click()
+    check("offline install: reads only the folder (no web address), user scope, stable branch",
+          len(confirms) == 1 and "--sideload-repo='/media/usb stick'/.ostree/repo flathub org.qgis.qgis//stable" in confirms[0]
+          and "https://" not in confirms[0] and "--user" in confirms[0], confirms)
+    check("offline install: the user scope does not ask for administrator rights", pump(lambda: bool(runs)) and runs[0][0][-1]["root"] is False, runs)
+    pump(lambda: not vt._running())
+    vt._pick_offline = lambda which: ""
+    confirms.clear()
+    runs.clear()
+    vt.btn_off_export.click()
+    QApplication.processEvents()
+    check("offline: closing the folder chooser runs and asks nothing", not confirms and not runs, (confirms, runs))
+    vt._pick_offline = lambda which: "/media/usb"
+    vt._has_flatpak = lambda: False
+    vt.btn_off_install.click()
+    QApplication.processEvents()
+    check("offline without Flatpak: the instructions say so and nothing runs", confirms and "Flatpak is not installed" in confirms[0] and not runs, (confirms, runs))
+    vt._has_flatpak = lambda: True
+    vt._pick_offline = None
+    dlg.btn_lang.click()
+    check("offline: Georgian texts", "ოფლაინ" in vt.btn_off_export.text() and "ოფლაინ" in vt.g_off.title(), vt.btn_off_export.text())
+    dlg.btn_lang.click()
+
     # blockers
     for label, facts, needle in (("flatpak QGIS", dict(FACTS, runtime="flatpak"), "sandboxed (flatpak)"),
                                  ("not Linux", dict(FACTS, is_linux=False), "only works on Linux")):
@@ -413,6 +465,7 @@ def run():
         d5.installs = [{"kind": "apt", "pkgs": ["qgis"], "v": "3.44.5", "o": "", "root": True}]
         d5.retranslate()
         check("versions blocked: " + label, not d5.versions.btn_update.isEnabled() and not d5.versions.btn_install.isEnabled()
+              and not d5.versions.btn_off_export.isEnabled() and not d5.versions.btn_off_install.isEnabled()
               and needle in d5.versions.blocker.text(), d5.versions.blocker.text())
         d5.close()
 
@@ -1060,6 +1113,7 @@ try:
 except Exception:  # noqa: BLE001
     results.append({"check": "exception", "ok": False, "extra": traceback.format_exc()})
 
+check("no Python exception was raised inside any slot or timer during the whole run", not SLOT_ERRORS, "\n".join(SLOT_ERRORS)[:1500])
 with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(results, fh, indent=1)
 QTimer.singleShot(500, QgsApplication.quit)
