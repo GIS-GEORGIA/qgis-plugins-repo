@@ -95,7 +95,7 @@
    "catalog_id": "qgis-environment-manager",
    "name": "QGIS Environment Manager",
    "name_ka": "QGIS-ის გარემო",
-   "version": "0.8.0",
+   "version": "0.9.0",
    "summary": "What this QGIS is, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (Georgian and English).",
    "description": {
     "en": "What this QGIS is and how it was installed, which of your plugins declare support for QGIS 4, and what the GIS GEORGIA plugins need from the system (PostgreSQL client tools, ExifTool, SAGA, GRASS) - with a reviewed one-step install on Linux. Copyable report for support.",
@@ -124,15 +124,15 @@
    "icon_url": "https://plugins.qgis.ge/qgis_environment_manager/icon.svg",
    "vendored": false,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.8.0",
+    "url": "https://plugins.qgis.ge/plugins/qgis_environment_manager.zip?v=0.9.0",
     "file": "qgis_environment_manager.zip",
-    "sha256": "843749c17186791641b52412b01ff4b98a8020a1a814d2af7440fe906a176fa3",
-    "size": 95941
+    "sha256": "4f258428d04f673ddde4706d345365f9d7a6723590b4fd9633a7f2e794004d88",
+    "size": 99515
    },
    "changelog": [
     {
-     "version": "0.8.0",
-     "text": "Plugins tab: what the installed plugins import and this QGIS lacks, with install; optional once-a-day notice at start-up (off by default). Seven more Python components. / 0.7.0 - Doctor in the Diagnostics tab (reads only; its lines go into the copied report). / 0.6.0 - Environment file in the Components tab: save this machine as a file, compare with a file, make this machine match a file (names from closed lists only; commands shown, simulated and asked about). / 0.5.0 - Safety: the package manager is asked what each plan would do before the question; automatic profile copy before QGIS is changed in place (nothing is changed if it cannot be made); copies listed and restorable as a new profile; other versions and back to older ones; keep a version (hold). / 0.4.0 - QGIS versions tab: a table of every installed QGIS with its version, a read-only update check (unknown is never shown as up to date) and starting a chosen one after reviewing the command; Flatpak removal now names the branch. / 0.3.0 - New tab \"Components\": GDAL, PROJ, GRASS, SAGA, Python libraries and database clients with the system package manager (install only; nothing is removed because a library can be a dependency of QGIS). / 0.2.0 - New tab \"QGIS versions\": update what is installed (apt, Flatpak, Snap, dnf, zypper, rpm-ostree; Arch gets the full-system line to run yourself), install another version from a recommendation for your goal (stable and long-term / newest / next to my QGIS) with the Flatpak branch and scope choice, instructions-only recipes for NixOS and Slackware, and a profile backup. Shared core updated to the new install recipes. / 0.1.0 - First release: diagnostics with a copyable report, a table of what each installed plugin declares for QGIS 3 and QGIS 4, and the system requirements of the GIS GEORGIA plugins with a reviewed one-step install on Linux."
+     "version": "0.9.0",
+     "text": "QGIS versions tab: offline copy of QGIS (Flatpak) for a machine without internet - make it here, install from it with no network (commands shown, simulated and asked about). Fixes a Python error that could be raised when the QGIS versions tab was built (seen in plain PyQt5; QGIS on Windows only shows it as a message). / 0.8.0 - Plugins tab: what the installed plugins import and this QGIS lacks, with install; optional once-a-day notice at start-up (off by default). Seven more Python components. / 0.7.0 - Doctor in the Diagnostics tab (reads only; its lines go into the copied report). / 0.6.0 - Environment file in the Components tab: save this machine as a file, compare with a file, make this machine match a file (names from closed lists only; commands shown, simulated and asked about). / 0.5.0 - Safety: the package manager is asked what each plan would do before the question; automatic profile copy before QGIS is changed in place (nothing is changed if it cannot be made); copies listed and restorable as a new profile; other versions and back to older ones; keep a version (hold). / 0.4.0 - QGIS versions tab: a table of every installed QGIS with its version, a read-only update check (unknown is never shown as up to date) and starting a chosen one after reviewing the command; Flatpak removal now names the branch. / 0.3.0 - New tab \"Components\": GDAL, PROJ, GRASS, SAGA, Python libraries and database clients with the system package manager (install only; nothing is removed because a library can be a dependency of QGIS). / 0.2.0 - New tab \"QGIS versions\": update what is installed (apt, Flatpak, Snap, dnf, zypper, rpm-ostree; Arch gets the full-system line to run yourself), install another version from a recommendation for your goal (stable and long-term / newest / next to my QGIS) with the Flatpak branch and scope choice, instructions-only recipes for NixOS and Slackware, and a profile backup. Shared core updated to the new install recipes. / 0.1.0 - First release: diagnostics with a copyable report, a table of what each installed plugin declares for QGIS 3 and QGIS 4, and the system requirements of the GIS GEORGIA plugins with a reviewed one-step install on Linux."
     }
    ],
    "usage": {

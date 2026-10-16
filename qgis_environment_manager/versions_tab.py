@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import os
+import shutil
 
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
@@ -19,7 +20,7 @@ from qgis.PyQt.QtWidgets import (
 
 from . import profile_backup
 from .qgis_installer import i18n as core_i18n
-from .qgis_installer import instances, recipes, runner, system, update, versions
+from .qgis_installer import instances, offline, recipes, runner, system, update, versions
 from .workers import FuncWorker, StepsWorker, UpdatesWorker
 
 
@@ -56,6 +57,8 @@ class VersionsTab(QWidget):
         self.worker = None
         self._steps: list = []
         self._pick_dir = None                     # tests inject a folder chooser
+        self._pick_offline = None                 # tests inject the chooser of the offline copy's folder: (which) -> path
+        self._has_flatpak = lambda: shutil.which("flatpak") is not None
         self._popen = None                        # tests inject a process starter
         self._check_fn = None                     # tests inject the update check
         self.updates: dict = {}                   # instance id -> check_updates row
@@ -122,7 +125,9 @@ class VersionsTab(QWidget):
             b.toggled.connect(lambda on, g=goal: on and self._on_goal(g))
             self.goal_btns[goal] = b
             v.addWidget(b)
+        self.goal_btns["stable"].blockSignals(True)       # the window below does not exist yet; retranslate() fills it in
         self.goal_btns["stable"].setChecked(True)
+        self.goal_btns["stable"].blockSignals(False)
         self.lbl_rec = QLabel()
         self.lbl_rec.setWordWrap(True)
         self.lbl_rec.setStyleSheet("color:#1d4ed8")
@@ -140,6 +145,27 @@ class VersionsTab(QWidget):
         self.btn_install = QPushButton()
         v.addWidget(self.btn_install)
         lay.addWidget(self.g_other)
+
+        self.g_off = QGroupBox()
+        v = QVBoxLayout(self.g_off)
+        self.lbl_off = QLabel()
+        self.lbl_off.setWordWrap(True)
+        self.lbl_off_branch, self.cmb_off_branch = QLabel(), QComboBox()
+        self.lbl_off_scope, self.cmb_off_scope = QLabel(), QComboBox()
+        for b in offline.BRANCHES[::-1]:                 # lts first: it is the one that is about 1.2 GB and the usual choice
+            self.cmb_off_branch.addItem(b, b)
+        for sc in ("system", "user"):
+            self.cmb_off_scope.addItem(sc, sc)
+        self.btn_off_export = QPushButton()
+        self.btn_off_install = QPushButton()
+        orow = QHBoxLayout()
+        orow.addWidget(self.btn_off_export)
+        orow.addWidget(self.btn_off_install)
+        orow.addStretch(1)
+        for w in (self.lbl_off, self.lbl_off_branch, self.cmb_off_branch, self.lbl_off_scope, self.cmb_off_scope):
+            v.addWidget(w)
+        v.addLayout(orow)
+        lay.addWidget(self.g_off)
 
         self.g_backup = QGroupBox()
         v = QVBoxLayout(self.g_backup)
@@ -182,6 +208,8 @@ class VersionsTab(QWidget):
         self.btn_update.clicked.connect(self.run_update)
         self.btn_install.clicked.connect(self.run_install)
         self.btn_backup.clicked.connect(self.run_backup)
+        self.btn_off_export.clicked.connect(lambda: self.run_offline("export"))
+        self.btn_off_install.clicked.connect(lambda: self.run_offline("install"))
 
     def tr_(self, key, **kw):
         return self.d.tr_(key, **kw)
@@ -209,6 +237,12 @@ class VersionsTab(QWidget):
         for name, key in (("channel", "o_channel"), ("branch", "o_branch"), ("scope", "o_scope")):
             self.opt_label[name].setText(self.core(key))
         self.btn_install.setText(self.tr_("vt_install_btn"))
+        self.g_off.setTitle(self.tr_("vt_off_h"))
+        self.lbl_off.setText(self.tr_("vt_off_text"))
+        self.lbl_off_branch.setText(self.core("o_branch"))
+        self.lbl_off_scope.setText(self.core("o_scope"))
+        self.btn_off_export.setText(self.tr_("vt_off_export_btn"))
+        self.btn_off_install.setText(self.tr_("vt_off_install_btn"))
         self.g_backup.setTitle(self.tr_("vt_backup_h"))
         self.lbl_backup.setText(self.tr_("vt_backup_text"))
         self.btn_backup.setText(self.tr_("vt_backup_btn"))
@@ -243,6 +277,8 @@ class VersionsTab(QWidget):
         self.btn_update.setEnabled(reason is None and bool(plan["steps"] or plan["manual"]) and not self._running())
         self.btn_install.setEnabled(self.recipe_id() is not None and reason is None and not self._running())
         self.btn_backup.setEnabled(not self._running())
+        for b in (self.btn_off_export, self.btn_off_install):
+            b.setEnabled(reason is None and not self._running())
         self._fill_instances()
         self._fill_backups()
 
@@ -472,6 +508,22 @@ class VersionsTab(QWidget):
         result = recipes.make_plan(rid, self.sysinfo(), self.options(rid))
         self._confirm_and_run(result, in_place=not recipes.RECIPES[rid]["side_by_side"], title_key="vt_other_h")
 
+    def run_offline(self, which):
+        """An offline copy of QGIS (Flatpak) for a machine without internet: make it here, or install from one. Shown and confirmed like every plan."""
+        if self.blocked() is not None or self._running():
+            return
+        title = self.tr_("vt_off_export_btn" if which == "export" else "vt_off_install_btn")
+        folder = self._pick_offline(which) if self._pick_offline else QFileDialog.getExistingDirectory(self, title, os.path.expanduser("~"))
+        if not folder:
+            return
+        make = offline.export_plan if which == "export" else offline.install_plan
+        try:
+            result = make(folder, self.cmb_off_branch.currentData(), self.cmb_off_scope.currentData(), have_flatpak=self._has_flatpak())
+        except offline.OfflineError as exc:
+            self.log.appendPlainText(self.core(str(exc)))
+            return
+        self._confirm_and_run(result, in_place=False, title_key="vt_off_h")
+
     def _confirm_and_run(self, result, in_place, title_key, after=None):
         if self.blocked() is not None or self._running():
             return
@@ -520,6 +572,8 @@ class VersionsTab(QWidget):
         self.worker.done.connect(self._on_done)
         self.btn_update.setEnabled(False)
         self.btn_install.setEnabled(False)
+        self.btn_off_export.setEnabled(False)
+        self.btn_off_install.setEnabled(False)
         self.worker.start()
 
     def _on_done(self, rc, failed):
