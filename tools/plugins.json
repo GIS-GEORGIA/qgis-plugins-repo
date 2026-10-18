@@ -277,13 +277,13 @@
         "status": "experimental",
         "featured": true,
         "bilingual": true,
-        "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, publish to and get updates from GitHub or your own server, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
-        "ka": "მთელი QGIS პროექტის საქაღალდის ვერსიონირება (git + Git LFS) პანელიდან: ვერსიის შენახვა, GitHub-ზე ან საკუთარ სერვერზე გამოქვეყნება და მოტანა, ისტორიის ხე ავტორების ფერებით, ვექტორის, რასტრის და პროექტის ცვლილებები რუკაზე, GeoPackage-ის შერწყმა ობიექტების დონეზე, ფაილების დაბლოკვა.",
+        "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, create the repository on GitHub, GitLab, Bitbucket or Forgejo and publish to it, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
+        "ka": "მთელი QGIS პროექტის საქაღალდის ვერსიონირება (git + Git LFS) პანელიდან: ვერსიის შენახვა, რეპოს შექმნა GitHub-ზე, GitLab-ზე, Bitbucket-ზე ან Forgejo-ზე და გამოქვეყნება, ისტორიის ხე ავტორების ფერებით, ვექტორის, რასტრის და პროექტის ცვლილებები რუკაზე, GeoPackage-ის შერწყმა ობიექტების დონეზე, ფაილების დაბლოკვა.",
         "tags": [
           "git",
           "versioning",
-          "history",
-          "collaboration",
+          "github",
+          "gitlab",
           "lfs"
         ]
       },
@@ -301,8 +301,8 @@
           "ka": "git-lfs დიდი რასტრებისა და GeoPackage-ისთვის და ფაილების დაბლოკვისთვის (რეკომენდებული)."
         },
         {
-          "en": "A git server: GitHub, or Forgejo/Gitea with LFS (a ready setup is in the plugin's repository).",
-          "ka": "git სერვერი: GitHub ან Forgejo/Gitea LFS-ით (მზა კონფიგურაცია დანამატის რეპოშია)."
+          "en": "An account on GitHub, GitLab, Bitbucket or Forgejo/Gitea (or your own Forgejo; a ready setup is in the plugin's repository).",
+          "ka": "ანგარიში GitHub-ზე, GitLab-ზე, Bitbucket-ზე ან Forgejo/Gitea-ზე (ან საკუთარი Forgejo; მზა კონფიგურაცია დანამატის რეპოშია)."
         }
       ]
     },
