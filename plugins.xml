@@ -142,15 +142,15 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
-  <pyqgis_plugin name="GeoGit" version="0.7.3">
+  <pyqgis_plugin name="GeoGit" version="0.7.4">
     <description>Version control for a whole QGIS project folder (git + Git LFS): save versions, publish and get updates, see who changed what, compare vector, raster and project versions on the map, merge GeoPackages feature by feature. Bilingual KA/EN.</description>
     <about>Puts the project folder (project file, vector and raster layers, styles, documents) under git with Git LFS for large geodata and drives it from a QGIS panel: changed files, versions, branches, publish/get updates with GitHub, Forgejo or any git server, and a history graph coloured by author with filters. Double-click a file to compare versions: vector layers show added, modified and deleted features on the map; rasters get a difference layer, outlines of changed areas and a swipe tool; project files list changed layers, styles, layer tree and layouts. Merges combine GeoPackage edits feature by feature and attribute by attribute, with a window for the conflicts that remain. Git LFS file locks show who is editing what. Needs git (and git-lfs for large files and locks). License: GPL-3.0-or-later.</about>
-    <version>0.7.3</version>
+    <version>0.7.4</version>
     <qgis_minimum_version>3.44</qgis_minimum_version>
     <qgis_maximum_version>4.99</qgis_maximum_version>
     <homepage>https://github.com/GIS-GEORGIA/qgis-geogit</homepage>
     <file_name>geogit.zip</file_name>
-    <download_url>https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.3</download_url>
+    <download_url>https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.4</download_url>
     <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
     <email>aigroegsig@gmail.com</email>
     <tracker>https://github.com/GIS-GEORGIA/qgis-geogit/issues</tracker>
