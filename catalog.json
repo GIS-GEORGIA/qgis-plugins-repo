@@ -720,11 +720,11 @@
    "catalog_id": "geogit",
    "name": "GeoGit",
    "name_ka": "GeoGit — პროექტის ვერსიები",
-   "version": "0.7.6",
+   "version": "0.8.0",
    "summary": "Version control for a whole QGIS project folder (git + Git LFS): save versions, publish and get updates, see who changed what, compare vector, raster and project versions on the map, merge GeoPackages feature by feature. Bilingual KA/EN.",
    "description": {
-    "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, publish to and get updates from GitHub or your own server, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
-    "ka": "მთელი QGIS პროექტის საქაღალდის ვერსიონირება (git + Git LFS) პანელიდან: ვერსიის შენახვა, GitHub-ზე ან საკუთარ სერვერზე გამოქვეყნება და მოტანა, ისტორიის ხე ავტორების ფერებით, ვექტორის, რასტრის და პროექტის ცვლილებები რუკაზე, GeoPackage-ის შერწყმა ობიექტების დონეზე, ფაილების დაბლოკვა."
+    "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, create the repository on GitHub, GitLab, Bitbucket or Forgejo and publish to it, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
+    "ka": "მთელი QGIS პროექტის საქაღალდის ვერსიონირება (git + Git LFS) პანელიდან: ვერსიის შენახვა, რეპოს შექმნა GitHub-ზე, GitLab-ზე, Bitbucket-ზე ან Forgejo-ზე და გამოქვეყნება, ისტორიის ხე ავტორების ფერებით, ვექტორის, რასტრის და პროექტის ცვლილებები რუკაზე, GeoPackage-ის შერწყმა ობიექტების დონეზე, ფაილების დაბლოკვა."
    },
    "status": "experimental",
    "featured": true,
@@ -734,8 +734,8 @@
    "tags": [
     "git",
     "versioning",
-    "history",
-    "collaboration",
+    "github",
+    "gitlab",
     "lfs"
    ],
    "author": "GIS GEORGIA | Giorgi Kapanadze",
@@ -748,12 +748,16 @@
    "icon_url": null,
    "vendored": true,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.6",
+    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.8.0",
     "file": "geogit.zip",
-    "sha256": "b8e9967dd42164c32f302dc6a8bccf47d8aff072d74a8a5f01bd362f67d7478f",
-    "size": 71859
+    "sha256": "b086799e477e1bc338793925022c1c6e2e553e669f9f8155a932a0d818cb2ab7",
+    "size": 82304
    },
    "changelog": [
+    {
+     "version": "0.8.0",
+     "text": "Create a repository on GitHub, GitLab (gitlab.com or your own), Bitbucket or Forgejo/Gitea from the panel and publish to it: check the token, choose yourself or an organisation, group or workspace, private by default; the token is kept in the encrypted QGIS authentication database and handed to git through GIT_ASKPASS only while a command runs (never in .git/config or on a command line). Saved accounts are used for publish, get updates, clone, LFS and locks."
+    },
     {
      "version": "0.7.6",
      "text": "git-lfs: offered before the first version and from a bar in the panel; installs after consent (pkexec asks for the password in the system dialog; apt, dnf, pacman, zypper, brew) and switches LFS on for the open repository, or copies the command. Flatpak: after copying the permission command the panel says to restart QGIS, has a Close QGIS button, tells when the command did not take effect and confirms when git is reachable."
@@ -821,8 +825,8 @@
      "ka": "git-lfs დიდი რასტრებისა და GeoPackage-ისთვის და ფაილების დაბლოკვისთვის (რეკომენდებული)."
     },
     {
-     "en": "A git server: GitHub, or Forgejo/Gitea with LFS (a ready setup is in the plugin's repository).",
-     "ka": "git სერვერი: GitHub ან Forgejo/Gitea LFS-ით (მზა კონფიგურაცია დანამატის რეპოშია)."
+     "en": "An account on GitHub, GitLab, Bitbucket or Forgejo/Gitea (or your own Forgejo; a ready setup is in the plugin's repository).",
+     "ka": "ანგარიში GitHub-ზე, GitLab-ზე, Bitbucket-ზე ან Forgejo/Gitea-ზე (ან საკუთარი Forgejo; მზა კონფიგურაცია დანამატის რეპოშია)."
     }
    ],
    "processing": null
