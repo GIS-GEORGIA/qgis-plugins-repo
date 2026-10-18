@@ -720,7 +720,7 @@
    "catalog_id": "geogit",
    "name": "GeoGit",
    "name_ka": "GeoGit — პროექტის ვერსიები",
-   "version": "0.7.4",
+   "version": "0.7.5",
    "summary": "Version control for a whole QGIS project folder (git + Git LFS): save versions, publish and get updates, see who changed what, compare vector, raster and project versions on the map, merge GeoPackages feature by feature. Bilingual KA/EN.",
    "description": {
     "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, publish to and get updates from GitHub or your own server, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
@@ -748,12 +748,16 @@
    "icon_url": null,
    "vendored": true,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.4",
+    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.5",
     "file": "geogit.zip",
-    "sha256": "979c292a5d1f7e64b4931f34d9ac604acdae7d5d40787ccc394ba9ded454f0b8",
-    "size": 67463
+    "sha256": "8d63fdf15b5be4537759e50bb53edc02b3d499f6e1280368c6c8544bb901de41",
+    "size": 67930
    },
    "changelog": [
+    {
+     "version": "0.7.5",
+     "text": "Flatpak QGIS without the git permission: a “Copy the command” button puts the one-time flatpak override command on the clipboard (a Flatpak cannot grant it itself), with clearer steps."
+    },
     {
      "version": "0.7.4",
      "text": "Works in the Flatpak QGIS: git (and git-lfs) are run on the computer through flatpak-spawn; without that permission the panel shows the one command that grants it."
