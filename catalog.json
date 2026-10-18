@@ -720,7 +720,7 @@
    "catalog_id": "geogit",
    "name": "GeoGit",
    "name_ka": "GeoGit — პროექტის ვერსიები",
-   "version": "0.7.3",
+   "version": "0.7.4",
    "summary": "Version control for a whole QGIS project folder (git + Git LFS): save versions, publish and get updates, see who changed what, compare vector, raster and project versions on the map, merge GeoPackages feature by feature. Bilingual KA/EN.",
    "description": {
     "en": "Version control for a whole QGIS project folder (git + Git LFS) from a panel: save versions, publish to and get updates from GitHub or your own server, a history graph coloured by author, vector, raster and project changes on the map, GeoPackages merged feature by feature, file locks.",
@@ -748,12 +748,16 @@
    "icon_url": null,
    "vendored": true,
    "download": {
-    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.3",
+    "url": "https://plugins.qgis.ge/plugins/geogit.zip?v=0.7.4",
     "file": "geogit.zip",
-    "sha256": "6bbc2574717ce6bf90d327079df703d43aee081240d133945fa70d5dca9b18df",
-    "size": 66362
+    "sha256": "979c292a5d1f7e64b4931f34d9ac604acdae7d5d40787ccc394ba9ded454f0b8",
+    "size": 67463
    },
    "changelog": [
+    {
+     "version": "0.7.4",
+     "text": "Works in the Flatpak QGIS: git (and git-lfs) are run on the computer through flatpak-spawn; without that permission the panel shows the one command that grants it."
+    },
     {
      "version": "0.7.3",
      "text": "Field types always use QMetaType (clean under the Qt6 compatibility scan); first release on plugins.qgis.ge."
