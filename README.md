@@ -14,6 +14,7 @@
 |-------------|-------------------|--------------|--------|
 | `DevBridge` | Debug your own PyQGIS plugins live from VS Code / PyCharm: control panel with buttons (EN/KA), one-click plugin preparation, bundled standalone desktop tool | საკუთარი PyQGIS დანამატების ცოცხალი დებაგინგი VS Code-იდან / PyCharm-იდან: მართვის პანელი ღილაკებით (EN/KA), დანამატის მომზადება ერთი დაჭერით, ჩაშენებული დამოუკიდებელი დესკტოპ ხელსაწყო | 🆕 ახალი |
 | `GeoGit` | Version control for a whole QGIS project folder (git + Git LFS): save versions, publish/get updates, history graph by author, vector/raster/project changes on the map, GeoPackage merge feature by feature, file locks | QGIS პროექტის საქაღალდის ვერსიონირება (git + Git LFS): ვერსიის შენახვა, გამოქვეყნება და მოტანა, ისტორიის ხე ავტორებით, ვექტორის/რასტრის/პროექტის ცვლილებები რუკაზე, GeoPackage-ის შერწყმა ობიექტების დონეზე, ფაილების დაბლოკვა | 🆕 ახალი |
+| `File Inspector` | Identifies any file by its contents, not its extension: format, data inside (tables, fields, archive members), hex and strings; GIS formats in detail, wrong-extension warning, add to map; also a standalone app | ნებისმიერი ფაილის ამოცნობა შიგთავსით და არა გაფართოებით: ფორმატი, შიგთავსი (ცხრილები, ველები, არქივის ფაილები), hex და ტექსტი; GIS ფორმატები დეტალურად, არასწორი გაფართოების გაფრთხილება, რუკაზე დამატება; მუშაობს ცალკე პროგრამადაც | 🆕 ახალი |
 | `plugin_downloader` | Downloads every plugin from the official QGIS repository into one folder, with progress and pause/resume | ყველა დანამატის ჩამოწერა ოფიციალური QGIS რეპოზიტორიიდან ერთ საქაღალდეში, პროგრესითა და pause/resume-ით | 🆕 ახალი |
 | `PostGIS Manager` | Spatial-database GIS toolkit: geometry editor, CRS audit, spatial join, data quality, pgRouting wizard, WFS, GPX | PostGIS-ის GIS ხელსაწყოები: გეომეტრიის რედაქტორი, CRS აუდიტი, სივრცული შეერთება, მონაცემთა ხარისხი, pgRouting ოსტატი | 🆕 ახალი |
 | `basemap_loader` | Adds a basemap layer to QGIS | ბაზის რუკის ფენის დამატება QGIS-ში | ✅ სტაბილური |
@@ -74,6 +75,7 @@ the header shows the same thing at a glance.
 | `PostGIS Manager` | QGIS 3.40 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/postgis-manager) |
 | `DevBridge` | QGIS 3.40 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/pyqgis-devbridge) |
 | `GeoGit` | QGIS 3.44 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/qgis-geogit) |
+| `File Inspector` | QGIS 3.44 – 4.99, built in its own [repository](https://github.com/GIS-GEORGIA/file-inspector) |
 
 What makes one build work on both: Qt is imported through `qgis.PyQt` (never `PyQt5`/`PyQt6` directly),
 Qt enums are written in the scoped form (`Qt.AlignmentFlag.AlignLeft`), dialogs use `exec()` rather than
