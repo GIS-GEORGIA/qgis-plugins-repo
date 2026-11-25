@@ -832,6 +832,57 @@
    "processing": null
   },
   {
+   "id": "file_inspector",
+   "catalog_id": "file-inspector",
+   "name": "File Inspector",
+   "name_ka": "ფაილის ამომცნობი",
+   "version": "0.1.0",
+   "summary": "Identify any file by its contents, not its extension: format, what data it holds, and open GIS data on the map. Bilingual KA/EN, light and dark theme.",
+   "description": {
+    "en": "Identify any file by its contents, not its extension: format, what data it holds (tables, fields, archive members, a data preview), hex and readable strings. A closer look at GIS formats (GeoPackage, GeoJSON, KML/KMZ, GPX, shapefile parts, GeoTIFF, CSV with coordinates, photos with GPS), a warning when the extension is wrong or missing, and add to map. Also runs as a standalone app.",
+    "ka": "ნებისმიერი ფაილის ამოცნობა შიგთავსით და არა გაფართოებით: ფორმატი, რა მონაცემებს შეიცავს (ცხრილები, ველები, არქივის ფაილები, მონაცემების გადახედვა), hex და წაკითხვადი ტექსტი. GIS ფორმატები დეტალურად (GeoPackage, GeoJSON, KML/KMZ, GPX, შეიპფაილის ნაწილები, GeoTIFF, CSV კოორდინატებით, ფოტო GPS-ით), გაფრთხილება არასწორ ან უქონელ გაფართოებაზე და რუკაზე დამატება. მუშაობს ცალკე პროგრამადაც."
+   },
+   "status": "experimental",
+   "featured": false,
+   "bilingual": true,
+   "emoji": "🔍",
+   "category": "Plugins",
+   "tags": [
+    "file",
+    "format",
+    "identify",
+    "metadata",
+    "inspect"
+   ],
+   "author": "GIS GEORGIA | Giorgi Kapanadze",
+   "qgis_min": "3.44",
+   "qgis_max": "4.99",
+   "qt6": true,
+   "homepage": "https://github.com/GIS-GEORGIA/file-inspector",
+   "repository": "https://github.com/GIS-GEORGIA/file-inspector",
+   "tracker": "https://github.com/GIS-GEORGIA/file-inspector/issues",
+   "icon_url": null,
+   "vendored": true,
+   "download": {
+    "url": "https://plugins.qgis.ge/plugins/file_inspector.zip?v=0.1.0",
+    "file": "file_inspector.zip",
+    "sha256": "657b3fd9fe48775eff7a2f3cbc942002079f95739f3aea221489d66393c53383",
+    "size": 48951
+   },
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "text": "First version: content-based file identification, GIS format details, contents/hex/strings views, wrong-extension warning and fix, add to map, KA/EN, light/dark/automatic theme, standalone PyQt6 app."
+    }
+   ],
+   "usage": {
+    "en": "Toolbar button and Plugins menu (File Inspector) open the panel; drop a file on it. Right-click a layer → Inspect layer file.",
+    "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“ (ფაილის ამომცნობი) ხსნის პანელს; ჩააგდე მასში ფაილი. ფენაზე მარჯვენა ღილაკი → „ფენის ფაილის შემოწმება“."
+   },
+   "requires": [],
+   "processing": null
+  },
+  {
    "id": "geoeco",
    "catalog_id": "geoeco",
    "name": "GeoEco",

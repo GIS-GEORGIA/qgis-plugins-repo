@@ -307,6 +307,35 @@
       ]
     },
     {
+      "id": "file-inspector",
+      "source": null,
+      "folder": "file_inspector",
+      "zip": "file_inspector.zip",
+      "vendored": true,
+      "upstream": "https://github.com/GIS-GEORGIA/file-inspector",
+      "site": {
+        "emoji": "🔍",
+        "ka_name": "ფაილის ამომცნობი",
+        "status": "experimental",
+        "featured": false,
+        "bilingual": true,
+        "en": "Identify any file by its contents, not its extension: format, what data it holds (tables, fields, archive members, a data preview), hex and readable strings. A closer look at GIS formats (GeoPackage, GeoJSON, KML/KMZ, GPX, shapefile parts, GeoTIFF, CSV with coordinates, photos with GPS), a warning when the extension is wrong or missing, and add to map. Also runs as a standalone app.",
+        "ka": "ნებისმიერი ფაილის ამოცნობა შიგთავსით და არა გაფართოებით: ფორმატი, რა მონაცემებს შეიცავს (ცხრილები, ველები, არქივის ფაილები, მონაცემების გადახედვა), hex და წაკითხვადი ტექსტი. GIS ფორმატები დეტალურად (GeoPackage, GeoJSON, KML/KMZ, GPX, შეიპფაილის ნაწილები, GeoTIFF, CSV კოორდინატებით, ფოტო GPS-ით), გაფრთხილება არასწორ ან უქონელ გაფართოებაზე და რუკაზე დამატება. მუშაობს ცალკე პროგრამადაც.",
+        "tags": [
+          "file",
+          "format",
+          "identify",
+          "metadata",
+          "inspect"
+        ]
+      },
+      "usage": {
+        "en": "Toolbar button and Plugins menu (File Inspector) open the panel; drop a file on it. Right-click a layer → Inspect layer file.",
+        "ka": "ხელსაწყოთა პანელის ღილაკი და მენიუ „დანამატები“ (ფაილის ამომცნობი) ხსნის პანელს; ჩააგდე მასში ფაილი. ფენაზე მარჯვენა ღილაკი → „ფენის ფაილის შემოწმება“."
+      },
+      "requires": []
+    },
+    {
       "id": "geoeco",
       "source": "geoeco",
       "folder": "geoeco",

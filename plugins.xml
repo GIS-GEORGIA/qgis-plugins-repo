@@ -159,6 +159,23 @@
     <experimental>True</experimental>
     <deprecated>False</deprecated>
   </pyqgis_plugin>
+  <pyqgis_plugin name="File Inspector" version="0.1.0">
+    <description>Identify any file by its contents, not its extension: format, what data it holds, and open GIS data on the map. Bilingual KA/EN, light and dark theme.</description>
+    <about>Drop a file (or right-click a layer) to see what it really is: magic-byte signatures, text structure and the contents of ZIP containers are checked. GIS formats get a closer look: GeoJSON, KML/KMZ, GPX, GML, GeoPackage, SpatiaLite, MBTiles, shapefile parts (.shp/.shx/.dbf), GeoTIFF (CRS, pixel size), CSV with coordinate or WKT columns, NMEA logs, CRS WKT (.prj), world files, photos with EXIF GPS. Shows details, contents (tables, fields, archive members, data preview), a hex view and readable strings; warns when the extension is wrong or missing and saves a copy with the right one; adds the data to the map. Files are only read: nothing is run, extracted or changed. Also runs as a standalone PyQt6 application.</about>
+    <version>0.1.0</version>
+    <qgis_minimum_version>3.44</qgis_minimum_version>
+    <qgis_maximum_version>4.99</qgis_maximum_version>
+    <homepage>https://github.com/GIS-GEORGIA/file-inspector</homepage>
+    <file_name>file_inspector.zip</file_name>
+    <download_url>https://plugins.qgis.ge/plugins/file_inspector.zip?v=0.1.0</download_url>
+    <author_name>GIS GEORGIA | Giorgi Kapanadze</author_name>
+    <email>aigroegsig@gmail.com</email>
+    <tracker>https://github.com/GIS-GEORGIA/file-inspector/issues</tracker>
+    <repository>https://github.com/GIS-GEORGIA/file-inspector</repository>
+    <tags>file,format,identify,inspect,metadata,geojson,kml,geopackage,shapefile,geotiff,georgian</tags>
+    <experimental>True</experimental>
+    <deprecated>False</deprecated>
+  </pyqgis_plugin>
   <pyqgis_plugin name="GeoEco" version="0.4.2">
     <description>Bilingual (ka/en) environmental toolkit — the "last mile" on top of SAGA/GRASS: solar PV energy &amp; economics, wind resource &amp; yield.</description>
     <about>GeoEco does NOT reimplement solar/wind physics — it wraps existing open engines (SAGA "Potential Incoming Solar Radiation", GRASS r.sun, WindNinja) and adds the "last mile" they lack: energy (kWh), money (GEL), optimal PV tilt, wind resource &amp; AEP, and bilingual (ka/en) reporting. First module: Energy (solar + wind). GPLv3.</about>
